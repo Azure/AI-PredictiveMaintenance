@@ -1,0 +1,289 @@
+<!DOCUMENT html>
+<title>Server Send Events Demo</title>
+
+<head>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">  
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/css/bootstrap-slider.min.css" rel="stylesheet" type="text/css">
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/main.css') }}">
+</head>
+
+<body class="fixed-nav sticky-footer bg-dark" id="page-top">
+  <!-- Navigation-->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
+    <a class="navbar-brand" href="index.html">Start Bootstrap</a>
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Devices">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#collapseComponents" data-parent="#exampleAccordion">
+            <i class="fa fa-fw fa-wrench"></i>
+            <span class="nav-link-text">Devices</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="collapseComponents">
+            <li>
+              <a href="navbar.html">Navbar</a>
+            </li>
+            <li>
+              <a href="cards.html">Cards</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="#">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">My Dashboard</li>
+      </ol>
+      <!-- Area Chart Example-->
+      <div class="row">
+        <div class="col-lg-3">
+          <!-- Example Bar Chart Card-->
+          <div class="card mb-3">
+            <div class="card-header">
+              <i class="fa fa-bullhorn"></i> Vibration</div>
+              <canvas id="oscilloscope" class="card-body" height="50"></canvas>                
+          </div>
+            <!-- /Card Columns-->
+        </div>    
+        <div class="col-lg-3">
+          <!-- Example Bar Chart Card-->
+          <div class="card mb-3">
+            <div class="card-header">
+              <i class="fa fa-rotate-right"></i> Speed (RPM)</div>
+              <canvas id="speed" class="card-body" height="250"></canvas>
+          </div>
+          <!-- /Card Columns-->
+        </div>
+        <div class="col-lg-6">
+          <!-- Example Pie Chart Card-->
+          <div class="card mb-3">
+            <div class="card-header">
+              <i class="fa fa-sliders"></i> Pie Chart Example</div>
+            <div class="card-body">
+              <input id="ex1" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="20" data-slider-step="1" data-slider-value="14" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /.container-fluid-->
+    <!-- /.content-wrapper-->
+    <footer class="sticky-footer">
+      <div class="container">
+        <div class="text-center">
+          <small>Copyright © Your Website 2018</small>
+        </div>
+      </div>
+    </footer>
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+      <i class="fa fa-angle-up"></i>
+    </a>
+    <!-- Logout Modal-->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+            <a class="btn btn-primary" href="login.html">Logout</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.bundle.min.js"></script>    
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/bootstrap-slider.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js"></script>
+  </div>
+</body>
+</html>
+
+<style>
+  #data {
+    text-align: center;
+  }
+</style>
+
+
+<script>
+  $(document).ready(function() {
+    $('[data-toggle="tooltip"]').tooltip()
+    // With JQuery
+    $('#ex1').slider({
+      tooltip: 'always',
+      formatter: function(value) {
+        return 'Current value: ' + value;
+      }
+    }).change(function(e) {
+      ws.send(e.value.newValue);
+    });
+
+      var audioCtx = new (window.AudioContext || window.webkitAudioContext)();    
+      var sampleRate = 8000;
+      var queue = [];
+       
+      var myArrayBuffer = audioCtx.createBuffer(1, sampleRate, sampleRate); 
+      var baseTime = 0;
+      var t;
+
+      var analyser = audioCtx.createAnalyser();
+
+      var ws = new WebSocket('ws://' + document.domain + ':' + location.port + '/stream');
+      ws.binaryType = "arraybuffer";
+
+      analyser.fftSize = 1024;
+      analyser.smoothingTimeConstant = 0.3;
+
+      var bufferLength = analyser.frequencyBinCount;
+      var dataArray = new Uint8Array(bufferLength);
+      var frequencyArray = new Uint8Array(bufferLength);      
+
+      // Get a canvas defined with ID "oscilloscope"
+      var canvas = document.getElementById("oscilloscope");
+      var canvasCtx = canvas.getContext("2d");            
+
+
+      // draw an oscilloscope of the current audio source
+
+      function draw() {
+
+        drawVisual = requestAnimationFrame(draw);
+
+        analyser.getByteTimeDomainData(dataArray);
+
+        canvasCtx.fillStyle = 'rgb(255, 255, 255)';
+        canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+        canvasCtx.lineWidth = 2;
+        canvasCtx.strokeStyle = 'rgb(200, 200, 200)';
+
+        canvasCtx.beginPath();
+
+        var sliceWidth = canvas.width * 1.0 / bufferLength;
+        var x = 0;
+
+        for (var i = 0; i < bufferLength; i++) {
+
+          var v = dataArray[i] / 128.0;
+          var y = v * canvas.height / 2;
+
+          if (i === 0) {
+            canvasCtx.moveTo(x, y);
+          } else {
+            canvasCtx.lineTo(x, y);
+          }
+
+          x += sliceWidth;
+        }
+
+        canvasCtx.lineTo(canvas.width, canvas.height / 2);
+        canvasCtx.stroke();
+      };
+      
+
+        draw();
+
+
+      ws.onopen = function() {
+        //source.start(audioCtx.currentTime + 3);
+        //ws.send("socket open");
+      };
+      
+      ws.onclose = function(evt) {
+        alert("socket closed");
+      };
+      
+      ws.onmessage = function (evt) {        
+
+        // if (baseTime === undefined) {
+        //   baseTime = audioCtx.currentTime + 1;
+        // }
+
+        var buffer = evt.data;
+        var view   = new Int16Array(buffer);
+        var nowBuffering = myArrayBuffer.getChannelData(0);
+        for (i = 0; i < sampleRate; i++) {
+          nowBuffering[i] = view[i] / 32767.0;
+        }
+        speed = view[sampleRate];
+        //console.log();
+
+        myLineChart.data.datasets[0].data.push(speed);
+        if (myLineChart.data.datasets[0].data.length > 30) {
+          myLineChart.data.datasets[0].data.shift();
+        }
+        myLineChart.update();
+
+        var source = audioCtx.createBufferSource();
+        source.connect(analyser);
+        analyser.connect(audioCtx.destination);
+        source.buffer = myArrayBuffer;
+        baseTime = Math.max(baseTime + 1, audioCtx.currentTime + 1.5);
+        source.start(baseTime);
+      };
+  });
+
+  var ctx = document.getElementById("speed");
+
+var myLineChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: Array.apply(null, Array(30)).map(function (_, i) {return i;}),
+    datasets: [{
+      label: "Sessions",
+      lineTension: 0.3,
+      backgroundColor: "rgba(2,117,216,0.2)",
+      borderColor: "rgba(2,117,216,1)",
+      pointRadius: 0,
+      pointBackgroundColor: "rgba(2,117,216,1)",
+      pointBorderColor: "rgba(255,255,255,0.8)",
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: "rgba(2,117,216,1)",
+      pointHitRadius: 20,
+      pointBorderWidth: 2,
+      data: [],
+    }],
+  },
+  options: {
+    scales: {
+      xAxes: [{
+        display: false
+      }],
+      yAxes: [{
+        ticks: {
+          min: 0,
+          max: 4000,
+          maxTicksLimit: 5
+        },
+        gridLines: {
+          color: "rgba(0, 0, 0, .125)",
+        }
+      }],
+    },
+    legend: {
+      display: false
+    }
+  }
+});
+// -- Bar Chart Example
+
+
+</script>
