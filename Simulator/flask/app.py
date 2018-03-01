@@ -27,6 +27,11 @@ CONTAINER_NAME = "simulation"
 
 table_service = TableService(account_name=ACCOUNT_NAME, account_key=ACCOUNT_KEY)    
 
+
+@app.route('/')
+def home():    
+    return render_template('home.html')
+
 @app.route('/equipment')
 def equipment():
     assets = table_service.query_entities('equipment')
