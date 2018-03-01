@@ -20,7 +20,7 @@ app = Flask(__name__)
 app.debug = True
 sockets = Sockets(app)
 
-ACCOUNT_NAME = "snsr"
+ACCOUNT_NAME = "stgw74e5yvuyvfs2"
 ACCOUNT_KEY = "YU4+T41CmWSRyxuV0v1KMKAGRfaz6PXnbcZK8mjgvV3TKj3jqHvU4T0uvrcQ6YWUuLu84KRCi17vIqlhaq1dRA=="
 CONTAINER_NAME = "simulation"
 
