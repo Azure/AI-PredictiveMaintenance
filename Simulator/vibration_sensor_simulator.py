@@ -37,7 +37,7 @@ class VibrationSensorSimulator:
         rpm = interp1d(x, points, kind='slinear')
 
         f = rpm(ts)
-        #cubic interpolation, if used, is not positive-preserving
+        # cubic interpolation, if used, is not positive-preserving
         f[f < 0] = 0
 
         fi = np.cumsum(f / self.sample_rate) + self.__last_cumsum
