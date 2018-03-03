@@ -1,0 +1,16 @@
+{
+    "bindings": [
+      {
+        "name": "res",
+        "type": "http",
+        "direction": "out"
+      },
+      {
+        "type": "timerTrigger",
+        "name": "myTimer",
+        "schedule": "0 0/15 * * * *",
+        "direction": "in"
+      }
+    ],
+    "disabled": false
+}

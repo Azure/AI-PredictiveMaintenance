@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Template>
+    <Title>Predictive Maintenance</Title>
+    <ImageUrl>{PatternAssetBaseUrl}/image.png</ImageUrl>
+    <Description>Operationalization.</Description>
+    <Summary src="markdown/Summary.md" format="markdown"/>
+    <EstimatedTime>1 Minute</EstimatedTime>
+    <ProvisioningSteps>
+        <Manual title="Configure the predictive model">
+            <Parameters>
+                <Parameter name="storageAccountName" type="string" description="storageAccountName" />
+                <Parameter name="storageAccountKey" type="string" description="storageAccountKey" />
+                <Parameter name="IotHubName" type="string" description="IotHubName"/>
+                <Parameter name="IotHubOwnerKey" type="string" description="IotHubOwnerKey" />
+                <Parameter name="IotHubDeviceKey" type="string" description="IotHubDeviceKey" />
+                <Parameter name="IotDeviceCount" type="string" description="IotDeviceCount" />
+            </Parameters>
+        </Manual>       
+        <ArmDeployment source="arm/dockerAppServce.json" title="Creating Docker containers">
+            <Parameters>
+                <Parameter name="storageAccountConnectionString" defaultValue="DefaultEndpointsProtocol=https;AccountName={Outputs.storageAccountName};AccountKey={Outputs.storageAccountKey}" hidden="true" />
+                <Parameter name="IotHubName" defaultValue="{Outputs.iotHubName}" hidden="true"  />
+                <Parameter name="IotHubOwnerKey" defaultValue="{Outputs.iotHubOwnerKey}" hidden="true" />
+                <Parameter name="IotHubDeviceKey" defaultValue="{Outputs.iotHubDeviceKey}" hidden="true" />
+                <Parameter name="IotDeviceCount" defaultValue="1000" hidden="true" />
+            </Parameters>
+        </ArmDeployment>
+        <Manual title="Done">
+          <Instructions src="markdown/Instructions.md" format="markdown" />
+        </Manual>
+    </ProvisioningSteps>
+</Template>
