@@ -121,6 +121,14 @@
                         {
                             "name": "IotDeviceCount",
                             "value": "[parameters('IotDeviceCount')]"
+                        },
+                        {
+                            "name": "WEBSITES_PORT",
+                            "value": "5000"
+                        },
+                        {
+                            "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+                            "value": "false"
                         }
                     ],
                     "appCommandLine": "",
