@@ -1,7 +1,7 @@
 # Format: FROM    repository[:version]
-FROM       ubuntu:latest
+FROM       python:latest
 COPY . /app
 WORKDIR /app
 RUN pip install -r requirements.txt
 ENTRYPOINT ["python"]
-CMD ["flask/main.py"]
+CMD ["flask/app.py"]

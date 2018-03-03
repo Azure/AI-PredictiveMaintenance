@@ -42,8 +42,8 @@
         "simulatorAppName": "[toLower(concat('simulator-', uniqueString(resourceGroup().id)))]",
         "storageAccountConnectionString": "[parameters('storageAccountConnectionString')]",
         "storageContainerName": "telemetry",
-        "linuxFxVersion": "DOCKER|lakshmananrm18/laks:v1.0.0",
-        "simulatorlinuxFxVersion": "DOCKER|lakshmananrm18/lakssimulator:v1.0.0"
+        "linuxFxVersion": "DOCKER|lakshmananrm18/flaskapp:v2.0.0",
+        "simulatorlinuxFxVersion": "DOCKER|lakshmananrm18/datagenerator:v1.0.0"
     },
     "resources": [
                 {
