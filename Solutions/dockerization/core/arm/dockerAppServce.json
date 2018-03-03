@@ -1,0 +1,183 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageAccountConnectionString": {
+            "type": "string",
+            "metadata": {
+                "description": "storageAccountConnectionString"
+            }
+        },
+                "IotHubName": {
+            "type": "string",
+            "metadata": {
+                "description": "IotHubName"
+            }
+        },
+                "IotHubOwnerKey": {
+            "type": "string",
+            "metadata": {
+                "description": "IotHubOwnerKey"
+            }
+        },
+                "IotHubDeviceKey": {
+            "type": "string",
+            "metadata": {
+                "description": "IotHubDeviceKey"
+            }
+        },
+                "IotDeviceCount": {
+            "type": "string",
+            "metadata": {
+                "description": "IotDeviceCount"
+            }
+        }
+    },
+    "variables": {
+        "iotHubVersion": "2017-07-01",
+        "location": "[resourceGroup().location]",
+        "resourceGroupName": "[resourceGroup().name]",
+        "hostingPlanName": "[toLower(concat('hostingPlan-', uniqueString(resourceGroup().id)))]",
+        "simulatorhostingPlanName": "[toLower(concat('simulatorhostingPlanName-', uniqueString(resourceGroup().id)))]",
+        "flaskAppName": "[toLower(concat('flaskApp-', uniqueString(resourceGroup().id)))]",
+        "simulatorAppName": "[toLower(concat('simulator-', uniqueString(resourceGroup().id)))]",
+        "storageAccountConnectionString": "[parameters('storageAccountConnectionString')]",
+        "storageContainerName": "telemetry",
+        "linuxFxVersion": "DOCKER|lakshmananrm18/flaskapp:v2.0.0",
+        "simulatorlinuxFxVersion": "DOCKER|lakshmananrm18/datagenerator:v1.0.0"
+    },
+    "resources": [
+                {
+            "type": "Microsoft.Web/sites",
+            "name": "[variables('flaskAppName')]",
+            "apiVersion": "2016-03-01",
+            "location": "[variables('location')]",
+            "properties": {
+                "name": "[variables('flaskAppName')]",
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "StorageAccountConnectionString",
+                            "value": "[parameters('StorageAccountConnectionString')]"
+                        },
+                        {
+                            "name": "IotHubName",
+                            "value": "[parameters('IotHubName')]"
+                        },
+                        {
+                            "name": "IotHubOwnerKey",
+                            "value": "[parameters('IotHubOwnerKey')]"
+                        },
+                        {
+                            "name": "IotHubDeviceKey",
+                            "value": "[parameters('IotHubDeviceKey')]"
+                        },
+                        {
+                            "name": "IotDeviceCount",
+                            "value": "[parameters('IotDeviceCount')]"
+                        },
+                        {
+                            "name": "WEBSITES_PORT",
+                            "value": "5000"
+                        },
+                        {
+                            "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+                            "value": "false"
+                        }
+                    ],
+                    "appCommandLine": "",
+                    "linuxFxVersion": "[variables('linuxFxVersion')]"
+                },
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]"
+            ]
+        },
+                       {
+            "type": "Microsoft.Web/sites",
+            "name": "[variables('simulatorAppName')]",
+            "apiVersion": "2016-03-01",
+            "location": "[variables('location')]",
+            "properties": {
+                "name": "[variables('simulatorAppName')]",
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "StorageAccountConnectionString",
+                            "value": "[parameters('StorageAccountConnectionString')]"
+                        },
+                        {
+                            "name": "IotHubName",
+                            "value": "[parameters('IotHubName')]"
+                        },
+                        {
+                            "name": "IotHubOwnerKey",
+                            "value": "[parameters('IotHubOwnerKey')]"
+                        },
+                        {
+                            "name": "IotHubDeviceKey",
+                            "value": "[parameters('IotHubDeviceKey')]"
+                        },
+                        {
+                            "name": "IotDeviceCount",
+                            "value": "[parameters('IotDeviceCount')]"
+                        },
+                        {
+                            "name": "WEBSITES_PORT",
+                            "value": "5000"
+                        },
+                        {
+                            "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+                            "value": "false"
+                        }
+                    ],
+                    "appCommandLine": "",
+                    "linuxFxVersion": "[variables('simulatorlinuxFxVersion')]"
+                },
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('simulatorhostingPlanName'))]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Web/serverfarms/', variables('simulatorhostingPlanName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "sku": {
+                "name": "B3",
+                "tier": "Basic",
+                "size": "B3",
+                "family": "B",
+                "capacity": 1
+            },
+            "kind": "linux",
+            "name": "[variables('hostingPlanName')]",
+            "apiVersion": "2016-09-01",
+            "location": "[variables('location')]",
+            "properties": {
+                "name": "[variables('hostingPlanName')]",
+                "reserved": true,
+                "numberOfWorkers": "1"
+            }
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "sku": {
+                "name": "B3",
+                "tier": "Basic",
+                "size": "B3",
+                "family": "B",
+                "capacity": 1
+            },
+            "kind": "linux",
+            "name": "[variables('simulatorhostingPlanName')]",
+            "apiVersion": "2016-09-01",
+            "location": "[variables('location')]",
+            "properties": {
+                "name": "[variables('simulatorhostingPlanName')]",
+                "reserved": true,
+                "numberOfWorkers": "1"
+            }
+        }
+    ]
+}
