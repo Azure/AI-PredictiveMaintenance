@@ -38,6 +38,7 @@
         "location": "[resourceGroup().location]",
         "resourceGroupName": "[resourceGroup().name]",
         "hostingPlanName": "[toLower(concat('hostingPlan-', uniqueString(resourceGroup().id)))]",
+        "simulatorhostingPlanName": "[toLower(concat('simulatorhostingPlanName-', uniqueString(resourceGroup().id)))]",
         "flaskAppName": "[toLower(concat('flaskApp-', uniqueString(resourceGroup().id)))]",
         "simulatorAppName": "[toLower(concat('simulator-', uniqueString(resourceGroup().id)))]",
         "storageAccountConnectionString": "[parameters('storageAccountConnectionString')]",
@@ -134,19 +135,19 @@
                     "appCommandLine": "",
                     "linuxFxVersion": "[variables('simulatorlinuxFxVersion')]"
                 },
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('simulatorhostingPlanName'))]"
             },
             "dependsOn": [
-                "[concat('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]"
+                "[concat('Microsoft.Web/serverfarms/', variables('simulatorhostingPlanName'))]"
             ]
         },
         {
             "type": "Microsoft.Web/serverfarms",
             "sku": {
-                "name": "S1",
-                "tier": "Standard",
-                "size": "S1",
-                "family": "S",
+                "name": "B3",
+                "tier": "Basic",
+                "size": "B3",
+                "family": "B",
                 "capacity": 1
             },
             "kind": "linux",
@@ -155,6 +156,25 @@
             "location": "[variables('location')]",
             "properties": {
                 "name": "[variables('hostingPlanName')]",
+                "reserved": true,
+                "numberOfWorkers": "1"
+            }
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "sku": {
+                "name": "B3",
+                "tier": "Basic",
+                "size": "B3",
+                "family": "B",
+                "capacity": 1
+            },
+            "kind": "linux",
+            "name": "[variables('simulatorhostingPlanName')]",
+            "apiVersion": "2016-09-01",
+            "location": "[variables('location')]",
+            "properties": {
+                "name": "[variables('simulatorhostingPlanName')]",
                 "reserved": true,
                 "numberOfWorkers": "1"
             }
