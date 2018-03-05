@@ -1,0 +1,1 @@
+[Dashboard](https://{Outputs.siteHostName})

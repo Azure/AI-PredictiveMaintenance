@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Template>
+    <Title>Predictive Maintenance</Title>
+    <ImageUrl>{PatternAssetBaseUrl}/thank_you.jpg</ImageUrl>
+    <Description>Your equipment will thank you.</Description>
+    <EstimatedTime>10 Minutes</EstimatedTime>
+    <ProvisioningSteps>
+        <ArmDeployment source="arm/azureBatch.json" title="Creating Azure Batch account" />
+        <ArmDeployment source="arm/iotHub.json" title="Creating IoT Hub" />
+        <ArmDeployment source="arm/demoDashboard.json" title="Setting up Azure Storage account and Demo Dashboard" autoResolveParameters="true">
+            <LocationProvidedFor>
+                <ResourceType>Microsoft.Resources/deployments</ResourceType>
+            </LocationProvidedFor>
+            <Parameters>
+                <Parameter name="webAppUrl" defaultValue="{PatternAssetBaseUrl}/WebApp.zip" hidden="true" />
+            </Parameters>
+        </ArmDeployment>
+        <ArmDeployment source="arm/iotHubStorageRoute.json" title="Adding Azure Storage endpoint and route to IoT Hub">
+            <Parameters>
+                <Parameter name="storageAccountConnectionString" defaultValue="DefaultEndpointsProtocol=https;AccountName={Outputs.storageAccountName};AccountKey={Outputs.storageAccountKey}" hidden="true" />
+                <Parameter name="storageContainerName" defaultValue="telemetry" hidden="true" />
+            </Parameters>
+        </ArmDeployment>
+        <Manual title="Done">
+          <Instructions src="markdown/Instructions.md" format="markdown" />
+        </Manual>
+    </ProvisioningSteps>
+</Template>

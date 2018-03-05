@@ -1,37 +1,23 @@
-from flask import Flask, render_template, Response, request
 import numpy as np
+import os
+from flask import Flask, render_template, Response, request
 from threading import Thread
 from azure.storage.blob import PageBlobService
 from azure.storage.blob import BlockBlobService
-# from flask_socketio import SocketIO, send, emit
-#from time import sleep
 from datetime import datetime
-from flask_sockets import Sockets
-# https://coderwall.com/p/q2mrbw/gevent-with-debug-support-for-flask
-from werkzeug.serving import run_with_reloader
-from werkzeug.debug import DebuggedApplication
-from gevent import pywsgi, sleep, Timeout
-from geventwebsocket.handler import WebSocketHandler
 from azure.storage.table import TableService, Entity, TablePermissions
-
 from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
-
-# from gevent import monkey
-# monkey.patch_all()
 
 app = Flask(__name__)
 app.debug = True
-# sockets = Sockets(app)
 
 # Initialize Flask-Breadcrumbs
 Breadcrumbs(app=app)
 
-ACCOUNT_NAME = "stgw74e5yvuyvfs2"
-ACCOUNT_KEY = "CKXt/8SpgY6JHfVwBQUkwBCDeBKyJzQV10sgut3L4dS/bjKlSxQsPedHkrI7td8I0NBWJoQOSkcChGo1MIf9Cw=="
-CONTAINER_NAME = "simulation"
+STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
+STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 
-table_service = TableService(account_name=ACCOUNT_NAME, account_key=ACCOUNT_KEY)
-
+table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
 @app.route('/')
 @register_breadcrumb(app, '.', 'Home')

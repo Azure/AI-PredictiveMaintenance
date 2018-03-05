@@ -1,22 +1,19 @@
-from iot_hub import DeviceManager, D2CMessageSender
-from device import Device
-from azure.storage.table import TableService, Entity, TablePermissions
+import os
 import numpy as np
 import pickle
 import random
+from iot_hub import DeviceManager, D2CMessageSender
+from device import Device
+from azure.storage.table import TableService, Entity, TablePermissions
 
-# IOT_HUB_NAME = os.environ['IotHubName']
-# IOT_HUB_OWNER_KEY = os.environ['IotHubOwnerKey']
-# DEVICE_COUNT = int(os.environ['IotDeviceCount'])
+STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
+STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 
-IOT_HUB_NAME = 'iothub-w74e5yvuyvfs2'
-IOT_HUB_OWNER_KEY = 'Pl839QpYfaiBMbbOt8RxbrLk2RvOpuy+z+aSsecr+28='
-IOT_HUB_DEVICE_KEY = '1n7jyr+tccLWN1FYgOBh9PAhEiZ0RDg1EGmpxo50o4w='
+IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
+IOT_HUB_OWNER_KEY = os.environ['IOT_HUB_OWNER_KEY']
+IOT_HUB_DEVICE_KEY = os.environ['IOT_HUB_DEVICE_KEY']
 
-ACCOUNT_NAME = "stgw74e5yvuyvfs2"
-ACCOUNT_KEY = "CKXt/8SpgY6JHfVwBQUkwBCDeBKyJzQV10sgut3L4dS/bjKlSxQsPedHkrI7td8I0NBWJoQOSkcChGo1MIf9Cw=="
-
-table_service = TableService(account_name=ACCOUNT_NAME, account_key=ACCOUNT_KEY)
+table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
 connectionString ='HostName=%s.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=%s' % (IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
 

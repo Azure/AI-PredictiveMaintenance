@@ -1,0 +1,70 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageContainerName": {
+            "type": "string",
+            "metadata": {
+                "description": "Storage container name."
+            }
+        },
+        "storageAccountConnectionString": {
+            "type": "string",
+            "metadata": {
+                "description": "Storage account name."
+            }
+        }
+    },
+    "variables": {
+        "iotHubVersion": "2017-07-01",
+        "location": "[resourceGroup().location]",
+        "resourceGroupName": "[resourceGroup().name]",
+        "subscriptionId": "[subscription().subscriptionId]",
+        "iotHubName": "[toLower(concat('iothub-', uniqueString(resourceGroup().id)))]",
+        "storageAccountConnectionString": "[parameters('storageAccountConnectionString')]",
+        "storageContainerName": "[parameters('storageContainerName')]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Devices/IotHubs",
+            "sku": {
+                "name": "S1",
+                "tier": "Standard",
+                "capacity": 1
+            },
+            "name": "[variables('iotHubName')]",
+            "apiVersion": "[variables('iotHubVersion')]",
+            "location": "[variables('location')]",
+            "properties": {
+                "routing": {
+                    "endpoints": {
+                        "storageContainers": [
+                            {
+                                "connectionString": "[variables('storageAccountConnectionString')]",
+                                "name": "AzureStorage",
+                                "subscriptionId": "[variables('subscriptionId')]",
+                                "resourceGroup": "[variables('resourceGroupName')]",
+                                "containerName": "[variables('storageContainerName')]",
+                                "fileNameFormat": "{iothub}/{partition}/{YYYY}/{MM}/{DD}/{HH}/{mm}",
+                                "batchFrequencyInSeconds": "300",
+                                "maxChunkSizeInBytes": "10485760",
+                                "encoding": "avro"
+                            }
+                        ]
+                    },
+                    "routes": [
+                        {
+                            "name": "AzureStorageRoute",
+                            "source": "DeviceMessages",
+                            "condition": "true",
+                            "endpointNames": [
+                              "AzureStorage"
+                            ],
+                            "isEnabled": true
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
