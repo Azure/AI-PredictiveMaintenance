@@ -20,7 +20,6 @@ class Device:
 
         self.manufacturing_date = manufacturing_date
         self.make = make
-        self.state = None
         
         self.__vibration_sensor = VibrationSensorSimulator(W = self.W, A = self.A)
         self.__vibration_sensor.add_noise = True
@@ -48,7 +47,6 @@ class Device:
             'pressure': self.pressure,
             'vibration': self.__vibration_sensor.next_sample(self.speed / 60)
         }
-        self.state = state
         return state
     
 

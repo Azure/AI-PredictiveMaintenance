@@ -32,11 +32,10 @@ def get_target_speed(device):
     asset = table_service.get_entity('equipment', device.make, device.device_id)        
     return asset['Speed']
 
-def process(device):
+def process(device, state):
     # sending iothub message
-    pl = pickle.dumps(device.state)
+    pl = pickle.dumps(state)
     return sender.sendD2CMsg(device.device_id, pl)
-    #print(state)
 
 
 if __name__ == '__main__':
@@ -89,10 +88,9 @@ if __name__ == '__main__':
         print(end - start)
 
         start = time.time()
-        dummyPool.map(process, devices)
+        dummyPool.starmap(process, zip(devices, states))
         end = time.time()
         print(end - start)
-
 
         time_elapsed = time.time() - interval_start
         print('Cadence: {0}'.format(time_elapsed))
