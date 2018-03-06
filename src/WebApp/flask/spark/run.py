@@ -62,9 +62,6 @@ cluster_config = aztk.spark.models.ClusterConfiguration(
 cluster = client.create_cluster(cluster_config)
 cluster = client.wait_until_cluster_is_ready(cluster.id)
 
-app_logs = client.get_application_log(cluster_id=cluster.id, application_name=app.name)
-print(app_logs.log)
-
 cluster_info.create_user(cluster_id = cluster.id, username = 'admin', password = 'admin')
 
 cluster_info = client.get_cluster(cluster_id=cluster.id)
