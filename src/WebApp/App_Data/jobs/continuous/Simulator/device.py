@@ -20,6 +20,7 @@ class Device:
 
         self.manufacturing_date = manufacturing_date
         self.make = make
+        self.state = None
         
         self.__vibration_sensor = VibrationSensorSimulator(W = self.W, A = self.A)
         self.__vibration_sensor.add_noise = True
@@ -35,7 +36,7 @@ class Device:
         delta = (limit - v) * np.sqrt(limit - v) * (decrement ** 2)
         return min(max_v, limit, v + delta)
 
-    def get_state(self):
+    def next_state(self):
         self.temperature = self.__g(self.temperature, self.ambient_temperature, self.max_temperature, self.speed / 10, 0.01)
         self.pressure = self.__g(self.pressure, self.ambient_pressure, np.inf, self.speed * self.pressure_factor, 100 / self.speed)
 
@@ -47,17 +48,9 @@ class Device:
             'pressure': self.pressure,
             'vibration': self.__vibration_sensor.next_sample(self.speed / 60)
         }
-
+        self.state = state
         return state
-
-    def simulate_schedule(self, schedule, process = None):
-        for x in schedule:
-            target_speed = x[1]
-            for _ in range(x[0]):
-                self.set_speed((target_speed + self.get_speed()) / 2)
-                state = self.get_state()
-                if process is not None:
-                    process(self.device_id, state)
+    
 
 if __name__ == '__main__':
     pass
