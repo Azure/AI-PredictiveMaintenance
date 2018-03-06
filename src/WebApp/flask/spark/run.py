@@ -62,9 +62,35 @@ cluster_config = aztk.spark.models.ClusterConfiguration(
 cluster = client.create_cluster(cluster_config)
 cluster = client.wait_until_cluster_is_ready(cluster.id)
 
-cluster_info.create_user(cluster_id = cluster.id, username = 'admin', password = 'admin')
+client.create_user(cluster_id = cluster.id, username = 'admin', password = 'admin')
 
-cluster_info = client.get_cluster(cluster_id=cluster.id)
-print(cluster_info)
+cluster = client.get_cluster(cluster_id=cluster.id)
+node_count = '{}'.format(cluster.total_current_nodes)
 
+print("")
+print("Cluster         %s", cluster.id)
+print("------------------------------------------")
+print("State:          %s", cluster.visible_state)
+print("Node Size:      %s", cluster.vm_size)
+print("Nodes:          %s", node_count)
+print("| Dedicated:    %s", '{}'.format(cluster.current_dedicated_nodes))
+print("| Low priority: %s", '{}'.format(cluster.current_low_pri_nodes))
+print("")
+
+print_format = '|{:^36}| {:^19} | {:^21}| {:^10} | {:^8} |'
+print_format_underline = '|{:-^36}|{:-^21}|{:-^22}|{:-^12}|{:-^10}|'
+print(print_format.format("Nodes", "State", "IP:Port", "Dedicated", "Master"))
+print(print_format_underline.format('', '', '', '', ''))
+    
+for node in cluster.nodes:
+    remote_login_settings = client.get_remote_login_settings(cluster.id, node.id)
+    print(
+        print_format.format(
+            node.id,
+            node.state.value,
+            '{}:{}'.format(remote_login_settings.ip_address, remote_login_settings.port),
+            "*" if node.is_dedicated else '',
+            '*' if node.id == cluster.master_node_id else '')
+    )
+print('')
 
