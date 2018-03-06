@@ -21,6 +21,12 @@ table_service.insert_or_merge_entity('equipment', asset)
 asset = {'PartitionKey': 'pm1', 'RowKey': 'pm1-354', 'Installed': datetime(2001, 1, 13), 'Model': 'M009', 'Speed': 1220}
 table_service.insert_or_merge_entity('equipment', asset)
 
+asset = {'PartitionKey': 'pm1', 'RowKey': 'pm1-355', 'Installed': datetime(2003, 3, 23), 'Model': 'M009', 'Speed': 1330}
+table_service.insert_or_merge_entity('equipment', asset)
+
+asset = {'PartitionKey': 'pm1', 'RowKey': 'pm1-356', 'Installed': datetime(2005, 3, 1), 'Model': 'M009', 'Speed': 800}
+table_service.insert_or_merge_entity('equipment', asset)
+
 file_service = FileService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 file_service.create_share(share_name='notebooks', quota=1)
 

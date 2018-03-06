@@ -29,7 +29,7 @@ dm = DeviceManager(ownerConnectionString)
 sender = D2CMessageSender(deviceConnectionString)
 
 def get_target_speed(device):
-    asset = table_service.get_entity('equipment', device.make, device.device_id)        
+    asset = table_service.get_entity('equipment', device.make, device.device_id)
     return asset['Speed']
 
 def process(device, state):
@@ -55,7 +55,7 @@ if __name__ == '__main__':
             Device(asset.RowKey, make=asset.PartitionKey, W = (1, 2, 3, 4, 5, 12, 15), A = (5, 8, 2/3, 9, 8, 13, 5))
         )
 
-    #devices[3].pressure_factor = 1.5
+    devices[3].pressure_factor = 1.5
     print('CPU count: {0}'.format(cpu_count()))
     pool = Pool(processes=cpu_count())
     dummyPool = DummyPool(100)
