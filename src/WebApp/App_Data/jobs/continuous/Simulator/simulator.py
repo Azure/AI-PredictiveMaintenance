@@ -5,6 +5,7 @@ import random
 from iot_hub import DeviceManager, D2CMessageSender
 from device import Device
 from azure.storage.table import TableService, Entity, TablePermissions
+import datetime
 
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
@@ -13,7 +14,13 @@ IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 IOT_HUB_OWNER_KEY = os.environ['IOT_HUB_OWNER_KEY']
 IOT_HUB_DEVICE_KEY = os.environ['IOT_HUB_DEVICE_KEY']
 
+WEBSITE_INSTANCE_ID = os.environ['WEBSITE_INSTANCE_ID']
+
+
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
+
+asset = {'PartitionKey': WEBSITE_INSTANCE_ID, 'RowKey': datetime.datetime.now().timestamp()}
+table_service.insert_or_merge_entity('equipment', asset)
 
 connectionString ='HostName=%s.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=%s' % (IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
 
