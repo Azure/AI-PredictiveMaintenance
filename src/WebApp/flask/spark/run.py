@@ -1,6 +1,8 @@
 import sys, os, time, glob
 import aztk.models
 import aztk.spark
+import json
+from pprint import pprint
 from aztk.error import AztkError
 
 if "IOT_HUB_NAME" not in os.environ:
@@ -47,24 +49,31 @@ spark_conf = aztk.spark.models.SparkConfiguration(
     jars=jars
 )
 
-
+modelCustomScript = aztk.models.CustomScript("jupyter", "./customScripts/jupyter.sh","all-nodes")
+modelFileShare = aztk.models.FileShare(STORAGE_ACCOUNT_NAME, STORAGE_ACCOUNT_KEY, 'notebooks', '/mnt/notebooks')
 # configure my cluster
 cluster_config = aztk.spark.models.ClusterConfiguration(
     docker_repo='aztk/python:spark2.2.0-python3.6.2-base',
-    cluster_id="predictive-maintenance", # Warning: this name must be a valid Azure Blob Storage container name
+    cluster_id="predictive-maintenance2", # Warning: this name must be a valid Azure Blob Storage container name
     vm_count=2,
     # vm_low_pri_count=2, #this and vm_count are mutually exclusive
     vm_size="standard_d2_v2",
-    custom_scripts=[],
-    spark_configuration=spark_conf
+    custom_scripts=[modelCustomScript],
+    spark_configuration=spark_conf,
+    file_shares=[modelFileShare]
 )
 
 cluster = client.create_cluster(cluster_config)
 cluster = client.wait_until_cluster_is_ready(cluster.id)
 
-client.create_user(cluster_id = cluster.id, username = 'admin', password = 'admin')
 
-cluster = client.get_cluster(cluster_id=cluster.id)
+client.create_user(cluster_id = "predictive-maintenance2", username = 'admin', password = 'admin')
+
+cluster = client.get_cluster(cluster_id="predictive-maintenance2")
+
+
+
+
 node_count = '{}'.format(cluster.total_current_nodes)
 
 print("")
@@ -93,4 +102,5 @@ for node in cluster.nodes:
             '*' if node.id == cluster.master_node_id else '')
     )
 print('')
+
 
