@@ -13,6 +13,7 @@
             </LocationProvidedFor>
             <Parameters>
                 <Parameter name="webAppUrl" defaultValue="{PatternAssetBaseUrl}/WebApp.zip" hidden="true" />
+                <Parameter name="notebooksUrl" defaultValue="{PatternAssetBaseUrl}/Notebooks.zip" hidden="true" />
             </Parameters>
         </ArmDeployment>
         <ArmDeployment source="arm/iotHubStorageRoute.json" title="Adding Azure Storage endpoint and route to IoT Hub">

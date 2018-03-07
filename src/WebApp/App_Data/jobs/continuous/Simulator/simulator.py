@@ -2,9 +2,15 @@ import os
 import numpy as np
 import pickle
 import random
+#import concurrent.futures
+from multiprocessing import Pool, TimeoutError, cpu_count
+from multiprocessing.dummy import Pool as DummyPool
+
 from iot_hub import DeviceManager, D2CMessageSender
 from device import Device
 from azure.storage.table import TableService, Entity, TablePermissions
+import datetime
+import time
 
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
@@ -15,48 +21,82 @@ IOT_HUB_DEVICE_KEY = os.environ['IOT_HUB_DEVICE_KEY']
 
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
-connectionString ='HostName=%s.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=%s' % (IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
+ownerConnectionString ='HostName=%s.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=%s' % (IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
+deviceConnectionString = 'HostName=%s.azure-devices.net;SharedAccessKeyName=device;SharedAccessKey=%s' % (IOT_HUB_NAME, IOT_HUB_DEVICE_KEY)
 
-assets = table_service.query_entities('equipment')
+dm = DeviceManager(ownerConnectionString)
 
-dm = DeviceManager(connectionString)
+sender = D2CMessageSender(deviceConnectionString)
 
-for asset in assets:
-    deviceId = asset.RowKey
-    dm.createDeviceId(deviceId)
-    print(dm.retrieveDeviceId(deviceId))
+def get_target_speed(device):
+    asset = table_service.get_entity('equipment', device.make, device.device_id)
+    return asset['Speed']
 
-print(dm.listDeviceIds())
-
-connectionString = 'HostName=%s.azure-devices.net;SharedAccessKeyName=device;SharedAccessKey=%s' % (IOT_HUB_NAME, IOT_HUB_DEVICE_KEY)
-
-sender = D2CMessageSender(connectionString)
-
-def process(device_id, state):
-    samples.append(state['vibration'])
-    # sending iothub message    
+def process(device, state):
+    # sending iothub message
     pl = pickle.dumps(state)
-    print('%s - %s' % (device_id, sender.sendD2CMsg(device_id, pl)))
-    #print(state)
-
-devices = []
-for asset in assets:
-    devices.append(
-        Device(asset.RowKey, W = (1, 2, 3, 4, 5, 12, 15), A = (5, 8, 2/3, 9, 8, 13, 5))
-    )
+    return sender.sendD2CMsg(device.device_id, pl)
 
 
-#devices[3].pressure_factor = 1.5
+if __name__ == '__main__':
 
-for _ in range(1):
-    for device in devices:
-        schedule = (
-            (random.randint(20, 40), random.randint(999, 1100)),
-            (random.randint(20, 40), random.randint(1400, 1600)),
-            (random.randint(3, 10), random.randint(400, 600)),
-            (random.randint(3, 5), 0))
-        samples = []
-        device.simulate_schedule(schedule, process)
-        wave_data = np.concatenate(np.array(samples, dtype=np.int16))
-        from scipy.io.wavfile import write
-        write('test-{0}.wav'.format(device.device_id), 8000, wave_data)
+    assets = table_service.query_entities('equipment')
+    
+    for asset in assets:
+        deviceId = asset.RowKey
+        dm.createDeviceId(deviceId)
+        print(dm.retrieveDeviceId(deviceId))
+
+    print(dm.listDeviceIds())
+
+    devices = []
+    for asset in assets:
+        devices.append(
+            Device(asset.RowKey, make=asset.PartitionKey, W = (1, 2, 3, 4, 5, 12, 15), A = (5, 8, 2/3, 9, 8, 13, 5))
+        )
+
+    devices[3].pressure_factor = 1.5
+    print('CPU count: {0}'.format(cpu_count()))
+    pool = Pool(processes=cpu_count())
+    dummyPool = DummyPool(100)
+
+    async_result = None
+    target_speeds = None
+
+    #for _ in range(19):
+    while True:
+        interval_start = time.time()
+
+        states = None
+
+        if async_result is None:
+            #start = time.time()
+            async_result = dummyPool.map_async(get_target_speed, devices)
+        
+        if target_speeds is None or async_result.ready():
+            target_speeds = async_result.get()
+            async_result = None
+
+        print(target_speeds)
+
+        for device, target_speed in zip(devices, target_speeds):
+            device.set_speed((target_speed + device.get_speed()) / 2)
+
+        start = time.time()
+        states = pool.map(Device.next_state, devices)
+        end = time.time()
+        print(end - start)
+
+        start = time.time()
+        dummyPool.starmap(process, zip(devices, states))
+        end = time.time()
+        print(end - start)
+
+        time_elapsed = time.time() - interval_start
+        print('Cadence: {0}'.format(time_elapsed))
+        time.sleep(max(1 - time_elapsed, 0))
+
+        # for device, state in zip(devices, states):
+        #     process(device.device_id, state)
+            # from scipy.io.wavfile import write
+            # write('test-{0}.wav'.format(device.device_id), 8000, wave_data)

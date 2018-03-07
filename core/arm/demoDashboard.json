@@ -8,6 +8,12 @@
             "description": "Web App URL"
         }
     },
+    "notebooksUrl": {
+      "type": "string",
+      "metadata": {
+          "description": "Notebooks URL"
+      }
+    },
     "iotHubName": {
       "type": "string",
       "metadata": {
@@ -164,7 +170,8 @@
             "IOT_HUB_DEVICE_KEY": "[parameters('iotHubDeviceKey')]",
             "BATCH_ACCOUNT_NAME": "[parameters('batchAccountName')]",
             "BATCH_ACCOUNT_KEY": "[parameters('batchAccountKey')]",
-            "BATCH_ACCOUNT_URL": "[parameters('batchAccountUrl')]"
+            "BATCH_ACCOUNT_URL": "[parameters('batchAccountUrl')]",
+            "NOTEBOOKS_URL": "[parameters('notebooksUrl')]"
           }
         },
         {

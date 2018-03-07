@@ -3,6 +3,8 @@
     <Target Name="CopyAssets">
         <Delete Files="..\assets\WebApp.zip" />
         <ZipDir ZipFileName="..\assets\WebApp.zip" DirectoryName="WebApp" />
+        <Delete Files="..\assets\Notebooks.zip" />
+        <ZipDir ZipFileName="..\assets\Notebooks.zip" DirectoryName="Notebooks" />
     </Target>
   <UsingTask TaskName="ZipDir" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
     <ParameterGroup>
