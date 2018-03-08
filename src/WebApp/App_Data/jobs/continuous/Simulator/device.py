@@ -47,7 +47,9 @@ class Device:
             'pressure': self.pressure,
             'vibration': self.__vibration_sensor.next_sample(self.speed / 60)
         }
-        return state
+        device = self
+        return device
+        
     
 
 if __name__ == '__main__':
