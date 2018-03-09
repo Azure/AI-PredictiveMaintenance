@@ -83,7 +83,7 @@ if __name__ == '__main__':
             device.set_speed((target_speed + device.get_speed()) / 2)
 
         start = time.time()
-        devices = pool.map(Device.next_state, devices)
+        devices = pool.map(Device.next_state_device, devices)
         end = time.time()
         print(end - start)
 

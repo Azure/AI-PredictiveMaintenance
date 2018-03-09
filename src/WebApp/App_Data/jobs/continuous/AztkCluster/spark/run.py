@@ -40,12 +40,26 @@ SPARK_CONFIG_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), 'sp
 SPARK_JARS_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), 'spark', 'jars'))
 SPARK_APPLICATION_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), 'spark', 'application'))
 
+SPARK_CORE_SITE = os.path.join(SPARK_CONFIG_PATH, 'core-site.xml')
+
+f = open(SPARK_CORE_SITE,'r')
+message = f.read()
+message = message.replace('STORAGE_ACCOUNT_NAME', STORAGE_ACCOUNT_NAME)
+message = message.replace('STORAGE_ACCOUNT_KEY', STORAGE_ACCOUNT_KEY)
+print(message)
+f.close()
+
+f = open(SPARK_CORE_SITE,'w')
+f.write(message)
+f.close()
+
 jars = glob.glob(os.path.join(SPARK_JARS_PATH, '*.jar'))
 
 # define spark configuration
 spark_conf = aztk.spark.models.SparkConfiguration(
     spark_defaults_conf=os.path.join(SPARK_CONFIG_PATH, 'spark-defaults.conf'),
     spark_env_sh=os.path.join(SPARK_CONFIG_PATH, 'spark-env.sh'),
+    core_site_xml=SPARK_CORE_SITE,
     jars=jars
 )
 

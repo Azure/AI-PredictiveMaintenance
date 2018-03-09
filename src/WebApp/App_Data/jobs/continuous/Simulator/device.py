@@ -35,7 +35,7 @@ class Device:
         delta = (limit - v) * np.sqrt(limit - v) * (decrement ** 2)
         return min(max_v, limit, v + delta)
 
-    def next_state(self):
+    def next_state_device(self):
         self.temperature = self.__g(self.temperature, self.ambient_temperature, self.max_temperature, self.speed / 10, 0.01)
         self.pressure = self.__g(self.pressure, self.ambient_pressure, np.inf, self.speed * self.pressure_factor, 100 / self.speed)
 
@@ -49,6 +49,20 @@ class Device:
         }
         device = self
         return device
+    
+    def next_state(self):
+        self.temperature = self.__g(self.temperature, self.ambient_temperature, self.max_temperature, self.speed / 10, 0.01)
+        self.pressure = self.__g(self.pressure, self.ambient_pressure, np.inf, self.speed * self.pressure_factor, 100 / self.speed)
+
+        state = {        
+            'ambient_temperature': self.ambient_temperature,
+            'ambient_pressure': self.ambient_pressure,
+            'speed': self.speed,
+            'temperature': self.temperature,
+            'pressure': self.pressure,
+            'vibration': self.__vibration_sensor.next_sample(self.speed / 60)
+        }
+        return state
         
     
 
