@@ -18,12 +18,14 @@
 2.	**Using Putty**
 
     Step 1:
+        
         ![Putty](https://github.com/Azure/AI-PredictiveMaintenance/tree/users/laramume/AztkCluster/docs/img/Putty_1.png)
 
         Host Name: Spark Cluster IP created through AZTK
         Port: Master Port Number
 
     Step 2:
+        
         ![Putty](https://github.com/Azure/AI-PredictiveMaintenance/tree/users/laramume/AztkCluster/docs/img/Putty_2.png)
         
         Source port: Port you want the notebooks to be forwarded to in your local machine
@@ -31,6 +33,7 @@
         Then click on Add and open the SSH connection 
 
     Step 3: Open localhost:8888 in your local machine
+        
         ![Putty](https://github.com/Azure/AI-PredictiveMaintenance/tree/users/laramume/AztkCluster/docs/img/Putty_3.png)
 
 3.	**Using AZTK**
