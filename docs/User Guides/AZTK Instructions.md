@@ -34,7 +34,7 @@
 
 3.	**Using AZTK**
 
-        **Install Aztk in your local machine**
+        ### Install Aztk in your local machine
 
             1.	Clone the repo
  		    git clone -b stable https://www.github.com/azure/aztk
@@ -50,7 +50,7 @@
         4.	Initialize the project in a directory [This will automatically create a .aztk folder with config files in your working directory]:
             aztk spark init
                                       
-        **Fill in the following fields in your .aztk/secrets.yaml file**
+        ### Fill in the following fields in your .aztk/secrets.yaml file
 
             shared_key:
     	        batch_account_name:
