@@ -6,36 +6,36 @@
 
 ## Access Jupyter Notebooks available in the cluster 
 
-1.	**Using SSH Client
+1.	**Using SSH Client**
 
         o	Run the below command
 
             ssh username@cluster-IpAddress -p MasterNodePortNumber -L 8888:127.0.0.1:8888
             Example : ssh admin@52.178.100.71 -p 50000 -L 8888:127.0.0.1:8888
 
-2.	**Using Putty
+2.	**Using Putty**
 
     Step 1:
-        ![](./img/Putty_1.png)
+        ![Putty](./img/Putty_1.png)
 
         Host Name: Spark Cluster IP created through AZTK
         Port: Master Port Number
 
     Step 2:
-        ![](./img/Putty_2.png)
+        ![Putty](./img/Putty_2.png)
         
         Source port: Port you want the notebooks to be forwarded to in your local machine
         Destination: localhost:8888 (always)
         Then click on Add and open the SSH connection 
 
     Step 3: Open localhost:8888 in your local machine
+        ![Putty](./img/Putty_3.png)
 
-        ![](./img/Putty_3.png)
+3.	**Using AZTK**
 
-3.	**Using AZTK
+    **Prerequisite**:
+        o	**Install Aztk in your local machine**
 
-    **Prerequisite:
-        o	**Install Aztk in your local machine
             1.	Clone the repo
  		        git clone -b stable https://www.github.com/azure/aztk
                 # You can also clone directly from master to get the latest bits
