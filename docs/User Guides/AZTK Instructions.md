@@ -34,30 +34,30 @@
 
 3.	**Using AZTK**
 
-**Install Aztk in your local machine**
+        **Install Aztk in your local machine**
 
-    1.	Clone the repo
- 		git clone -b stable https://www.github.com/azure/aztk
-        You can also clone directly from master to get the latest bits
-        git clone https://www.github.com/azure/aztk
+            1.	Clone the repo
+ 		    git clone -b stable https://www.github.com/azure/aztk
+            You can also clone directly from master to get the latest bits
+            git clone https://www.github.com/azure/aztk
 
-    2.	Use pip to install required packages (requires python 3.5+ and pip 9.0.1+)
-        pip install -r requirements.txt
+        2.	Use pip to install required packages (requires python 3.5+ and pip 9.0.1+)
+                pip install -r requirements.txt
 
-    3.	Use setup tools:
-        pip install -e .
+        3.	Use setup tools:
+            pip install -e .
 
-    4.	Initialize the project in a directory [This will automatically create a .aztk folder with config files in your working directory]:
-        aztk spark init
+        4.	Initialize the project in a directory [This will automatically create a .aztk folder with config files in your working directory]:
+            aztk spark init
                                       
-**Fill in the following fields in your .aztk/secrets.yaml file**
+        **Fill in the following fields in your .aztk/secrets.yaml file**
 
-    shared_key:
-    	batch_account_name:
-        batch_account_key: 
-        batch_service_url: 
-     	storage_account_name: 
-        storage_account_key: 
-        storage_account_suffix: 
+            shared_key:
+    	        batch_account_name:
+                batch_account_key: 
+                batch_service_url: 
+     	        storage_account_name: 
+                storage_account_key: 
+                storage_account_suffix: 
 
-    All the above field values are available as environment variables in the function app service which can be accessed at the function App Console
+        All the above field values are available as environment variables in the function app service which can be accessed at the function App Console
