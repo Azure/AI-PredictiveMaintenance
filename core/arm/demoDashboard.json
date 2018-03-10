@@ -171,7 +171,8 @@
             "BATCH_ACCOUNT_NAME": "[parameters('batchAccountName')]",
             "BATCH_ACCOUNT_KEY": "[parameters('batchAccountKey')]",
             "BATCH_ACCOUNT_URL": "[parameters('batchAccountUrl')]",
-            "NOTEBOOKS_URL": "[parameters('notebooksUrl')]"
+            "NOTEBOOKS_URL": "[parameters('notebooksUrl')]",
+            "Aztk_Spark_Path" : "D:/home/site/wwwroot/flask/spark/run.py"
           }
         },
         {

@@ -30,6 +30,11 @@ def equipment():
     assets = table_service.query_entities('equipment')
     return render_template('equipment.html', assets = assets)
 
+@app.route('/aztkIns')
+@register_breadcrumb(app, '.aztkIns', 'AZTK Instructions')
+def aztkIns():
+    assets = os.environ['WEBSITE_SITE_NAME']
+    return render_template('equipment.html', assets = assets)
 
 def view_asset_dlc(*args, **kwargs):
     kind = request.view_args['kind']

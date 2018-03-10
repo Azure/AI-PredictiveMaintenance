@@ -16,6 +16,8 @@ STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 TELEMETRY_CONTAINER_NAME = 'telemetry'
 IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
+USER_NAME = sys.argv[1]
+PASSWORD = sys.argv[2]
 
 secrets_confg = aztk.spark.models.SecretsConfiguration(
     shared_key=aztk.models.SharedKeyConfiguration(
@@ -40,21 +42,35 @@ SPARK_CONFIG_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), 'sp
 SPARK_JARS_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), 'spark', 'jars'))
 SPARK_APPLICATION_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), 'spark', 'application'))
 
+SPARK_CORE_SITE = os.path.join(SPARK_CONFIG_PATH, 'core-site.xml')
+
+f = open(SPARK_CORE_SITE,'r')
+message = f.read()
+message = message.replace('STORAGE_ACCOUNT_NAME', STORAGE_ACCOUNT_NAME)
+message = message.replace('STORAGE_ACCOUNT_KEY', STORAGE_ACCOUNT_KEY)
+print(message)
+f.close()
+
+f = open(SPARK_CORE_SITE,'w')
+f.write(message)
+f.close()
+
 jars = glob.glob(os.path.join(SPARK_JARS_PATH, '*.jar'))
 
 # define spark configuration
 spark_conf = aztk.spark.models.SparkConfiguration(
     spark_defaults_conf=os.path.join(SPARK_CONFIG_PATH, 'spark-defaults.conf'),
     spark_env_sh=os.path.join(SPARK_CONFIG_PATH, 'spark-env.sh'),
+    core_site_xml=SPARK_CORE_SITE,
     jars=jars
 )
 
-modelCustomScript = aztk.models.CustomScript("jupyter", "./customScripts/jupyter.sh","all-nodes")
+modelCustomScript = aztk.models.CustomScript("jupyter", "D:/home/site/wwwroot/flask/spark/customScripts/jupyter.sh","all-nodes")
 modelFileShare = aztk.models.FileShare(STORAGE_ACCOUNT_NAME, STORAGE_ACCOUNT_KEY, 'notebooks', '/mnt/notebooks')
 # configure my cluster
 cluster_config = aztk.spark.models.ClusterConfiguration(
     docker_repo='aztk/python:spark2.2.0-python3.6.2-base',
-    cluster_id="predictive-maintenance2", # Warning: this name must be a valid Azure Blob Storage container name
+    cluster_id="predictive-maintenance", # Warning: this name must be a valid Azure Blob Storage container name
     vm_count=2,
     # vm_low_pri_count=2, #this and vm_count are mutually exclusive
     vm_size="standard_d2_v2",
@@ -67,12 +83,9 @@ cluster = client.create_cluster(cluster_config)
 cluster = client.wait_until_cluster_is_ready(cluster.id)
 
 
-client.create_user(cluster_id = "predictive-maintenance2", username = 'admin', password = 'admin')
+client.create_user(cluster_id = "predictive-maintenance", username = USER_NAME, password = PASSWORD)
 
-cluster = client.get_cluster(cluster_id="predictive-maintenance2")
-
-
-
+cluster = client.get_cluster(cluster_id="predictive-maintenance")
 
 node_count = '{}'.format(cluster.total_current_nodes)
 
