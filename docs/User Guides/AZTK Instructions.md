@@ -33,11 +33,12 @@
         ![Putty](/img/Putty_3.png)
 
 3.	**Using AZTK**
+
 **Install Aztk in your local machine**
 
     1.	Clone the repo
  		git clone -b stable https://www.github.com/azure/aztk
-        # You can also clone directly from master to get the latest bits
+        You can also clone directly from master to get the latest bits
         git clone https://www.github.com/azure/aztk
 
     2.	Use pip to install required packages (requires python 3.5+ and pip 9.0.1+)

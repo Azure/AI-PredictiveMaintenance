@@ -34,7 +34,7 @@ def equipment():
 @register_breadcrumb(app, '.aztkIns', 'AZTK Instructions')
 def aztkIns():
     assets = os.environ['WEBSITE_SITE_NAME']
-    return render_template('equipment.html', assets = assets)
+    return render_template('aztkIns.html', assets = assets)
 
 def view_asset_dlc(*args, **kwargs):
     kind = request.view_args['kind']
