@@ -1,40 +1,42 @@
 # Create Cluster Using AZTK and spin up Jupyter Notebooks
 
 ## Create Spark Cluster:
-    •	Go to the Function App console and run the below command 
-            D:\home\python364x64\python.exe %Aztk_Spark_Path% “clusterusername” “clusterpassword”
+
+    Go to the Function App console and run the below command 
+        D:\home\python364x64\python.exe %Aztk_Spark_Path% “clusterusername” “clusterpassword”
 
 ## Access Jupyter Notebooks available in the cluster 
 
 1.	**Using SSH Client**
 
-        o	Run the below command
+    Run the below command
 
-            ssh username@cluster-IpAddress -p MasterNodePortNumber -L 8888:127.0.0.1:8888
-            Example : ssh admin@52.178.100.71 -p 50000 -L 8888:127.0.0.1:8888
+        ssh username@cluster-IpAddress -p MasterNodePortNumber -L 8888:127.0.0.1:8888
+        Example : ssh admin@52.178.100.71 -p 50000 -L 8888:127.0.0.1:8888
 
 2.	**Using Putty**
 
     Step 1:
-        ![Putty](./img/Putty_1.png)
+        ![Putty](/img/Putty_1.png)
 
         Host Name: Spark Cluster IP created through AZTK
         Port: Master Port Number
 
     Step 2:
-        ![Putty](./img/Putty_2.png)
+        ![Putty](/img/Putty_2.png)
         
         Source port: Port you want the notebooks to be forwarded to in your local machine
         Destination: localhost:8888 (always)
         Then click on Add and open the SSH connection 
 
     Step 3: Open localhost:8888 in your local machine
-        ![Putty](./img/Putty_3.png)
+        ![Putty](/img/Putty_3.png)
 
 3.	**Using AZTK**
 
     **Prerequisite**:
-        **Install Aztk in your local machine**
+
+        Install Aztk in your local machine
 
             1.	Clone the repo
  		        git clone -b stable https://www.github.com/azure/aztk
@@ -50,7 +52,7 @@
             4.	Initialize the project in a directory [This will automatically create a .aztk folder with config files in your working directory]:
                     aztk spark init
                                       
-        **Fill in the following fields in your .aztk/secrets.yaml file**
+        Fill in the following fields in your .aztk/secrets.yaml file
 
                 shared_key:
     		        batch_account_name:
