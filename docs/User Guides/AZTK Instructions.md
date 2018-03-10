@@ -3,6 +3,7 @@
 ## Create Spark Cluster:
 
     Go to the Function App console and run the below command 
+
         D:\home\python364x64\python.exe %Aztk_Spark_Path% “clusterusername” “clusterpassword”
 
 ## Access Jupyter Notebooks available in the cluster 
@@ -17,20 +18,20 @@
 2.	**Using Putty**
 
     Step 1:
-        ![Putty](/img/Putty_1.png)
+        ![Putty](https://github.com/Azure/AI-PredictiveMaintenance/tree/users/laramume/AztkCluster/docs/img/Putty_1.png)
 
         Host Name: Spark Cluster IP created through AZTK
         Port: Master Port Number
 
     Step 2:
-        ![Putty](/img/Putty_2.png)
+        ![Putty](https://github.com/Azure/AI-PredictiveMaintenance/tree/users/laramume/AztkCluster/docs/img/Putty_2.png)
         
         Source port: Port you want the notebooks to be forwarded to in your local machine
         Destination: localhost:8888 (always)
         Then click on Add and open the SSH connection 
 
     Step 3: Open localhost:8888 in your local machine
-        ![Putty](/img/Putty_3.png)
+        ![Putty](https://github.com/Azure/AI-PredictiveMaintenance/tree/users/laramume/AztkCluster/docs/img/Putty_3.png)
 
 3.	**Using AZTK**
 
