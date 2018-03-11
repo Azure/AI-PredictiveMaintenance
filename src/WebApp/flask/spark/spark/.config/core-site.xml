@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+  <property>
+    <name>io.file.buffer.size</name>
+    <value>131072</value>
+  </property>
+ <property>
+  <name>fs.AbstractFileSystem.wasb.Impl</name>
+  <value>org.apache.hadoop.fs.azure.Wasb</value>
+</property>
+<property>
+  <name>fs.azure.account.key.STORAGE_ACCOUNT_NAME.blob.core.windows.net</name>
+  <value>STORAGE_ACCOUNT_KEY</value>
+</property>
+</configuration>
