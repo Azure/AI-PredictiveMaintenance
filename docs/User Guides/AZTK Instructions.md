@@ -19,7 +19,7 @@
 
     Step 1
     
-        ![test](../img/Putty_1.png)
+        ![test](/docs/img/Putty_1.png)
         
         Host Name: Spark Cluster IP created through AZTK
         Port: Master Port Number
