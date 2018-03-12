@@ -19,7 +19,7 @@
 
     Step 1
     
-        [[https://github.com/Azure/AI-PredictiveMaintenance/tree/users/laramume/AztkCluster/docs/img/Putty_1.png|alt=octocat]]
+        ![test](../img/Putty_1.png)
         
         Host Name: Spark Cluster IP created through AZTK
         Port: Master Port Number
