@@ -7,6 +7,7 @@
     <ProvisioningSteps>
         <ArmDeployment source="arm/azureBatch.json" title="Creating Azure Batch account" />
         <ArmDeployment source="arm/iotHub.json" title="Creating IoT Hub" />
+        <ArmDeployment source="arm/modelManagement.json" title="Creating Machine Learning Model Management account" />
         <ArmDeployment source="arm/demoDashboard.json" title="Setting up Azure Storage account and Demo Dashboard" autoResolveParameters="true">
             <LocationProvidedFor>
                 <ResourceType>Microsoft.Resources/deployments</ResourceType>
@@ -14,6 +15,7 @@
             <Parameters>
                 <Parameter name="webAppUrl" defaultValue="{PatternAssetBaseUrl}/WebApp.zip" hidden="true" />
                 <Parameter name="notebooksUrl" defaultValue="{PatternAssetBaseUrl}/Notebooks.zip" hidden="true" />
+                <Parameter name="modelManagementSwaggerUrl" defaultValue="{Outputs.modelManagementSwaggerLocation}" hidden="true" />
             </Parameters>
         </ArmDeployment>
         <ArmDeployment source="arm/iotHubStorageRoute.json" title="Adding Azure Storage endpoint and route to IoT Hub">
@@ -22,7 +24,6 @@
                 <Parameter name="storageContainerName" defaultValue="telemetry" hidden="true" />
             </Parameters>
         </ArmDeployment>
-        <ArmDeployment source="arm/modelManagement.json" title="Creating model management account" />
         <Manual title="Done">
           <Instructions src="markdown/Instructions.md" format="markdown" />
         </Manual>

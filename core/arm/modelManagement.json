@@ -25,5 +25,11 @@
                 "description": ""
             }
         }
-    ]
+    ],
+    "outputs": {
+        "modelManagementSwaggerLocation": {
+            "type": "string",
+            "value": "[reference(variables('accountName')).modelManagementSwaggerLocation]"
+        }
+    }
 }
