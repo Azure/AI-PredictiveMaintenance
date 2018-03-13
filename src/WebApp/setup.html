@@ -1,0 +1,42 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">  
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  
+  <meta charset="utf-8">
+  <title>Predictive Maintenance Dashboard</title>
+  <style>
+    #setup-aad {
+      display: none;
+    }
+    #spinner {
+      font-size: 50px;
+    }
+  </style>
+</head>
+
+<body>  
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1 class="mt-5">Finalizing the deployment...</h1>
+                <p class="lead">Environment configuration is in progress. Wait a moment.</p>
+                <span class="fa fa-spinner fa-spin" id="spinner"></span>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.bundle.min.js"></script>           
+  
+  <script>    
+    $(document).ready(function() {
+        window.setInterval(function() {
+        location.reload();
+        }, 10000);
+    });
+  </script>
+  
+</body>
+</html>

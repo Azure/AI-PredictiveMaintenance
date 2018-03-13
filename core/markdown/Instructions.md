@@ -1,1 +1,3 @@
-[Dashboard](https://{Outputs.siteHostName})
+Deployment is complete!
+
+Navigate to the [Solution Dashboard](https://{Outputs.siteHostName}/setup.js) to continue.
