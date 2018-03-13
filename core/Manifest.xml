@@ -22,6 +22,7 @@
                 <Parameter name="storageContainerName" defaultValue="telemetry" hidden="true" />
             </Parameters>
         </ArmDeployment>
+        <ArmDeployment source="arm/modelManagement.json" title="Creating model management account" />
         <Manual title="Done">
           <Instructions src="markdown/Instructions.md" format="markdown" />
         </Manual>
