@@ -18,10 +18,17 @@
                 <Parameter name="modelManagementSwaggerUrl" defaultValue="{Outputs.modelManagementSwaggerLocation}" hidden="true" />
             </Parameters>
         </ArmDeployment>
+        <ArmDeployment source="arm/serviceBus.json" title="Setting up Service Bus">
+            <LocationProvidedFor>
+                <ResourceType>Microsoft.Resources/deployments</ResourceType>
+            </LocationProvidedFor>
+        </ArmDeployment>
         <ArmDeployment source="arm/iotHubStorageRoute.json" title="Adding Azure Storage endpoint and route to IoT Hub">
             <Parameters>
                 <Parameter name="storageAccountConnectionString" defaultValue="DefaultEndpointsProtocol=https;AccountName={Outputs.storageAccountName};AccountKey={Outputs.storageAccountKey}" hidden="true" />
                 <Parameter name="storageContainerName" defaultValue="telemetry" hidden="true" />
+                <Parameter name="serviceBusPrimaryConnectionString" defaultValue="{Outputs.serviceBusPrimaryConnectionString}" hidden="true" />
+                <Parameter name="serviceBusQueueName" defaultValue="{Outputs.serviceBusQueueName}" hidden="true" />
             </Parameters>
         </ArmDeployment>
         <Manual title="Done">
