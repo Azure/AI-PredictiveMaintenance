@@ -89,19 +89,23 @@ def aztkIns():
 
     # create a client
     client = aztk.spark.Client(secrets_confg)
+    master_ipaddress = ""
+    master_Port = ""
 
-    cluster = client.get_cluster(cluster_id="predictive-maintenance1")
-    
-    cluster_info = ""
-    
-    for node in cluster.nodes:
-        remote_login_settings = client.get_remote_login_settings(cluster.id, node.id)
-        if node.id == cluster.master_node_id:
-            cluster_info = '{}:{}'.format(remote_login_settings.ip_address, remote_login_settings.port)
+    try:
+        cluster = client.get_cluster(cluster_id="predictive-maintenance")
+
+        for node in cluster.nodes:
+            remote_login_settings = client.get_remote_login_settings(cluster.id, node.id)
+            if node.id == cluster.master_node_id:
+                master_ipaddress = remote_login_settings.ip_address
+                master_Port = remote_login_settings.port
         
-
+    except:
+        master_ipaddress = "Cluster not yet provisioned"
+        master_Port = "Cluster not yet provisioned"
     assets = os.environ['WEBSITE_SITE_NAME']
-    return render_template('aztkIns.html', assets = assets, cluster_info = cluster_info)
+    return render_template('aztkIns.html', assets = assets, master_ipaddress = master_ipaddress, master_Port = master_Port)
 
 def view_asset_dlc(*args, **kwargs):
     kind = request.view_args['kind']
