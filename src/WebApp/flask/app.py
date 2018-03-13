@@ -58,40 +58,17 @@ def aztkIns():
 
     # create a client
     client = aztk.spark.Client(secrets_confg)
-    try:
-        cluster = client.get_cluster(cluster_id="predictive-maintenance")
 
-        node_count = '{}'.format(cluster.total_current_nodes)
-        cluster_info = ""
+    cluster = client.get_cluster(cluster_id="predictive-maintenance1")
 
-        cluster_info = cluster_info.join("Cluster         {}".format( cluster.id))
-        cluster_info = cluster_info.join("------------------------------------------")
-        cluster_info = cluster_info.join("State:          {}".format(cluster.visible_state))
-        cluster_info = cluster_info.join("Node Size:      {}".format(cluster.vm_size))
-        cluster_info = cluster_info.join("Nodes:          {}".format(node_count))
-        cluster_info = cluster_info.join("| Dedicated:    {}".format(cluster.current_dedicated_nodes))
-        cluster_info = cluster_info.join("| Low priority: {}".format(cluster.current_low_pri_nodes))
-        cluster_info = cluster_info.join("")
 
-        print_format = '|{:^36}| {:^19} | {:^21}| {:^10} | {:^8} |'
-        print_format_underline = '|{:-^36}|{:-^21}|{:-^22}|{:-^12}|{:-^10}|'
-        cluster_info = cluster_info.join(print_format.format("Nodes", "State", "IP:Port", "Dedicated", "Master"))
-        cluster_info = cluster_info.join(print_format_underline.format('', '', '', '', ''))
+    cluster_info = ""
     
-        for node in cluster.nodes:
-            remote_login_settings = client.get_remote_login_settings(cluster.id, node.id)
-            cluster_info = cluster_info.join(
-            print_format.format(
-                node.id,
-                node.state.value,
-                '{}:{}'.format(remote_login_settings.ip_address, remote_login_settings.port),
-                "*" if node.is_dedicated else '',
-                '*' if node.id == cluster.master_node_id else '')
-            )
-        cluster_info = cluster_info.join('')
-
-    except:
-        cluster_info = "Cluster provisioning"
+    for node in cluster.nodes:
+        remote_login_settings = client.get_remote_login_settings(cluster.id, node.id)
+        if node.id == cluster.master_node_id:
+            cluster_info = '{}:{}'.format(remote_login_settings.ip_address, remote_login_settings.port)
+        
 
     assets = os.environ['WEBSITE_SITE_NAME']
     return render_template('aztkIns.html', assets = assets, cluster_info = cluster_info)

@@ -87,34 +87,32 @@ client.create_user(cluster_id = "predictive-maintenance", username = USER_NAME, 
 cluster = client.get_cluster(cluster_id="predictive-maintenance")
 
 node_count = '{}'.format(cluster.total_current_nodes)
-cluster_info = ""
 
-cluster_info = cluster_info.join("Cluster         {}".format( cluster.id))
-cluster_info = cluster_info.join("------------------------------------------")
-cluster_info = cluster_info.join("State:          {}".format(cluster.visible_state))
-cluster_info = cluster_info.join("Node Size:      {}".format(cluster.vm_size))
-cluster_info = cluster_info.join("Nodes:          {}".format(node_count))
-cluster_info = cluster_info.join("| Dedicated:    {}".format(cluster.current_dedicated_nodes))
-cluster_info = cluster_info.join("| Low priority: {}".format(cluster.current_low_pri_nodes))
-cluster_info = cluster_info.join("")
+print("")
+print("Cluster         %s", cluster.id)
+print("------------------------------------------")
+print("State:          %s", cluster.visible_state)
+print("Node Size:      %s", cluster.vm_size)
+print("Nodes:          %s", node_count)
+print("| Dedicated:    %s", '{}'.format(cluster.current_dedicated_nodes))
+print("| Low priority: %s", '{}'.format(cluster.current_low_pri_nodes))
+print("")
 
 print_format = '|{:^36}| {:^19} | {:^21}| {:^10} | {:^8} |'
 print_format_underline = '|{:-^36}|{:-^21}|{:-^22}|{:-^12}|{:-^10}|'
-cluster_info = cluster_info.join(print_format.format("Nodes", "State", "IP:Port", "Dedicated", "Master"))
-cluster_info = cluster_info.join(print_format_underline.format('', '', '', '', ''))
+print(print_format.format("Nodes", "State", "IP:Port", "Dedicated", "Master"))
+print(print_format_underline.format('', '', '', '', ''))
     
 for node in cluster.nodes:
     remote_login_settings = client.get_remote_login_settings(cluster.id, node.id)
-    cluster_info = cluster_info.join(
-    print_format.format(
-        node.id,
-        node.state.value,
-        '{}:{}'.format(remote_login_settings.ip_address, remote_login_settings.port),
-         "*" if node.is_dedicated else '',
-        '*' if node.id == cluster.master_node_id else '')
+    print(
+        print_format.format(
+            node.id,
+            node.state.value,
+            '{}:{}'.format(remote_login_settings.ip_address, remote_login_settings.port),
+            "*" if node.is_dedicated else '',
+            '*' if node.id == cluster.master_node_id else '')
     )
-cluster_info = cluster_info.join('')
-
-print(cluster_info)
+print('')
 
 
