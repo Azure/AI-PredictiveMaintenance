@@ -215,7 +215,7 @@
         "[variables('web-site-id')]",
         "[resourceId('Microsoft.Web/sites/extensions', variables('web-site-name'), 'MSDeploy')]"      
       ]
-    },
+    }
   ],
   "outputs": {
     "storageAccountName": {
