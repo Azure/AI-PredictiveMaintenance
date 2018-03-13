@@ -2,7 +2,8 @@ import numpy as np
 import sys, os, time, glob	
 import requests
 import json
-from flask import Flask, render_template, Response, request
+from functools import wraps
+from flask import Flask, render_template, Response, request,  redirect, url_for
 from threading import Thread
 from azure.storage.blob import PageBlobService
 from azure.storage.blob import BlockBlobService
@@ -19,9 +20,9 @@ app.debug = True
 # Initialize Flask-Breadcrumbs
 Breadcrumbs(app=app)
 
-BATCH_ACCOUNT_NAME = os.environ['BATCH_ACCOUNT_NAME']	
-BATCH_ACCOUNT_KEY = os.environ['BATCH_ACCOUNT_KEY']	
-BATCH_SERVICE_URL = os.environ['BATCH_ACCOUNT_URL']	
+BATCH_ACCOUNT_NAME = os.environ['BATCH_ACCOUNT_NAME']
+BATCH_ACCOUNT_KEY = os.environ['BATCH_ACCOUNT_KEY']
+BATCH_SERVICE_URL = os.environ['BATCH_ACCOUNT_URL']
 STORAGE_ACCOUNT_SUFFIX = 'core.windows.net'
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
@@ -30,13 +31,23 @@ IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'x-ms-token-aad-refresh-token' not in request.headers:
+            return redirect(url_for('setup'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route('/')
 @register_breadcrumb(app, '.', 'Home')
+@login_required
 def home():
     return render_template('home.html')
 
 @app.route('/equipment')
 @register_breadcrumb(app, '.equipment', 'Equipment')
+@login_required
 def equipment():
     assets = table_service.query_entities('equipment')
     return render_template('equipment.html', assets = assets)
@@ -57,6 +68,7 @@ def get_access_token():
     return access_token
 
 @app.route('/test')
+@login_required
 def test_model_management_access():
     modelManagementSwaggerUrl = os.environ['MODEL_MANAGEMENT_SWAGGER_URL']
     headers = {
@@ -69,10 +81,26 @@ def test_model_management_access():
     response = requests.get(endpoint, headers=headers)
     return response.text
     #return json.dumps(response.json())
- 
+
+def parse_website_owner_name():
+    owner_name = os.environ['WEBSITE_OWNER_NAME']
+    subscription, resource_group_location = owner_name.split('+', 1)
+    resource_group, location = resource_group_location.split('-', 1)
+    return subscription, resource_group, location
+
+@app.route('/setup')
+def setup():
+    subscription, resource_group, _ = parse_website_owner_name()
+    # TODO: use correct tenant name
+    return render_template('setup.html',
+        tenant_name = 'microsoft.onmicrosoft.com',
+        subscription = subscription,
+        resource_group = resource_group,
+        web_site_name = os.environ['WEBSITE_SITE_NAME'])
 
 @app.route('/aztkIns')
 @register_breadcrumb(app, '.aztkIns', 'AZTK Instructions')
+@login_required
 def aztkIns():
     secrets_confg = aztk.spark.models.SecretsConfiguration(
     shared_key=aztk.models.SharedKeyConfiguration(
@@ -117,6 +145,7 @@ def view_asset_dlc(*args, **kwargs):
 
 @app.route('/equipment/<kind>/<tag>')
 @register_breadcrumb(app, '.equipment.asset', '', dynamic_list_constructor=view_asset_dlc)
+@login_required
 def equipment_asset(kind, tag):
     asset = table_service.get_entity('equipment', kind, tag)
     print(asset)
