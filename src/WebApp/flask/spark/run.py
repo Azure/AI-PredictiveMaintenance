@@ -48,7 +48,6 @@ f = open(SPARK_CORE_SITE,'r')
 message = f.read()
 message = message.replace('STORAGE_ACCOUNT_NAME', STORAGE_ACCOUNT_NAME)
 message = message.replace('STORAGE_ACCOUNT_KEY', STORAGE_ACCOUNT_KEY)
-print(message)
 f.close()
 
 f = open(SPARK_CORE_SITE,'w')

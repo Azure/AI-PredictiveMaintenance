@@ -1,8 +1,12 @@
 {% extends "layout.html" %}
 {% block body %}
 <p>
-Function App Console : https://{{assets}}.scm.azurewebsites.net/DebugConsole
+<a href="https://{{assets}}.scm.azurewebsites.net/DebugConsole">Function App Console </a>
+</p>
+<p> <b>Cluster Information</b> <br>
+    {{cluster_info}}
 </p>
 <p>
-Create Cluster Using AZTK and spin up Jupyter Notebooks : https://github.com/Azure/AI-PredictiveMaintenance/blob/users/laramume/AztkCluster/docs/User%20Guides/AZTK%20Instructions.md
+<a href="https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/User%20Guides/AZTK%20Instructions.md">Create Cluster Using AZTK and spin up Jupyter Notebooks </a> 
+</p>
 {% endblock %}

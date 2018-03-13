@@ -43,6 +43,15 @@ for root, dirs, files in os.walk('notebooks', topdown=True):
     if directory != '.':
         file_service.create_directory('notebooks', directory)
     for f in files:
+        fi = open(os.path.join(root, f),'r')
+        message = fi.read()
+        message = message.replace('STORAGE_ACCOUNT_NAME_TO_REPLACE', STORAGE_ACCOUNT_NAME)
+        fi.close()
+
+        fi = open(os.path.join(root, f),'w')
+        fi.write(message)
+        fi.close()
+
         file_service.create_file_from_path(
             'notebooks',
             directory,
