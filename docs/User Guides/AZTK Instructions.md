@@ -15,6 +15,8 @@
         ssh username@cluster-IpAddress -p MasterNodePortNumber -L 8888:127.0.0.1:8888
         Example : ssh admin@52.178.100.71 -p 50000 -L 8888:127.0.0.1:8888
 
+    Open localhost:8888 in your local machine to access the Jupyter Notebooks
+
 2.	**Using Putty**
 
     Step 1
@@ -36,7 +38,7 @@
     
     ![Browser connection](/docs/img/Putty_3.png)                               
 
-        Open localhost:8888 in your local machine
+        Open localhost:8888 in your local machine to access the Jupyter Notebooks
 
 3.	**Using AZTK**
 
@@ -67,3 +69,9 @@
                     storage_account_suffix: 
 
                 All the above field values are available as environment variables in the function app service which can be accessed at the function App Console
+
+        Step 3 : Run the below command in the directory which contains .aztk file
+
+                aztk spark cluster ssh --id predictive-maintenance --user “clusterusername”
+
+        Step 4 : Open localhost:8888 in your local machine to access the Jupyter Notebooks
