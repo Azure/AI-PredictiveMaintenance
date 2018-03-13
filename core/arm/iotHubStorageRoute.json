@@ -14,16 +14,10 @@
                 "description": "Storage account name."
             }
         },
-        "serviceBusprimaryConnectionString": {
+        "serviceBusPrimaryConnectionString": {
             "type": "string",
             "metadata": {
                 "description": "Service Bus Primary key."
-            }
-        },
-        "serviceBusName": {
-            "type": "string",
-            "metadata": {
-                "description": "Service Bus Name."
             }
         },
         "serviceBusQueueName": {
@@ -71,7 +65,7 @@
                         ],
                         "serviceBusQueues": [
                             {
-                                "connectionString": "[concat(parameters('serviceBusprimaryConnectionString'), ';EntityPath=', parameters('serviceBusQueueName'))]",
+                                "connectionString": "[concat(parameters('serviceBusPrimaryConnectionString'), ';EntityPath=', parameters('serviceBusQueueName'))]",
                                 "name": "ServiceBus",
                                 "subscriptionId": "[variables('subscriptionId')]",
                                 "resourceGroup": "[variables('resourceGroupName')]"
