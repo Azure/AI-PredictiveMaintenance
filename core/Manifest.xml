@@ -20,6 +20,9 @@
             <Parameters>
                 <Parameter name="storageAccountConnectionString" defaultValue="DefaultEndpointsProtocol=https;AccountName={Outputs.storageAccountName};AccountKey={Outputs.storageAccountKey}" hidden="true" />
                 <Parameter name="storageContainerName" defaultValue="telemetry" hidden="true" />
+                <Parameter name="serviceBusprimaryConnectionString" defaultValue="{Outputs.serviceBusprimaryConnectionString}" hidden="true" />
+                <Parameter name="serviceBusName" defaultValue="{Outputs.serviceBusName}" hidden="true" />
+                <Parameter name="serviceBusQueueName" defaultValue="{Outputs.serviceBusQueueName}" hidden="true" />
             </Parameters>
         </ArmDeployment>
         <Manual title="Done">

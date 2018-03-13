@@ -13,7 +13,25 @@
             "metadata": {
                 "description": "Storage account name."
             }
-        }
+        },
+        "serviceBusprimaryConnectionString": {
+            "type": "string",
+            "metadata": {
+                "description": "Service Bus Primary key."
+            }
+        },
+        "serviceBusName": {
+            "type": "string",
+            "metadata": {
+                "description": "Service Bus Name."
+            }
+        },
+        "serviceBusQueueName": {
+            "type": "string",
+            "metadata": {
+                "description": "Service Bus Queue Name."
+            }
+        }        
     },
     "variables": {
         "iotHubVersion": "2017-07-01",
@@ -50,6 +68,14 @@
                                 "maxChunkSizeInBytes": "10485760",
                                 "encoding": "avro"
                             }
+                        ],
+                        "serviceBusQueues": [
+                            {
+                                "connectionString": "[concat(parameters('serviceBusprimaryConnectionString'), ';EntityPath=', parameters('serviceBusQueueName'))]",
+                                "name": "ServiceBus",
+                                "subscriptionId": "[variables('subscriptionId')]",
+                                "resourceGroup": "[variables('resourceGroupName')]"
+                            }
                         ]
                     },
                     "routes": [
@@ -59,6 +85,15 @@
                             "condition": "true",
                             "endpointNames": [
                               "AzureStorage"
+                            ],
+                            "isEnabled": true
+                        },
+                        {
+                            "name": "ServiceBusRoute",
+                            "source": "DeviceMessages",
+                            "condition": "true",
+                            "endpointNames": [
+                                "serviceBus"
                             ],
                             "isEnabled": true
                         }

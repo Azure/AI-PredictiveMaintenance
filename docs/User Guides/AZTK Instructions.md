@@ -70,7 +70,7 @@
 
                 All the above field values are available as environment variables in the function app service which can be accessed at the function App Console
 
-        Step 3 : Run the below command in the directory which contains .aztk file
+        Step 3 : Run the below command in the directory which contains .aztk folder
 
                 aztk spark cluster ssh --id predictive-maintenance --user “clusterusername”
 

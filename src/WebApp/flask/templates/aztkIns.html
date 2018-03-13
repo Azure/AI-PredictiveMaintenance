@@ -3,10 +3,11 @@
 <p>
 <a href="https://{{assets}}.scm.azurewebsites.net/DebugConsole">Function App Console </a>
 </p>
-<p> <b>Cluster Information</b> <br>
-    {{cluster_info}}
-</p>
 <p>
 <a href="https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/User%20Guides/AZTK%20Instructions.md">Create Cluster Using AZTK and spin up Jupyter Notebooks </a> 
+</p>
+<p> <b>Cluster Information: </b> <br>
+    <i>Matser Node IP Address : {{master_ipaddress}}</i> <br>
+    <i>Matser Node Port Number : {{master_Port}}</i>
 </p>
 {% endblock %}

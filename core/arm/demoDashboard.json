@@ -64,7 +64,12 @@
     "web-farm-name": "[concat(variables('prefix'), 'webplan', variables('unique'))]",
     "web-site-name": "[concat(variables('prefix'), 'web', variables('unique'))]",
     "web-farm-id": "[resourceId('Microsoft.Web/serverfarms', variables('web-farm-name'))]",
-    "web-site-id": "[resourceId('Microsoft.Web/sites', variables('web-site-name'))]"
+    "web-site-id": "[resourceId('Microsoft.Web/sites', variables('web-site-name'))]",
+    "serviceBusNamespaceName": "[concat('serviceBus', variables('unique'))]",
+    "serviceBusQueueName": "[concat('serviceBusQueue', variables('unique'))]",
+    "defaultSASKeyName": "RootManageSharedAccessKey",
+    "authRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', variables('serviceBusNamespaceName'), variables('defaultSASKeyName'))]",
+    "sbVersion": "2017-04-01"
   },
   "resources": [
     {
@@ -208,6 +213,39 @@
         "[variables('web-site-id')]",
         "[resourceId('Microsoft.Web/sites/extensions', variables('web-site-name'), 'MSDeploy')]"      
       ]
+    }, 
+    {
+      "apiVersion": "2017-04-01",
+      "name": "[variables('serviceBusNamespaceName')]",
+      "type": "Microsoft.ServiceBus/Namespaces",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {},
+      "resources": [
+        {
+          "apiVersion": "2017-04-01",
+          "name": "[variables('serviceBusQueueName')]",
+          "type": "Queues",
+          "dependsOn": [
+            "[concat('Microsoft.ServiceBus/namespaces/', variables('serviceBusNamespaceName'))]"
+          ],
+          "properties": {
+            "lockDuration": "PT5M",
+            "maxSizeInMegabytes": "1024",
+            "requiresDuplicateDetection": "false",
+            "requiresSession": "false",
+            "defaultMessageTimeToLive": "P10675199DT2H48M5.4775807S",
+            "deadLetteringOnMessageExpiration": "false",
+            "duplicateDetectionHistoryTimeWindow": "PT10M",
+            "maxDeliveryCount": "10",
+            "autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
+            "enablePartitioning": "false",
+            "enableExpress": "false"
+          }
+        }
+      ]
     }
   ],
   "outputs": {
@@ -226,6 +264,18 @@
     "siteHostName": {
       "value": "[reference(variables('web-site-name')).hostNames[0]]",
       "type": "string"
+    },
+    "serviceBusprimaryConnectionString": {
+      "type": "string",
+      "value": "[listkeys(variables('authRuleResourceId'), variables('sbVersion')).primaryConnectionString]"
+    },
+    "serviceBusName": {
+      "type": "string",
+      "value": "[variables('serviceBusNamespaceName')]"
+    },
+    "serviceBusQueueName": {
+      "type": "string",
+      "value": "[variables('serviceBusQueueName')]"
     }
   }
 }
