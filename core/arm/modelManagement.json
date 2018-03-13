@@ -1,0 +1,35 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "variables": {
+        "uniqueString": "[uniqueString(resourceGroup().id)]",
+        "accountName": "[concat('mgnt', variables('uniqueString'))]",
+        "location": "[resourceGroup().location]",
+        "skuName": "DevTest",        
+        "skuTier": "Standard",        
+        "skuCapacity": 1,
+        "hostingAccountApiVersion": "2017-09-01-preview"        
+    },
+    "resources": [
+        {
+            "type": "Microsoft.MachineLearningModelManagement/accounts",
+            "sku": {
+                "name": "[variables('skuName')]",
+                "tier": "[variables('skuTier')]",
+                "capacity": "[variables('skuCapacity')]"
+            },
+            "name": "[variables('accountName')]",
+            "apiVersion": "[variables('hostingAccountApiVersion')]",
+            "location": "[variables('location')]",
+            "properties": {
+                "description": ""
+            }
+        }
+    ],
+    "outputs": {
+        "modelManagementSwaggerLocation": {
+            "type": "string",
+            "value": "[reference(variables('accountName')).modelManagementSwaggerLocation]"
+        }
+    }
+}

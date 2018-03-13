@@ -14,6 +14,12 @@
           "description": "Notebooks URL"
       }
     },
+    "modelManagementSwaggerUrl": {
+      "type": "string",
+      "metadata": {
+          "description": "Machine Learning Model Management Swagger location"
+      }
+    },
     "iotHubName": {
       "type": "string",
       "metadata": {
@@ -177,6 +183,7 @@
             "BATCH_ACCOUNT_KEY": "[parameters('batchAccountKey')]",
             "BATCH_ACCOUNT_URL": "[parameters('batchAccountUrl')]",
             "NOTEBOOKS_URL": "[parameters('notebooksUrl')]",
+            "MODEL_MANAGEMENT_SWAGGER_URL": "[parameters('modelManagementSwaggerUrl')]",
             "Aztk_Spark_Path" : "D:/home/site/wwwroot/flask/spark/run.py"
           }
         },
