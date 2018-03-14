@@ -13,6 +13,7 @@ from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 import aztk.models	
 import aztk.spark	
 from aztk.error import AztkError
+from aztkCluster import AztkCluster
 
 app = Flask(__name__)
 app.debug = True
@@ -102,38 +103,17 @@ def setup():
 @register_breadcrumb(app, '.aztkIns', 'AZTK Instructions')
 @login_required
 def aztkIns():
-    secrets_confg = aztk.spark.models.SecretsConfiguration(
-    shared_key=aztk.models.SharedKeyConfiguration(
-        batch_account_name = BATCH_ACCOUNT_NAME,
-        batch_account_key = BATCH_ACCOUNT_KEY,
-        batch_service_url = BATCH_SERVICE_URL,
-        storage_account_name = STORAGE_ACCOUNT_NAME,
-        storage_account_key = STORAGE_ACCOUNT_KEY,
-        storage_account_suffix = STORAGE_ACCOUNT_SUFFIX
-    ),
-
-    ssh_pub_key=""
-    )
-
-    # create a client
-    client = aztk.spark.Client(secrets_confg)
-    master_ipaddress = ""
-    master_Port = ""
-
-    try:
-        cluster = client.get_cluster(cluster_id="predictive-maintenance")
-
-        for node in cluster.nodes:
-            remote_login_settings = client.get_remote_login_settings(cluster.id, node.id)
-            if node.id == cluster.master_node_id:
-                master_ipaddress = remote_login_settings.ip_address
-                master_Port = remote_login_settings.port
-        
-    except:
-        master_ipaddress = "Cluster not yet provisioned"
-        master_Port = "Cluster not yet provisioned"
-    assets = os.environ['WEBSITE_SITE_NAME']
-    return render_template('aztkIns.html', assets = assets, master_ipaddress = master_ipaddress, master_Port = master_Port)
+    aztkcluster = AztkCluster()
+    asset = aztkcluster.getCluster()
+    return render_template('aztkIns.html', asset = asset)
+    
+@app.route('/createCluster', methods=['POST'])
+@register_breadcrumb(app, '.createCluster', 'Create Cluster')
+@login_required
+def createCluster():
+    aztkcluster = AztkCluster(request.form['vmsize'], request.form['skutype'], request.form['user'], request.form['password'])
+    aztkcluster.createCluster()
+    return redirect('/aztkIns')
 
 def view_asset_dlc(*args, **kwargs):
     kind = request.view_args['kind']
@@ -153,6 +133,7 @@ def equipment_asset(kind, tag):
 
 if __name__ == "__main__":
     table_service.create_table('equipment')
+    table_service.create_table('cluster')
 
     asset = {'PartitionKey': 'pm1', 'RowKey': 'pm1-353', 'Installed': datetime(2009, 10, 10), 'Model': 'M009'}
     table_service.insert_or_merge_entity('equipment', asset)

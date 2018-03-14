@@ -15,6 +15,8 @@ table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STOR
 
 table_service.create_table('equipment')
 
+table_service.create_table('cluster')
+
 asset = {'PartitionKey': 'pm1', 'RowKey': 'pm1-353', 'Installed': datetime(2009, 10, 10), 'Model': 'M009', 'Speed': 1000}
 table_service.insert_or_merge_entity('equipment', asset)
 
@@ -26,6 +28,9 @@ table_service.insert_or_merge_entity('equipment', asset)
 
 asset = {'PartitionKey': 'pm1', 'RowKey': 'pm1-356', 'Installed': datetime(2005, 3, 1), 'Model': 'M009', 'Speed': 800}
 table_service.insert_or_merge_entity('equipment', asset)
+
+asset = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Not Created'}
+table_service.insert_or_merge_entity('cluster', asset)
 
 file_service = FileService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 file_service.create_share(share_name='notebooks', quota=1)
