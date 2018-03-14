@@ -113,8 +113,6 @@ def aztkIns():
 def createCluster():
     aztkcluster = AztkCluster(request.form['vmsize'], request.form['skutype'], request.form['user'], request.form['password'])
     aztkcluster.createCluster()
-    asset = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Provisioning'}
-    table_service.insert_or_merge_entity('cluster', asset)
     return redirect('/aztkIns')
 
 def view_asset_dlc(*args, **kwargs):
