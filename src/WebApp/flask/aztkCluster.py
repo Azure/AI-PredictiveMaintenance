@@ -92,6 +92,9 @@ class AztkCluster:
         )
 
         cluster = client.create_cluster(cluster_config)
+        
+        asset = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Provisioning'}
+        self.table_service.insert_or_merge_entity('cluster', asset)
 
     def getCluster(self):
 
