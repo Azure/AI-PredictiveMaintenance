@@ -115,7 +115,7 @@ def createCluster():
     aztkcluster.createCluster()
     asset = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Provisioning'}
     table_service.insert_or_merge_entity('cluster', asset)
-    return render_template('aztkIns.html', asset = asset)
+    return redirect('/aztkIns')
 
 def view_asset_dlc(*args, **kwargs):
     kind = request.view_args['kind']
@@ -142,8 +142,5 @@ if __name__ == "__main__":
 
     asset = {'PartitionKey': 'pm1', 'RowKey': 'pm1-354', 'Installed': datetime(2001, 1, 13), 'Model': 'M009'}
     table_service.insert_or_merge_entity('equipment', asset)
-    
-    asset = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Not Created'}
-    table_service.insert_or_merge_entity('cluster', asset)
 
     app.run('0.0.0.0', 8000, debug=True)
