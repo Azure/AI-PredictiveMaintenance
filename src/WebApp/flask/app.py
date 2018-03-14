@@ -115,6 +115,14 @@ def createCluster():
     aztkcluster.createCluster()
     return redirect('/aztkIns')
 
+@app.route('/deleteCluster', methods=['POST'])
+@register_breadcrumb(app, '.deleteCluster', 'Delete Cluster')
+@login_required
+def deleteCluster():
+    aztkcluster = AztkCluster()
+    aztkcluster.deleteCluster()
+    return redirect('/aztkIns')
+
 def view_asset_dlc(*args, **kwargs):
     kind = request.view_args['kind']
     tag = request.view_args['tag']

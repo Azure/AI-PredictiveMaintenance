@@ -39,9 +39,23 @@
     </form>
     {% endif %}
     {% if asset.Status == "Provisioning" %}
-    <div>
-        <p> <b>Cluster Status: </b></p>
-        <p> <i>Currently provisioning</i> </p>   
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1 class="mt-5">Cluster Provsioning</h1>
+                <span class="fa fa-spinner fa-spin" id="spinner"></span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if asset.Status == "Deleting" %}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1 class="mt-5">Cluster Deletion in progress</h1>
+                <span class="fa fa-spinner fa-spin" id="spinner"></span>
+            </div>
+        </div>
     </div>
     {% endif %}
     {% if asset.Status == "Provisioned" %}
@@ -51,7 +65,12 @@
         <p> <i>Master Node Port Number : {{asset.Master_Port}}</i> </p>  
     </div>
     <p>
-    <a href="https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/User%20Guides/AZTK%20Instructions.md">Create Cluster Using AZTK and spin up Jupyter Notebooks </a> 
+    <a href="https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/User%20Guides/AZTK%20Instructions.md" target="_blank">Spin up Jupyter Notebooks </a> 
     </p>
+    <form action = "/deleteCluster" method = "POST">
+        <div>           
+            <button type="submit" id="create-project-button" class="btn btn-primary" onclick="return confirm('Are you sure you want to delete the cluster?')">Delete Cluster</button>
+        </div>
+    </form>
     {% endif %}
 {% endblock %}

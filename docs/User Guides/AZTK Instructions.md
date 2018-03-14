@@ -38,7 +38,7 @@
     
     ![Browser connection](/docs/img/Putty_3.png)                               
 
-        Open localhost:8888 in your local machine to access the Jupyter Notebooks
+        Open localhost:8888(source port you entered) in your local machine to access the Jupyter Notebooks
 
 3.	**Using AZTK**
 
