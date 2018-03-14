@@ -3,6 +3,7 @@ import aztk.models
 import aztk.spark
 import json
 from aztk.spark.models import ClusterConfiguration, UserConfiguration
+from azure.batch.models import BatchErrorException
 from pprint import pprint
 from aztk.error import AztkError
 from azure.storage.table import TableService, Entity, TablePermissions
@@ -97,14 +98,13 @@ class AztkCluster:
         self.table_service.insert_or_merge_entity('cluster', asset)
 
     def getCluster(self):
-
-
         # create a client
         client = aztk.spark.Client(self.secrets_confg)
-
+        asset = self.table_service.get_entity('cluster', 'predictivemaintenance', 'predictivemaintenance')
         try:
             cluster = client.get_cluster(cluster_id="predictive-maintenance")
-
+            if asset.Status == 'Deleting':
+                return asset
             for node in cluster.nodes:
                     remote_login_settings = client.get_remote_login_settings(cluster.id, node.id)
                     if node.id == cluster.master_node_id:
@@ -113,14 +113,22 @@ class AztkCluster:
                         asset = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Provisioned', 'Master_Ip_Address': master_ipaddress, 'Master_Port': master_Port}
                         self.table_service.insert_or_merge_entity('cluster', asset)
         
-        except:
-            status =""
+        except (AztkError, BatchErrorException):
+                    if asset.Status == 'Deleting':
+                        asset = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Not Created'}
+                        self.table_service.insert_or_merge_entity('cluster', asset)               
     
         asset = self.table_service.get_entity('cluster', 'predictivemaintenance', 'predictivemaintenance')
 
         return asset
-        
 
+    def deleteCluster(self):
+
+        asset = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Deleting'}
+        self.table_service.insert_or_merge_entity('cluster', asset)
+        # create a client
+        client = aztk.spark.Client(self.secrets_confg)
+        client.delete_cluster(cluster_id = "predictive-maintenance")
         
 if __name__ == '__main__':
     pass
