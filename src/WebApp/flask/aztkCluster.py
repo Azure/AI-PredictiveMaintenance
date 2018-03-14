@@ -78,7 +78,7 @@ class AztkCluster:
         # configure my cluster
         cluster_config = aztk.spark.models.ClusterConfiguration(
             docker_repo='aztk/python:spark2.2.0-python3.6.2-base',
-            cluster_id="predictive-maintenance1", # Warning: this name must be a valid Azure Blob Storage container name
+            cluster_id="predictive-maintenance", # Warning: this name must be a valid Azure Blob Storage container name
             vm_count=self.vm_count,
             # vm_low_pri_count=2, #this and vm_count are mutually exclusive
             vm_size=self.sku_type,
