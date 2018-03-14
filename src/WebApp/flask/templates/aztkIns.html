@@ -1,14 +1,57 @@
 {% extends "layout.html" %}
 {% block body %}
-<p>
-<a href="https://{{assets}}.scm.azurewebsites.net/DebugConsole">Function App Console </a>
-</p>
-<p>
-<a href="https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/User%20Guides/AZTK%20Instructions.md">Create Cluster Using AZTK and spin up Jupyter Notebooks </a> 
-</p>
-<div>
-    <p> <b>Cluster Information: </b></p>
-    <p> <i>Master Node IP Address : {{master_ipaddress}}</i> </p>   
-    <p> <i>Master Node Port Number : {{master_Port}}</i> </p>  
-</div>
+    {% if asset.Status == "Not Created" %}
+    <form action = "/createCluster" method = "POST">
+        <div class="form-group has-feedback">
+            <label for="skuType">Sku Type</label>
+            <div>
+                <select style="font-size:10pt;height:30px;width:300px;" class="form-control" id="skutype" name="skutype">
+                    <option value="standard_d1_v2">Standard_d1_v2</option>
+                    <option value="standard_d2_v2">Standard_d2_v2</option>
+                    <option value="standard_d3_v2">Standard_d3_v2</option>
+                    <option value="standard_d4_v2">Standard_d4_v2</option>
+                </select>
+            </div>
+        </div>        
+        <div class="form-group has-feedback">
+            <label for="numofVM">Number of VM's</label>
+            <div>
+                <select style="font-size:10pt;height:30px;width:300px;" class="form-control" id="vmsize" name="vmsize">
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group has-feedback">
+            <label for="user">Cluster User Name</label>
+            <input style="font-size:10pt;height:30px;width:300px;" type ="text" class="form-control" id="user" name="user" required>
+        </div>
+
+        <div class="form-group has-feedback">
+            <label for="password">Cluster Password</label>
+            <input style="font-size:10pt;height:30px;width:300px;" type ="password" class="form-control" id="password" name="password" required>
+        </div>
+        <div>           
+            <button type="submit" id="create-project-button" class="btn btn-primary">Create Cluster</button>
+        </div>
+    </form>
+    {% endif %}
+    {% if asset.Status == "Provisioning" %}
+    <div>
+        <p> <b>Cluster Status: </b></p>
+        <p> <i>Currently provisioning</i> </p>   
+    </div>
+    {% endif %}
+    {% if asset.Status == "Provisioned" %}
+    <div>
+        <p> <b>Cluster Information: </b></p>
+        <p> <i>Master Node IP Address : {{asset.Master_Ip_Address}}</i> </p>   
+        <p> <i>Master Node Port Number : {{asset.Master_Port}}</i> </p>  
+    </div>
+    <p>
+    <a href="https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/User%20Guides/AZTK%20Instructions.md">Create Cluster Using AZTK and spin up Jupyter Notebooks </a> 
+    </p>
+    {% endif %}
 {% endblock %}
