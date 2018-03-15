@@ -88,6 +88,11 @@
 
 <script>
   $(document).ready(function() {
+    $.get('/.auth/me').done(function (data) {
+      var user_name = data[0].user_claims.find(uc => uc.typ === 'name').val;
+      $('#user_menu').text(user_name);
+    });
+    window.setInterval(function() {
 /*    $('[data-toggle="tooltip"]').tooltip()
     // With JQuery
     $('#ex1').slider({
@@ -98,11 +103,15 @@
     }).change(function(e) {
       //ws.send(e.value.newValue);
     });
-*/    
-    $.get('/.auth/me').done(function (data) {
-      var user_name = data[0].user_claims.find(uc => uc.typ === 'name').val;
-      $('#user_menu').text(user_name);
-    });
+*/ 
+
+      if( '{{aztkClusterStatus}}' == 'Provisioning' || '{{aztkClusterStatus}}' == 'Deleting')
+      {
+        location.reload();
+      }
+
+    
+    }, 10000);
 });
 // -- Bar Chart Example
 

@@ -94,7 +94,7 @@ class AztkCluster:
 
         cluster = client.create_cluster(cluster_config)
         
-        asset = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Provisioning'}
+        asset = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Provisioning', 'UserName': self.username}
         self.table_service.insert_or_merge_entity('cluster', asset)
 
     def getCluster(self):
@@ -110,7 +110,7 @@ class AztkCluster:
                     if node.id == cluster.master_node_id:
                         master_ipaddress = remote_login_settings.ip_address
                         master_Port = remote_login_settings.port
-                        asset = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Provisioned', 'Master_Ip_Address': master_ipaddress, 'Master_Port': master_Port}
+                        asset = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Provisioned', 'Master_Ip_Address': master_ipaddress, 'Master_Port': master_Port, 'UserName': asset.UserName}
                         self.table_service.insert_or_merge_entity('cluster', asset)
         
         except (AztkError, BatchErrorException):

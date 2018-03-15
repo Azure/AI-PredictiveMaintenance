@@ -63,9 +63,11 @@
         <p> <b>Cluster Information: </b></p>
         <p> <i>Master Node IP Address : {{asset.Master_Ip_Address}}</i> </p>   
         <p> <i>Master Node Port Number : {{asset.Master_Port}}</i> </p>  
+        <p> <i>Connect via ssh : {{asset.UserName}}@{{asset.Master_Ip_Address}} -p {{asset.Master_Port}} -L 127.0.0.1:8888</i> </p>
+        <p> <i>Once connected Jupyter will be available at <a href="http://localhost:8888" target="_blank">http://localhost:8888</a> </i> </p>  
     </div>
     <p>
-    <a href="https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/User%20Guides/AZTK%20Instructions.md" target="_blank">Spin up Jupyter Notebooks </a> 
+    <a href="https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/User%20Guides/AZTK%20Instructions.md" target="_blank">Connecting via Putty</a> 
     </p>
     <form action = "/deleteCluster" method = "POST">
         <div>           

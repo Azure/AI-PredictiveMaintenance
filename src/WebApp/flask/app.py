@@ -100,12 +100,12 @@ def setup():
         web_site_name = os.environ['WEBSITE_SITE_NAME'])
 
 @app.route('/aztkIns')
-@register_breadcrumb(app, '.aztkIns', 'AZTK Instructions')
+@register_breadcrumb(app, '.aztkIns', 'Analytics')
 @login_required
 def aztkIns():
     aztkcluster = AztkCluster()
     asset = aztkcluster.getCluster()
-    return render_template('aztkIns.html', asset = asset)
+    return render_template('aztkIns.html', asset = asset, aztkClusterStatus = asset.Status)
     
 @app.route('/createCluster', methods=['POST'])
 @register_breadcrumb(app, '.createCluster', 'Create Cluster')
