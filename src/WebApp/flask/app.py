@@ -100,7 +100,7 @@ def setup():
         web_site_name = os.environ['WEBSITE_SITE_NAME'])
 
 @app.route('/analytics')
-@register_breadcrumb(app, '.analytics', 'analytics')
+@register_breadcrumb(app, '.analytics', 'Analytics')
 @login_required
 def analytics():
     aztkcluster = AztkCluster()
