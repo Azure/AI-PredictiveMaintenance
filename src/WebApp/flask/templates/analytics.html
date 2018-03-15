@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
+
 {% block body %}
-    {% if asset.Status == "Not Created" %}
+    {% if clusterDetails.Status == "Not Created" %}
     <form action = "/createCluster" method = "POST">
         <div class="form-group has-feedback">
             <label for="skuType">Sku Type</label>
@@ -38,17 +39,17 @@
         </div>
     </form>
     {% endif %}
-    {% if asset.Status == "Provisioning" %}
+    {% if clusterDetails.Status == "Provisioning" %}
     <div class="container">
         <div class="row">
             <div class="col-lg-12 text-center">
-                <h1 class="mt-5">Cluster Provsioning</h1>
+                <h1 class="mt-5">Cluster Provisioning</h1>
                 <span class="fa fa-spinner fa-spin" id="spinner"></span>
             </div>
         </div>
     </div>
     {% endif %}
-    {% if asset.Status == "Deleting" %}
+    {% if clusterDetails.Status == "Deleting" %}
     <div class="container">
         <div class="row">
             <div class="col-lg-12 text-center">
@@ -58,14 +59,16 @@
         </div>
     </div>
     {% endif %}
-    {% if asset.Status == "Provisioned" %}
+    {% if clusterDetails.Status == "Provisioned" %}
     <div>
         <p> <b>Cluster Information: </b></p>
-        <p> <i>Master Node IP Address : {{asset.Master_Ip_Address}}</i> </p>   
-        <p> <i>Master Node Port Number : {{asset.Master_Port}}</i> </p>  
+        <p> <i>Master Node IP Address : {{clusterDetails.Master_Ip_Address}}</i> </p>   
+        <p> <i>Master Node Port Number : {{clusterDetails.Master_Port}}</i> </p>  
+        <p> <i>Connect via ssh : <code>{{clusterDetails.UserName}}@{{clusterDetails.Master_Ip_Address}} -p {{clusterDetails.Master_Port}} -L 127.0.0.1:8888</code></i> </p>
+        <p> <i>Once connected, Jupyter will be available at <a href="http://localhost:8888" target="_blank">http://localhost:8888 </a> </i> </p>  
     </div>
     <p>
-    <a href="https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/User%20Guides/AZTK%20Instructions.md" target="_blank">Spin up Jupyter Notebooks </a> 
+    <a href="https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/User%20Guides/AZTK%20Instructions.md" target="_blank">Connecting via Putty</a> 
     </p>
     <form action = "/deleteCluster" method = "POST">
         <div>           
@@ -73,4 +76,20 @@
         </div>
     </form>
     {% endif %}
+{% endblock %}
+{% block script %}
+  <script>    
+    $(document).ready(function() {
+        $.get('/.auth/me').done(function (data) {
+            var user_name = data[0].user_claims.find(uc => uc.typ === 'name').val;
+            $('#user_menu').text(user_name);
+        });
+        window.setInterval(function() {
+            if( '{{clusterDetails.Status}}' == 'Provisioning' || '{{clusterDetails.Status}}' == 'Deleting')
+            {
+                location.reload();
+            }
+        }, 10000);
+    });
+  </script>
 {% endblock %}
