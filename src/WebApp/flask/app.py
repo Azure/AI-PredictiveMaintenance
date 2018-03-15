@@ -99,13 +99,13 @@ def setup():
         resource_group = resource_group,
         web_site_name = os.environ['WEBSITE_SITE_NAME'])
 
-@app.route('/aztkIns')
-@register_breadcrumb(app, '.aztkIns', 'Analytics')
+@app.route('/analytics')
+@register_breadcrumb(app, '.analytics', 'analytics')
 @login_required
-def aztkIns():
+def analytics():
     aztkcluster = AztkCluster()
     clusterDetails = aztkcluster.getCluster()
-    return render_template('aztkIns.html', clusterDetails = clusterDetails, aztkClusterStatus = clusterDetails.Status)
+    return render_template('analytics.html', clusterDetails = clusterDetails)
     
 @app.route('/createCluster', methods=['POST'])
 @register_breadcrumb(app, '.createCluster', 'Create Cluster')
@@ -113,7 +113,7 @@ def aztkIns():
 def createCluster():
     aztkcluster = AztkCluster(request.form['vmsize'], request.form['skutype'], request.form['user'], request.form['password'])
     aztkcluster.createCluster()
-    return redirect('/aztkIns')
+    return redirect('/analytics')
 
 @app.route('/deleteCluster', methods=['POST'])
 @register_breadcrumb(app, '.deleteCluster', 'Delete Cluster')
@@ -121,7 +121,7 @@ def createCluster():
 def deleteCluster():
     aztkcluster = AztkCluster()
     aztkcluster.deleteCluster()
-    return redirect('/aztkIns')
+    return redirect('/analytics')
 
 def view_asset_dlc(*args, **kwargs):
     kind = request.view_args['kind']
