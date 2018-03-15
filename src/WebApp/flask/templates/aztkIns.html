@@ -64,7 +64,7 @@
         <p> <b>Cluster Information: </b></p>
         <p> <i>Master Node IP Address : {{clusterDetails.Master_Ip_Address}}</i> </p>   
         <p> <i>Master Node Port Number : {{clusterDetails.Master_Port}}</i> </p>  
-        <p> <i>Connect via ssh : {{clusterDetails.UserName}}@{{clusterDetails.Master_Ip_Address}} -p {{clusterDetails.Master_Port}} -L 127.0.0.1:8888</i> </p>
+        <p> <i>Connect via ssh : <b><code>{{clusterDetails.UserName}}@{{clusterDetails.Master_Ip_Address}} -p {{clusterDetails.Master_Port}} -L 127.0.0.1:8888<code></b></i> </p>
         <p> <i>Once connected Jupyter will be available at <a href="http://localhost:8888" target="_blank">http://localhost:8888 </a> </i> </p>  
     </div>
     <p>
