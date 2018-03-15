@@ -86,10 +86,9 @@
         });
         window.setInterval(function() {
         if( '{{aztkClusterStatus}}' == 'Provisioning' || '{{aztkClusterStatus}}' == 'Deleting')
-      {
-        location.reload();
-      }
-
+        {
+            location.reload();
+        }
         }, 10000);
     });
   </script>
