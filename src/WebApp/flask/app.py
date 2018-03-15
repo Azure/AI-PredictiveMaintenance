@@ -104,8 +104,8 @@ def setup():
 @login_required
 def aztkIns():
     aztkcluster = AztkCluster()
-    asset = aztkcluster.getCluster()
-    return render_template('aztkIns.html', asset = asset, aztkClusterStatus = asset.Status)
+    clusterDetails = aztkcluster.getCluster()
+    return render_template('aztkIns.html', clusterDetails = clusterDetails, aztkClusterStatus = clusterDetails.Status)
     
 @app.route('/createCluster', methods=['POST'])
 @register_breadcrumb(app, '.createCluster', 'Create Cluster')

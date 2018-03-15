@@ -85,35 +85,15 @@
 
 </style>
 
-
+{% block script %}
 <script>
   $(document).ready(function() {
     $.get('/.auth/me').done(function (data) {
       var user_name = data[0].user_claims.find(uc => uc.typ === 'name').val;
       $('#user_menu').text(user_name);
     });
-    window.setInterval(function() {
-/*    $('[data-toggle="tooltip"]').tooltip()
-    // With JQuery
-    $('#ex1').slider({
-      tooltip: 'always',
-      formatter: function(value) {
-        return 'Current value: ' + value;
-      }
-    }).change(function(e) {
-      //ws.send(e.value.newValue);
-    });
-*/ 
-
-      if( '{{aztkClusterStatus}}' == 'Provisioning' || '{{aztkClusterStatus}}' == 'Deleting')
-      {
-        location.reload();
-      }
-
-    
-    }, 10000);
+  }
 });
 // -- Bar Chart Example
-
-
 </script>
+{% endblock %}

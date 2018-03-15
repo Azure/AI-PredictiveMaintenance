@@ -10,7 +10,7 @@
   <value>org.apache.hadoop.fs.azure.Wasb</value>
 </property>
 <property>
-  <name>fs.azure.account.key.STORAGE_ACCOUNT_NAME.blob.core.windows.net</name>
-  <value>STORAGE_ACCOUNT_KEY</value>
+  <name>fs.azure.account.key.stg3kblyzkme6crw.blob.core.windows.net</name>
+  <value>4uQb0tkyM1BJATQrtiPkJpDqSj7YABvHEXYn9ft3ssZse3cNx2aBfIy+z8xhQIqwHOUfl54yMinRBW5VKNk4Wg==</value>
 </property>
 </configuration>
