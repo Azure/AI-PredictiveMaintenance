@@ -78,11 +78,13 @@
     {% endif %}
 {% endblock %}
 
-{% block js %}
+{% block script %}
+<script>
     window.setInterval(function() {
         if( '{{clusterDetails.Status}}' == 'Provisioning' || '{{clusterDetails.Status}}' == 'Deleting')
         {
             location.reload();
         }
-    }, 10000);  
+    }, 10000);
+</script>  
 {% endblock %}

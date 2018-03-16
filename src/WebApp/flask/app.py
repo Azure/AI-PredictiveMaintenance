@@ -47,12 +47,12 @@ def login_required(f):
 def home():
     return render_template('home.html')
 
-@app.route('/equipment')
-@register_breadcrumb(app, '.equipment', 'Equipment')
+@app.route('/telemetry')
+@register_breadcrumb(app, '.telemetry', 'Telemetry')
 @login_required
-def equipment():
+def telemetry():
     assets = table_service.query_entities('equipment')
-    return render_template('equipment.html', assets = assets)
+    return render_template('telemetry.html', assets = assets)
 
 def get_access_token():
     parameters = {
@@ -97,11 +97,10 @@ def setup():
 @login_required
 def analytics():
     aztkcluster = AztkCluster()
-    asset = aztkcluster.getCluster()
-    return render_template('analytics.html', asset = asset)
+    clusterDetails = aztkcluster.getCluster()
+    return render_template('analytics.html', clusterDetails = clusterDetails)
     
 @app.route('/createCluster', methods=['POST'])
-@register_breadcrumb(app, '.createCluster', 'Create Cluster')
 @login_required
 def createCluster():
     aztkcluster = AztkCluster(request.form['vmsize'], request.form['skutype'], request.form['user'], request.form['password'])
@@ -109,26 +108,36 @@ def createCluster():
     return redirect('/analytics')
 
 @app.route('/deleteCluster', methods=['POST'])
-@register_breadcrumb(app, '.deleteCluster', 'Delete Cluster')
 @login_required
 def deleteCluster():
     aztkcluster = AztkCluster()
     aztkcluster.deleteCluster()
     return redirect('/analytics')
+    
+@app.route('/operationalization')
+@register_breadcrumb(app, '.operationalization', 'Operationalization')
+@login_required
+def operationalization():
+    return render_template('operationalization.html')
 
 def view_asset_dlc(*args, **kwargs):
     kind = request.view_args['kind']
     tag = request.view_args['tag']
     return [
-        {'text': kind, 'url': '/equipment/{0}'.format(kind)},
-        {'text': tag, 'url': '/equipment/{0}/{1}'.format(kind, tag)}]
+        {'text': kind, 'url': '/telemetry/{0}'.format(kind)},
+        {'text': tag, 'url': '/telemetry/{0}/{1}'.format(kind, tag)}]
 
-
-@app.route('/equipment/<kind>/<tag>')
-@register_breadcrumb(app, '.equipment.asset', '', dynamic_list_constructor=view_asset_dlc)
+@app.route('/operationalization/<operation>', methods=['POST'])
 @login_required
-def equipment_asset(kind, tag):
-    asset = table_service.get_entity('equipment', kind, tag)
+def operationalization_operation(operation):
+    model_management = ModelManagement(os.environ['MODEL_MANAGEMENT_SWAGGER_URL'], get_access_token())
+    return model_management.get('models')
+
+@app.route('/telemetry/<kind>/<tag>')
+@register_breadcrumb(app, '.telemetry.asset', '', dynamic_list_constructor=view_asset_dlc)
+@login_required
+def telemetry_asset(kind, tag):
+    asset = table_service.get_entity('telemetry', kind, tag)
     print(asset)
     return render_template('asset.html', assets = [asset])
 
