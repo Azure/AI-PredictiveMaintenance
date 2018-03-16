@@ -77,19 +77,12 @@
     </form>
     {% endif %}
 {% endblock %}
-{% block script %}
-  <script>    
-    $(document).ready(function() {
-        $.get('/.auth/me').done(function (data) {
-            var user_name = data[0].user_claims.find(uc => uc.typ === 'name').val;
-            $('#user_menu').text(user_name);
-        });
-        window.setInterval(function() {
-            if( '{{clusterDetails.Status}}' == 'Provisioning' || '{{clusterDetails.Status}}' == 'Deleting')
-            {
-                location.reload();
-            }
-        }, 10000);
-    });
-  </script>
+
+{% block js %}
+    window.setInterval(function() {
+        if( '{{clusterDetails.Status}}' == 'Provisioning' || '{{clusterDetails.Status}}' == 'Deleting')
+        {
+            location.reload();
+        }
+    }, 10000);  
 {% endblock %}

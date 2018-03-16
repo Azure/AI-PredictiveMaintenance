@@ -14,6 +14,7 @@ import aztk.models
 import aztk.spark	
 from aztk.error import AztkError
 from aztkCluster import AztkCluster
+from model_management import ModelManagement
 
 app = Flask(__name__)
 app.debug = True
@@ -71,17 +72,9 @@ def get_access_token():
 @app.route('/test')
 @login_required
 def test_model_management_access():
-    modelManagementSwaggerUrl = os.environ['MODEL_MANAGEMENT_SWAGGER_URL']
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + get_access_token()
-    }
+    model_management = ModelManagement(os.environ['MODEL_MANAGEMENT_SWAGGER_URL'], get_access_token())
+    return model_management.get('models')
     
-    #endpoint = 'https://westcentralus.modelmanagement.azureml.net/api/subscriptions/786d6510-8f1e-4ae7-b55b-5178716e6ac8/resourceGroups/pdm09/accounts/mgntek6ttv7wqjwts/models?api-version=2017-09-01-preview'
-    endpoint = modelManagementSwaggerUrl
-    response = requests.get(endpoint, headers=headers)
-    return response.text
-    #return json.dumps(response.json())
 
 def parse_website_owner_name():
     owner_name = os.environ['WEBSITE_OWNER_NAME']
@@ -104,8 +97,8 @@ def setup():
 @login_required
 def analytics():
     aztkcluster = AztkCluster()
-    clusterDetails = aztkcluster.getCluster()
-    return render_template('analytics.html', clusterDetails = clusterDetails)
+    asset = aztkcluster.getCluster()
+    return render_template('analytics.html', asset = asset)
     
 @app.route('/createCluster', methods=['POST'])
 @register_breadcrumb(app, '.createCluster', 'Create Cluster')

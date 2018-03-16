@@ -25,14 +25,26 @@
         </li>    
         <li class="nav-item" data-toggle="tooltip" data-placement="right">
           <a class="nav-link" href="/equipment">
-            <i class="fa fa-fw fa-industry"></i>
-            <span class="nav-link-text">Equipment</span>
+            <i class="fa fa-fw fa-bolt"></i>
+            <span class="nav-link-text">Telemetry</span>
           </a>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right">
           <a class="nav-link" href="/analytics">
-            <i class="fa fa-fw fa-industry"></i>
+            <i class="fa fa-fw fa-flask"></i>
             <span class="nav-link-text">Analytics</span>
+          </a>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right">
+          <a class="nav-link" href="/operationalization">
+            <i class="fa fa-fw fa-cogs"></i>
+            <span class="nav-link-text">Operationalization</span>
+          </a>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right">
+          <a class="nav-link" href="/intelligence">
+            <i class="fa fa-fw fa-info"></i>
+            <span class="nav-link-text">Intelligence</span>
           </a>
         </li>
       </ul>
@@ -85,14 +97,12 @@
 
 </style>
 
-{% block script %}
 <script>
   $(document).ready(function() {
     $.get('/.auth/me').done(function (data) {
       var user_name = data[0].user_claims.find(uc => uc.typ === 'name').val;
       $('#user_menu').text(user_name);
     });
-});
-// -- Bar Chart Example
+    {% block js %}{% endblock %}
+  });
 </script>
-{% endblock %}
