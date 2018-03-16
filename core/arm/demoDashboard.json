@@ -126,7 +126,7 @@
           "name": "python364x64",          
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/sites', variables('web-site-name'))]"
+            "[variables('web-site-id')]",
           ],
           "properties": { }
         },        
@@ -134,8 +134,9 @@
           "type": "config",
           "name": "web",
           "apiVersion": "[variables('web-site-version')]",
-          "dependsOn": [ 
-            "[variables('web-site-id')]"
+          "dependsOn": [
+            "[variables('web-site-id')]",
+            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/siteextensions/python364x64')]"
           ],
           "properties": {
             "use32BitWorkerProcess": false,
@@ -147,7 +148,8 @@
           "name": "logs",
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [ 
-            "[variables('web-site-id')]"
+            "[variables('web-site-id')]",
+            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/siteextensions/python364x64')]"
           ],
           "properties": {
             "applicationLogs": {
@@ -166,7 +168,8 @@
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [ 
             "[variables('web-site-id')]",
-            "[variables('storageResourceId')]"
+            "[variables('storageResourceId')]",
+            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/siteextensions/python364x64')]"
           ],
           "properties": {
             "STORAGE_ACCOUNT_NAME": "[variables('storageAccountName')]",
