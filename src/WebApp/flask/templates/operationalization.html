@@ -1,8 +1,5 @@
 {% extends "layout.html" %}
 {% block body %}
-<p>
-  Deploy model as a web service.
-</p>
 <div id="accordion">
   <div class="card">
     <div class="card-header" id="headingOne">
@@ -52,14 +49,10 @@
               <tbody>
               <tr>
                 <td>
-                  predictive-maintenance            
+                  <code>failure-prediction</code>            
                 </td>
                 <td>
                   <select class="form-control" id="model-version-select">
-                    <option>1</option>
-                    <option>2</option>
-                    <option>3</option>
-                    <option>4</option>
                   </select>
                 </td>
                 <td>
@@ -94,7 +87,7 @@
     <div class="card-header" id="headingFour">
       <h5 class="mb-0">
         <button class="btn btn-link btn-sm collapsed" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-          4. Deploy
+          4. Create Service
         </button>
       </h5>
     </div>
@@ -110,14 +103,29 @@
 {% block script %}
 <script>
   $(document).ready(function() {
+    
+    function loadModels() {
+      $.get('/operationalization/models').done(function(models) {
+        $.each(models, function(id, model) {
+          $('#model-version-select').append(new Option(model.version, model.version));          
+          $('#model-version-select').val(model.version);
+        });
+      });
+    }
+    
     $('#register-model').click(function() {
       var element = this;
       $(element).prop('disabled', true);
-      $.post('/operationalization/register').done(function(response) {
+      $.post('/operationalization/registerModel').done(function(model) {
+        console.log(model);
+        $('#model-version-select').append(new Option(model.version + ' (New)', model.version));
+        $('#model-version-select').val(model.version);
         $('#headingTwo button').click();
         $(element).prop('disabled', false);
-      })
+      });
     });
+    
+    loadModels();
   });
 </script>
 {% endblock %}

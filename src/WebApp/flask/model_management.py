@@ -1,4 +1,5 @@
 import re
+import json
 import requests
 
 class ModelManagement:
@@ -18,10 +19,21 @@ class ModelManagement:
             'Authorization': 'Bearer ' + self.access_token
         }
         
-    def get(self, resource):        
-        endpoint = self.api_base_url + resource + self.api_version_query
+    def get_api_endpoint(self, resource):
+        parts = resource.split('?')
+        endpoint = self.api_base_url + parts[0] + self.api_version_query + ('&' + parts[1] if len(parts) == 2 else '')
+        return endpoint   
+        
+    def get(self, resource):
+        endpoint = self.get_api_endpoint(resource)
         response = requests.get(endpoint, headers = self.get_auth_header())
         return response.text
+        
+    def post(self, resource, payload):
+        data = json.dumps(payload)
+        endpoint = self.get_api_endpoint(resource)
+        response = requests.post(endpoint, headers = self.get_auth_header(), data = data)
+        return response.text     
         #return json.dumps(response.json())
          
 if __name__ == '__main__':

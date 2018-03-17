@@ -2,18 +2,19 @@ import numpy as np
 import sys, os, time, glob	
 import requests
 import json
+import uuid
+import json
+from datetime import datetime, timedelta
 from functools import wraps
 from flask import Flask, render_template, Response, request,  redirect, url_for
 from threading import Thread
-from azure.storage.blob import PageBlobService
 from azure.storage.blob import BlockBlobService
-from datetime import datetime
+from azure.storage.file import FileService
+from azure.storage.file.models import FilePermissions
+from azure.storage.blob.models import BlobPermissions
 from azure.storage.table import TableService, Entity, TablePermissions
 from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
-import aztk.models	
-import aztk.spark	
-from aztk.error import AztkError
-from aztkCluster import AztkCluster
+from aztk_cluster import AztkCluster
 from model_management import ModelManagement
 
 app = Flask(__name__)
@@ -22,14 +23,10 @@ app.debug = True
 # Initialize Flask-Breadcrumbs
 Breadcrumbs(app=app)
 
-BATCH_ACCOUNT_NAME = os.environ['BATCH_ACCOUNT_NAME']
-BATCH_ACCOUNT_KEY = os.environ['BATCH_ACCOUNT_KEY']
-BATCH_SERVICE_URL = os.environ['BATCH_ACCOUNT_URL']
 STORAGE_ACCOUNT_SUFFIX = 'core.windows.net'
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 TELEMETRY_CONTAINER_NAME = 'telemetry'
-IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
@@ -72,8 +69,7 @@ def get_access_token():
 @app.route('/test')
 @login_required
 def test_model_management_access():
-    model_management = ModelManagement(os.environ['MODEL_MANAGEMENT_SWAGGER_URL'], get_access_token())
-    return model_management.get('models')
+    pass
     
 
 def parse_website_owner_name():
@@ -127,11 +123,59 @@ def view_asset_dlc(*args, **kwargs):
         {'text': kind, 'url': '/telemetry/{0}'.format(kind)},
         {'text': tag, 'url': '/telemetry/{0}/{1}'.format(kind, tag)}]
 
+
+@app.route('/operationalization/<operation>', methods=['GET'])
+@login_required
+def operationalization_get_operation(operation):        
+    model_management = ModelManagement(os.environ['MODEL_MANAGEMENT_SWAGGER_URL'], get_access_token())
+    mm_response = json.loads(model_management.get('models?name=failure-prediction'))
+    
+    resp = Response(json.dumps(mm_response['value']))
+    resp.headers['Content-type'] = 'application/json'
+    return resp
+
 @app.route('/operationalization/<operation>', methods=['POST'])
 @login_required
-def operationalization_operation(operation):
+def operationalization_post_operation(operation):    
+    file_service = FileService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
+    blob_service = BlockBlobService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
+    file_sas_token = file_service.generate_file_shared_access_signature(
+        'notebooks',
+        directory_name = None,
+        file_name = 'model.tar.gz',
+        permission = FilePermissions.READ,
+        expiry = datetime.now() + timedelta(minutes = 10))
+
+    model_file_url = file_service.make_file_url('notebooks', None, 'model.tar.gz', sas_token = file_sas_token)
+    
+    blob_name = str(uuid.uuid4()) + '.tar.gz'
+    blob_service.create_container('models')
+    
+    blob_service.copy_blob('models', blob_name, model_file_url)
+    
+    blob_sas_token = blob_service.generate_blob_shared_access_signature(
+        'models',
+        blob_name,
+        permission = BlobPermissions.READ,
+        expiry = datetime.now() + timedelta(days = 1000))
+    
+    model_blob_url = blob_service.make_blob_url('models?name=failure-prediction', blob_name, sas_token = blob_sas_token)       
+    
     model_management = ModelManagement(os.environ['MODEL_MANAGEMENT_SWAGGER_URL'], get_access_token())
-    return model_management.get('models')
+    payload = {
+		"name": "failure-prediction",
+		"tags": ["pdms"],
+		"url": model_blob_url,
+		"mimeType": "application/json",
+		"description": "Testing",
+		"unpack": True
+	}
+    
+    mm_response = model_management.post('models', payload)
+    resp = Response(mm_response)
+    resp.headers['Content-type'] = 'application/json'
+    return resp
+
 
 @app.route('/telemetry/<kind>/<tag>')
 @register_breadcrumb(app, '.telemetry.asset', '', dynamic_list_constructor=view_asset_dlc)
