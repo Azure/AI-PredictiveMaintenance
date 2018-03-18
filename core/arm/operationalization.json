@@ -1,0 +1,40 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "dryRun": {
+            "type": "string",
+            "metadata": {
+                "description": "yes/no"
+            }
+        }
+    },
+    "variables": {
+        "computeResourceName": "[concat('env', uniqueString(resourceGroup().id))]",
+        "location": "[resourceGroup().location]"
+    },
+    "resources": [
+      {
+        "condition": "[not(equals(parameters('dryRun'), 'yes'))]",
+        "name": "[variables('computeResourceName')]",
+        "location": "[variables('location')]",
+        "type": "Microsoft.MachineLearningCompute/operationalizationClusters",
+        "apiVersion": "2017-08-01-preview",                
+        "properties": {
+            "clusterType": "ACS",
+            "containerService": {
+                "masterCount": 1,
+                "agentCount": 2,
+                "agentVmSize": "Standard_D3_v2",
+                "orchestratorType": "Kubernetes"
+            }
+        }
+      }
+    ],
+    "outputs": {
+        "computeResourceId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.MachineLearningCompute/operationalizationClusters', variables('computeResourceName'))]"
+        }
+     }
+}

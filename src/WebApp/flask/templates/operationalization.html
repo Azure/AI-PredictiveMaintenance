@@ -107,9 +107,16 @@
     function loadModels() {
       $.get('/operationalization/models').done(function(models) {
         $.each(models, function(id, model) {
-          $('#model-version-select').append(new Option(model.version, model.version));          
-          $('#model-version-select').val(model.version);
+          console.log(model.id);
+          $('#model-version-select').append(new Option(model.version, model.id));          
+          $('#model-version-select').val(model.id);
         });
+      });
+    }
+
+    function loadImages() {
+      $.get('/operationalization/images').done(function(images) {
+        console.log(images);
       });
     }
     
@@ -118,14 +125,35 @@
       $(element).prop('disabled', true);
       $.post('/operationalization/registerModel').done(function(model) {
         console.log(model);
-        $('#model-version-select').append(new Option(model.version + ' (New)', model.version));
-        $('#model-version-select').val(model.version);
+        $('#model-version-select').append(new Option(model.version + ' (New)', model.id));
+        $('#model-version-select').val(model.id);
         $('#headingTwo button').click();
         $(element).prop('disabled', false);
       });
     });
     
+    $('#register-manifest').click(function() {
+      var element = this;
+      $(element).prop('disabled', true);
+      
+      $.ajax({
+        type: "POST",
+        url: '/operationalization/registerManifest',
+        data: {
+          modelId: $('#model-version-select').val()
+        },
+        dataType: 'json'
+      }).done(function(manifest) {        
+          console.log(manifest);
+          // $('#model-version-select').append(new Option(model.version + ' (New)', model.version));
+          // $('#model-version-select').val(model.version);
+          // $('#headingTwo button').click();
+          $(element).prop('disabled', false);
+      });
+    });
+    
     loadModels();
+    loadImages();
   });
 </script>
 {% endblock %}

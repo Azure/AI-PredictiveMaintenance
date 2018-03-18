@@ -126,56 +126,100 @@ def view_asset_dlc(*args, **kwargs):
 
 @app.route('/operationalization/<operation>', methods=['GET'])
 @login_required
-def operationalization_get_operation(operation):        
+def operationalization_get_operation(operation):
     model_management = ModelManagement(os.environ['MODEL_MANAGEMENT_SWAGGER_URL'], get_access_token())
-    mm_response = json.loads(model_management.get('models?name=failure-prediction'))
-    
-    resp = Response(json.dumps(mm_response['value']))
-    resp.headers['Content-type'] = 'application/json'
-    return resp
+    operation = operation.lower()
+    if operation == 'models':
+        mm_response = json.loads(model_management.get('models?name=failure-prediction'))    
+        resp = Response(json.dumps(mm_response['value']))
+        resp.headers['Content-type'] = 'application/json'
+        return resp
+    elif operation == 'images':
+        mm_response = json.loads(model_management.get('images'))    
+        resp = Response(json.dumps(mm_response['value']))
+        resp.headers['Content-type'] = 'application/json'
+        return resp        
 
 @app.route('/operationalization/<operation>', methods=['POST'])
 @login_required
-def operationalization_post_operation(operation):    
-    file_service = FileService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
-    blob_service = BlockBlobService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
-    file_sas_token = file_service.generate_file_shared_access_signature(
-        'notebooks',
-        directory_name = None,
-        file_name = 'model.tar.gz',
-        permission = FilePermissions.READ,
-        expiry = datetime.now() + timedelta(minutes = 10))
-
-    model_file_url = file_service.make_file_url('notebooks', None, 'model.tar.gz', sas_token = file_sas_token)
-    
-    blob_name = str(uuid.uuid4()) + '.tar.gz'
-    blob_service.create_container('models')
-    
-    blob_service.copy_blob('models', blob_name, model_file_url)
-    
-    blob_sas_token = blob_service.generate_blob_shared_access_signature(
-        'models',
-        blob_name,
-        permission = BlobPermissions.READ,
-        expiry = datetime.now() + timedelta(days = 1000))
-    
-    model_blob_url = blob_service.make_blob_url('models?name=failure-prediction', blob_name, sas_token = blob_sas_token)       
-    
+def operationalization_post_operation(operation):
     model_management = ModelManagement(os.environ['MODEL_MANAGEMENT_SWAGGER_URL'], get_access_token())
-    payload = {
-		"name": "failure-prediction",
-		"tags": ["pdms"],
-		"url": model_blob_url,
-		"mimeType": "application/json",
-		"description": "Testing",
-		"unpack": True
-	}
-    
-    mm_response = model_management.post('models', payload)
-    resp = Response(mm_response)
-    resp.headers['Content-type'] = 'application/json'
-    return resp
 
+    operation = operation.lower()
+    if operation == 'registermodel':
+        file_service = FileService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
+        blob_service = BlockBlobService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
+        file_sas_token = file_service.generate_file_shared_access_signature(
+            'notebooks',
+            directory_name = None,
+            file_name = 'model.tar.gz',
+            permission = FilePermissions.READ,
+            expiry = datetime.now() + timedelta(minutes = 10))
+    
+        model_file_url = file_service.make_file_url('notebooks', None, 'model.tar.gz', sas_token = file_sas_token)
+        
+        blob_name = str(uuid.uuid4()) + '.tar.gz'
+        blob_service.create_container('models')
+        
+        blob_service.copy_blob('models', blob_name, model_file_url)
+        
+        blob_sas_token = blob_service.generate_blob_shared_access_signature(
+            'models',
+            blob_name,
+            permission = BlobPermissions.READ,
+            expiry = datetime.now() + timedelta(days = 1000))
+        
+        model_blob_url = blob_service.make_blob_url('models', blob_name, sas_token = blob_sas_token)
+                
+        payload = {
+    		"name": "failure-prediction",
+    		"tags": ["pdms"],
+    		"url": model_blob_url,
+    		"mimeType": "application/json",
+    		"description": "Testing",
+    		"unpack": True
+    	}
+        
+        mm_response = model_management.post('models', payload)
+        resp = Response(mm_response)
+        resp.headers['Content-type'] = 'application/json'
+        return resp
+    elif operation == 'registermanifest':
+        model_id = request.form["modelId"]
+        
+        payload = {
+                    "modelIds": [model_id],
+                	"name": "failure-prediction-manifest",        	
+                	"description": "Failure prediction manifest",
+                	"driverProgram": "driver",            
+                	"assets": [{
+                		"id": "driver",
+                		"mimeType": "application/x-python",
+                		"url": "https://modelmanagementdemowcus.blob.core.windows.net/demo/driver.py",
+                		"unpack": False
+                	}],
+                	"targetRuntime": {
+                		"runtimeType": "Python",
+                		"properties": {
+                			"pipRequirements": "https://modelmanagementdemowcus.blob.core.windows.net/demo/requirementscw2y2q5i.txt"
+                		}
+                	},
+                	"webserviceType": "Realtime",
+                    "modelType": "Registered"
+                }
+                
+        mm_response = model_management.post('manifests', payload)
+        resp = Response(mm_response)
+        resp.headers['Content-type'] = 'application/json'
+        return resp
+        
+        try:
+            mm_response = model_management.post('manifests', payload)        
+            resp = Response(mm_response)
+            resp.headers['Content-type'] = 'application/json'
+            return resp
+        except Exception as e:
+            return json.dumps(e.args)
 
 @app.route('/telemetry/<kind>/<tag>')
 @register_breadcrumb(app, '.telemetry.asset', '', dynamic_list_constructor=view_asset_dlc)
