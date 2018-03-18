@@ -8,10 +8,10 @@
             "description": "Web App URL"
         }
     },
-    "notebooksUrl": {
+    "amlAssetsUrl": {
       "type": "string",
       "metadata": {
-          "description": "Notebooks URL"
+          "description": "AML assets URL"
       }
     },
     "modelManagementSwaggerUrl": {
@@ -186,7 +186,7 @@
             "BATCH_ACCOUNT_NAME": "[parameters('batchAccountName')]",
             "BATCH_ACCOUNT_KEY": "[parameters('batchAccountKey')]",
             "BATCH_ACCOUNT_URL": "[parameters('batchAccountUrl')]",
-            "NOTEBOOKS_URL": "[parameters('notebooksUrl')]",
+            "AML_ASSETS_URL": "[parameters('amlAssetsUrl')]",
             "MODEL_MANAGEMENT_SWAGGER_URL": "[parameters('modelManagementSwaggerUrl')]",
             "ML_COMPUTE_RESOURCE_ID": "[parameters('computeResourceId')]"
           }

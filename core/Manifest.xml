@@ -19,7 +19,7 @@
             </LocationProvidedFor>
             <Parameters>
                 <Parameter name="webAppUrl" defaultValue="{PatternAssetBaseUrl}/WebApp.zip" hidden="true" />
-                <Parameter name="notebooksUrl" defaultValue="{PatternAssetBaseUrl}/Notebooks.zip" hidden="true" />
+                <Parameter name="amlAssetsUrl" defaultValue="{PatternAssetBaseUrl}/AML.zip" hidden="true" />
                 <Parameter name="modelManagementSwaggerUrl" defaultValue="{Outputs.modelManagementSwaggerLocation}" hidden="true" />
                 <Parameter name="computeResourceId" defaultValue="{Outputs.computeResourceId}" hidden="true" />
             </Parameters>

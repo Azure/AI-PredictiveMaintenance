@@ -139,6 +139,12 @@ def operationalization_get_operation(operation):
         resp = Response(json.dumps(mm_response['value']))
         resp.headers['Content-type'] = 'application/json'
         return resp        
+    elif operation == 'manifests':
+        mm_response = json.loads(model_management.get('manifests'))    
+        resp = Response(json.dumps(mm_response['value']))
+        resp.headers['Content-type'] = 'application/json'
+        return resp        
+
 
 @app.route('/operationalization/<operation>', methods=['POST'])
 @login_required
@@ -179,14 +185,14 @@ def operationalization_post_operation(operation):
     		"description": "Testing",
     		"unpack": True
     	}
-        
+
         mm_response = model_management.post('models', payload)
         resp = Response(mm_response)
         resp.headers['Content-type'] = 'application/json'
         return resp
     elif operation == 'registermanifest':
         model_id = request.form["modelId"]
-        
+
         payload = {
                     "modelIds": [model_id],
                 	"name": "failure-prediction-manifest",        	
@@ -201,7 +207,8 @@ def operationalization_post_operation(operation):
                 	"targetRuntime": {
                 		"runtimeType": "Python",
                 		"properties": {
-                			"pipRequirements": "https://modelmanagementdemowcus.blob.core.windows.net/demo/requirementscw2y2q5i.txt"
+                			"pipRequirements": "https://modelmanagementdemowcus.blob.core.windows.net/demo/requirementscw2y2q5i.txt",
+                            "condaEnvFile": "conda_dependencies.yml"
                 		}
                 	},
                 	"webserviceType": "Realtime",
@@ -212,9 +219,9 @@ def operationalization_post_operation(operation):
         resp = Response(mm_response)
         resp.headers['Content-type'] = 'application/json'
         return resp
-        
+
         try:
-            mm_response = model_management.post('manifests', payload)        
+            mm_response = model_management.post('manifests', payload)
             resp = Response(mm_response)
             resp.headers['Content-type'] = 'application/json'
             return resp
