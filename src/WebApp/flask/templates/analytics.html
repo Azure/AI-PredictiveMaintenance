@@ -61,14 +61,27 @@
     {% endif %}
     {% if clusterDetails.Status == "Provisioned" %}
     <div>
-        <p> <b>Cluster Information: </b></p>
-        <p> <i>Master Node IP Address : {{clusterDetails.Master_Ip_Address}}</i> </p>   
-        <p> <i>Master Node Port Number : {{clusterDetails.Master_Port}}</i> </p>  
-        <p> <i>Connect via ssh : <code>{{clusterDetails.UserName}}@{{clusterDetails.Master_Ip_Address}} -p {{clusterDetails.Master_Port}} -L 127.0.0.1:8888</code></i> </p>
-        <p> <i>Once connected, Jupyter will be available at <a href="http://localhost:8888" target="_blank">http://localhost:8888 </a> </i> </p>  
+        <h3>Cluster Information</h3>
+        <p>
+            <i>Master Node IP Address</i>: {{clusterDetails.Master_Ip_Address}}
+        </p>   
+        <p>
+            <i>Master Node Port Number</i>: {{clusterDetails.Master_Port}}
+        </p>  
+        <p>
+            <i>Connect via SSH</i>:
+            <code>
+                ssh {{clusterDetails.UserName}}@{{clusterDetails.Master_Ip_Address}} -p {{clusterDetails.Master_Port}} -L 8888:127.0.0.1:8888
+            </code>
+        </p>
+        <p>
+            Once connected, <i>Jupyter</i> will be available at <a href="http://localhost:8888" target="_blank">http://localhost:8888 </a>
+        </p>  
     </div>
     <p>
-    <a href="https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/User%20Guides/AZTK%20Instructions.md" target="_blank">Connecting via Putty</a> 
+        <a href="https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/User%20Guides/AZTK%20Instructions.md" target="_blank">
+            Connecting via PuTTY
+        </a> 
     </p>
     <form action = "/deleteCluster" method = "POST">
         <div>           
@@ -77,19 +90,14 @@
     </form>
     {% endif %}
 {% endblock %}
+
 {% block script %}
-  <script>    
-    $(document).ready(function() {
-        $.get('/.auth/me').done(function (data) {
-            var user_name = data[0].user_claims.find(uc => uc.typ === 'name').val;
-            $('#user_menu').text(user_name);
-        });
-        window.setInterval(function() {
-            if( '{{clusterDetails.Status}}' == 'Provisioning' || '{{clusterDetails.Status}}' == 'Deleting')
-            {
-                location.reload();
-            }
-        }, 10000);
-    });
-  </script>
+<script>
+    window.setInterval(function() {
+        if( '{{clusterDetails.Status}}' == 'Provisioning' || '{{clusterDetails.Status}}' == 'Deleting')
+        {
+            location.reload();
+        }
+    }, 10000);
+</script>  
 {% endblock %}

@@ -1,0 +1,166 @@
+{% extends "layout.html" %}
+{% block body %}
+<div id="accordion">
+  <div class="card">
+    <div class="card-header" id="headingOne">
+      <h5 class="mb-0">
+        <button class="btn btn-link btn-sm" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          1. Register model
+        </button>
+      </h5>
+    </div>
+    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+      <div class="card-body">
+        <p>
+          Register last trained model with the <i>Machine Learning Model Management</i> account.
+        </p>
+        <div>
+          <button type="submit" id="register-model" class="btn btn-primary btn-sm">Register</button>
+          <button type="submit" id="skip-and-continue-1" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">Skip and continue</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingTwo">
+      <h5 class="mb-0">
+        <button class="btn btn-link btn-sm collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          2. Register Manifest
+        </button>
+      </h5>
+    </div>
+    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered">
+            <thead>
+              <tr>
+                <th>
+                  Model              
+                </th>
+                <th>
+                  Version              
+                </th>
+                <th>
+                  Driver            
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td>
+                  <code>failure-prediction</code>            
+                </td>
+                <td>
+                  <select class="form-control" id="model-version-select">
+                  </select>
+                </td>
+                <td>
+                  score.py            
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div>
+            <button type="submit" id="register-manifest" class="btn btn-primary btn-sm">Register</button>
+            <button type="submit" id="skip-and-continue-2" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">Skip and continue</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingThree">
+      <h5 class="mb-0">
+        <button class="btn btn-link btn-sm collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          3. Create Image
+        </button>
+      </h5>
+    </div>
+    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+      <div class="card-body">
+        TBD
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingFour">
+      <h5 class="mb-0">
+        <button class="btn btn-link btn-sm collapsed" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+          4. Create Service
+        </button>
+      </h5>
+    </div>
+    <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion">
+      <div class="card-body">
+        TBD
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  $(document).ready(function() {
+    
+    function loadModels() {
+      $.get('/operationalization/models').done(function(models) {
+        $.each(models, function(id, model) {
+          console.log(model.id);
+          $('#model-version-select').append(new Option(model.version, model.id));          
+          $('#model-version-select').val(model.id);
+        });
+      });
+    }
+
+    function loadManifests() {
+      $.get('/operationalization/manifests').done(function(manifests) {
+        console.log(manifests);
+      });
+    }
+
+    function loadImages() {
+      $.get('/operationalization/images').done(function(images) {
+        console.log(images);
+      });
+    }
+    
+    $('#register-model').click(function() {
+      var element = this;
+      $(element).prop('disabled', true);
+      $.post('/operationalization/registerModel').done(function(model) {
+        console.log(model);
+        $('#model-version-select').append(new Option(model.version + ' (New)', model.id));
+        $('#model-version-select').val(model.id);
+        $('#headingTwo button').click();
+        $(element).prop('disabled', false);
+      });
+    });
+    
+    $('#register-manifest').click(function() {
+      var element = this;
+      $(element).prop('disabled', true);
+      
+      $.ajax({
+        type: "POST",
+        url: '/operationalization/registerManifest',
+        data: {
+          modelId: $('#model-version-select').val()
+        },
+        dataType: 'json'
+      }).done(function(manifest) {        
+          console.log(manifest);
+          // $('#model-version-select').append(new Option(model.version + ' (New)', model.version));
+          // $('#model-version-select').val(model.version);
+          // $('#headingTwo button').click();
+          $(element).prop('disabled', false);
+      });
+    });
+    
+    loadModels();
+    loadManifests();
+    loadImages();
+  });
+</script>
+{% endblock %}

@@ -8,22 +8,28 @@
         <ArmDeployment source="arm/azureBatch.json" title="Creating Azure Batch account" />
         <ArmDeployment source="arm/iotHub.json" title="Creating IoT Hub" />
         <ArmDeployment source="arm/modelManagement.json" title="Creating Machine Learning Model Management account" />
+        <ArmDeployment source="arm/operationalization.json" title="Generating Machine Learning Compute resource ID">
+            <Parameters>
+                <Parameter name="dryRun" defaultValue="yes" hidden="true" />
+            </Parameters>
+        </ArmDeployment>        
         <ArmDeployment source="arm/demoDashboard.json" title="Setting up Azure Storage account and Demo Dashboard" autoResolveParameters="true">
             <LocationProvidedFor>
                 <ResourceType>Microsoft.Resources/deployments</ResourceType>
             </LocationProvidedFor>
             <Parameters>
                 <Parameter name="webAppUrl" defaultValue="{PatternAssetBaseUrl}/WebApp.zip" hidden="true" />
-                <Parameter name="notebooksUrl" defaultValue="{PatternAssetBaseUrl}/Notebooks.zip" hidden="true" />
+                <Parameter name="amlAssetsUrl" defaultValue="{PatternAssetBaseUrl}/AML.zip" hidden="true" />
                 <Parameter name="modelManagementSwaggerUrl" defaultValue="{Outputs.modelManagementSwaggerLocation}" hidden="true" />
+                <Parameter name="computeResourceId" defaultValue="{Outputs.computeResourceId}" hidden="true" />
             </Parameters>
         </ArmDeployment>
-        <ArmDeployment source="arm/serviceBus.json" title="Setting up Service Bus">
+        <ArmDeployment source="arm/serviceBus.json" title="Creating Azure Service Bus">
             <LocationProvidedFor>
                 <ResourceType>Microsoft.Resources/deployments</ResourceType>
             </LocationProvidedFor>
         </ArmDeployment>
-        <ArmDeployment source="arm/iotHubStorageRoute.json" title="Adding Azure Storage endpoint and route to IoT Hub">
+        <ArmDeployment source="arm/iotHubStorageRoute.json" title="Configuring IoT Hub endpoints and routes (Azure Storage, Service Bus)">
             <Parameters>
                 <Parameter name="storageAccountConnectionString" defaultValue="DefaultEndpointsProtocol=https;AccountName={Outputs.storageAccountName};AccountKey={Outputs.storageAccountKey}" hidden="true" />
                 <Parameter name="storageContainerName" defaultValue="telemetry" hidden="true" />
@@ -31,6 +37,11 @@
                 <Parameter name="serviceBusQueueName" defaultValue="{Outputs.serviceBusQueueName}" hidden="true" />
             </Parameters>
         </ArmDeployment>
+        <ArmDeployment source="arm/operationalization.json" title="Creating Machine Learning Compute resources">
+            <Parameters>
+                <Parameter name="dryRun" defaultValue="no" hidden="true" />
+            </Parameters>
+        </ArmDeployment>        
         <Manual title="Done">
           <Instructions src="markdown/Instructions.md" format="markdown" />
         </Manual>

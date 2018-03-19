@@ -35,8 +35,8 @@ table_service.insert_or_merge_entity('cluster', asset)
 file_service = FileService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 file_service.create_share(share_name='notebooks', quota=1)
 
-source=os.environ['NOTEBOOKS_URL']
-dest='notebooks.zip'
+source=os.environ['AML_ASSETS_URL']
+dest='aml_assets.zip'
 
 urllib.request.urlretrieve(source, dest)
 
@@ -53,4 +53,3 @@ for root, dirs, files in os.walk('notebooks', topdown=True):
             directory,
             f,
             os.path.join(root, f))
-

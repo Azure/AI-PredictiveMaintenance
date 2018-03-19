@@ -11,6 +11,8 @@
 if  [ "$IS_MASTER" = "1" ]; then
     pip install jupyter --upgrade
     pip install notebook --upgrade
+    pip install azureml
+    pip install azureml-model-management-sdk
 
     PYSPARK_DRIVER_PYTHON="/.pyenv/versions/${USER_PYTHON_VERSION}/bin/jupyter"
     JUPYTER_KERNELS="/.pyenv/versions/${USER_PYTHON_VERSION}/share/jupyter/kernels"
