@@ -145,6 +145,31 @@ def operationalization_get_operation(operation):
         resp.headers['Content-type'] = 'application/json'
         return resp        
 
+def create_snapshot(file_share, directory_name, file_name, container_name, correlation_guid = str(uuid.uuid4())):
+    file_service = FileService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
+    blob_service = BlockBlobService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
+    file_sas_token = file_service.generate_file_shared_access_signature(
+        file_share,
+        directory_name,
+        file_name,
+        permission = FilePermissions.READ,
+        expiry = datetime.now() + timedelta(minutes = 10))
+
+    file_url = file_service.make_file_url(file_share, directory_name, file_name, sas_token = file_sas_token)
+    
+    blob_name = '{0}/{1}/{2}'.format(correlation_guid, directory_name, file_name)
+    blob_service.create_container(container_name)
+    
+    blob_service.copy_blob(container_name, blob_name, file_url)
+    
+    blob_sas_token = blob_service.generate_blob_shared_access_signature(
+        container_name,
+        blob_name,
+        permission = BlobPermissions.READ,
+        expiry = datetime.now() + timedelta(days = 1000))
+    
+    return blob_service.make_blob_url(container_name, blob_name, sas_token = blob_sas_token)
+
 
 @app.route('/operationalization/<operation>', methods=['POST'])
 @login_required
@@ -152,31 +177,8 @@ def operationalization_post_operation(operation):
     model_management = ModelManagement(os.environ['MODEL_MANAGEMENT_SWAGGER_URL'], get_access_token())
 
     operation = operation.lower()
-    if operation == 'registermodel':
-        file_service = FileService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
-        blob_service = BlockBlobService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
-        file_sas_token = file_service.generate_file_shared_access_signature(
-            'notebooks',
-            directory_name = None,
-            file_name = 'model.tar.gz',
-            permission = FilePermissions.READ,
-            expiry = datetime.now() + timedelta(minutes = 10))
-    
-        model_file_url = file_service.make_file_url('notebooks', None, 'model.tar.gz', sas_token = file_sas_token)
-        
-        blob_name = str(uuid.uuid4()) + '.tar.gz'
-        blob_service.create_container('models')
-        
-        blob_service.copy_blob('models', blob_name, model_file_url)
-        
-        blob_sas_token = blob_service.generate_blob_shared_access_signature(
-            'models',
-            blob_name,
-            permission = BlobPermissions.READ,
-            expiry = datetime.now() + timedelta(days = 1000))
-        
-        model_blob_url = blob_service.make_blob_url('models', blob_name, sas_token = blob_sas_token)
-                
+    if operation == 'registermodel':    
+        model_blob_url = create_snapshot('notebooks', None, 'model.tar.gz', 'o16n')
         payload = {
     		"name": "failure-prediction",
     		"tags": ["pdms"],
@@ -192,7 +194,14 @@ def operationalization_post_operation(operation):
         return resp
     elif operation == 'registermanifest':
         model_id = request.form["modelId"]
-
+        
+        # take a snapshots of driver.py, score.py, requirements.txt and conda_dependencies.yml
+        correlation_guid = str(uuid.uuid4())
+        driver_url = create_snapshot('notebooks', None, 'driver.py', 'o16n', correlation_guid)
+        score_url = create_snapshot('notebooks', None, 'score.py', 'o16n', correlation_guid)
+        schema_url = create_snapshot('notebooks', None, 'service_schema.json', 'o16n', correlation_guid)
+        requirements_url = create_snapshot('notebooks', 'aml_config', 'requirements.txt', 'o16n', correlation_guid)
+        conda_dependencies_url = create_snapshot('notebooks', 'aml_config', 'conda_dependencies.yml', 'o16n', correlation_guid)
         payload = {
                     "modelIds": [model_id],
                 	"name": "failure-prediction-manifest",        	
@@ -201,14 +210,26 @@ def operationalization_post_operation(operation):
                 	"assets": [{
                 		"id": "driver",
                 		"mimeType": "application/x-python",
-                		"url": "https://modelmanagementdemowcus.blob.core.windows.net/demo/driver.py",
+                		"url": driver_url,
+                		"unpack": False
+                	},
+                    {
+                		"id": "score",
+                		"mimeType": "application/x-python",
+                		"url": score_url,
+                		"unpack": False
+                	},
+                    {
+                		"id": "schema",
+                		"mimeType": "application/json",
+                		"url": schema_url,
                 		"unpack": False
                 	}],
                 	"targetRuntime": {
-                		"runtimeType": "Python",
+                		"runtimeType": "SparkPython",
                 		"properties": {
-                			"pipRequirements": "https://modelmanagementdemowcus.blob.core.windows.net/demo/requirementscw2y2q5i.txt",
-                            "condaEnvFile": "conda_dependencies.yml"
+                			"pipRequirements": requirements_url,
+                            "condaEnvFile": conda_dependencies_url
                 		}
                 	},
                 	"webserviceType": "Realtime",
