@@ -49,7 +49,7 @@
               <tbody>
               <tr>
                 <td>
-                  <code>failure-prediction</code>            
+                  <code>failure-prediction-model</code>            
                 </td>
                 <td>
                   <select class="form-control" id="model-version-select">
@@ -79,7 +79,41 @@
     </div>
     <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
       <div class="card-body">
-        TBD
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered">
+            <thead>
+              <tr>
+                <th>
+                  Manifest              
+                </th>
+                <th>
+                  Version              
+                </th>
+                <th>
+                  Type            
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td>
+                  <code>failure-prediction-manifest</code>            
+                </td>
+                <td>
+                  <select class="form-control" id="manifest-version-select">
+                  </select>
+                </td>
+                <td>
+                  Docker            
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div>
+            <button type="submit" id="create-image" class="btn btn-primary btn-sm">Create</button>
+            <button type="submit" id="skip-and-continue-3" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">Skip and continue</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -116,8 +150,12 @@
 
     function loadManifests() {
       $.get('/operationalization/manifests').done(function(manifests) {
-        console.log(manifests);
-      });
+        $.each(manifests, function(id, manifest) {
+          console.log(manifest);
+          $('#manifest-version-select').append(new Option(manifest.version, manifest.id));          
+          $('#manifest-version-select').val(manifest.id);
+        });
+      });     
     }
 
     function loadImages() {
@@ -140,8 +178,7 @@
     
     $('#register-manifest').click(function() {
       var element = this;
-      $(element).prop('disabled', true);
-      
+      $(element).prop('disabled', true);      
       $.ajax({
         type: "POST",
         url: '/operationalization/registerManifest',
@@ -151,12 +188,33 @@
         dataType: 'json'
       }).done(function(manifest) {        
           console.log(manifest);
-          // $('#model-version-select').append(new Option(model.version + ' (New)', model.version));
-          // $('#model-version-select').val(model.version);
-          // $('#headingTwo button').click();
+          $('#manifest-version-select').append(new Option(manifest.version + ' (New)', manifest.version));
+          $('#manifest-version-select').val(manifest.version);
+          $('#headingThree button').click();
           $(element).prop('disabled', false);
       });
     });
+    
+    
+    $('#create-image').click(function() {
+      var element = this;
+      $(element).prop('disabled', true);      
+      $.ajax({
+        type: "POST",
+        url: '/operationalization/createImage',
+        data: {
+          manifestId: $('#manifest-version-select').val()
+        }
+      }).done(function(image) {
+        alert('test');        
+        console.log(image);
+        // $('#manifest-version-select').append(new Option(manifest.version + ' (New)', manifest.version));
+        // $('#manifest-version-select').val(manifest.version);
+        // $('#headingThree button').click();
+        $(element).prop('disabled', false);
+      });
+    });
+
     
     loadModels();
     loadManifests();
