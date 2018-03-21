@@ -283,12 +283,48 @@ def operationalization_post_operation(operation):
         resp = Response(status = mm_response.status_code)
         resp.headers['Operation-Location'] = operation_location
         return resp
+    elif operation == 'createservice':
+        image_id = request.form["imageId"]
+        name = request.form["name"]
+        
+        payload = {
+            "computeResource": {
+                "id": os.environ['ML_COMPUTE_RESOURCE_ID'],
+                "type": "Cluster"
+            },
+    		"name": name,    		
+    		"imageId": image_id
+    	}
+        
+        mm_response = model_management.post('services', payload)
+        
+        resp = Response(mm_response.text, status = mm_response.status_code)
+        if mm_response.status_code == 202:
+            operation_location = mm_response.headers['operation-location']                       
+            resp.headers['Operation-Location'] = operation_location
+        return resp
+    elif operation == 'consume':
+        service_id = request.form["serviceId"]               
+        mm_response_service = model_management.get('services/{0}'.format(service_id))
+        mm_response_service_keys = model_management.get('services/{0}/keys'.format(service_id))
+        
+        mm_response_service_json = json.loads(mm_response_service.text)
+        mm_response_service_keys_json = json.loads(mm_response_service_keys.text)
+        
+        response_text = json.dumps({
+            'scoringUri': mm_response_service_json['scoringUri'],
+            'primaryKey': mm_response_service_keys_json['primaryKey']
+        })
+        
+        resp = Response(response_text)
+        resp.headers['Content-type'] = 'application/json'
+        return resp
 
 @app.route('/telemetry/<kind>/<tag>')
 @register_breadcrumb(app, '.telemetry.asset', '', dynamic_list_constructor=view_asset_dlc)
 @login_required
 def telemetry_asset(kind, tag):
-    asset = table_service.get_entity('equipment', kind, tag)    
+    asset = table_service.get_entity('equipment', kind, tag)
     return render_template('asset.html', assets = [asset])
 
 if __name__ == "__main__":
