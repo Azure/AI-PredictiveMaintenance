@@ -181,7 +181,12 @@
     </div>
     <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordion">
       <div class="card-body">
-        TBD
+        <div class="table-responsive">  
+          <table id="services" class="table table-sm table-condensed">
+            <tbody>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>  
@@ -218,11 +223,30 @@
         });
       });
     }
-    
+
     function loadServices() {
+      $('#services>tbody').empty();
       $.get('/operationalization/services').done(function(services) {
         $.each(services, function(id, service) {
           console.log(service);
+          $('#services>tbody').append('<tr><td>' + service.id 
+            + '</td><td>' + service.state 
+            + '</td><td>' + '<button type="button" class="btn btn-link">Consume</button>' 
+            + '</td></tr>');            
+        });
+
+        $('#services button').click(function() {
+          var serviceId = $(this).parent().parent().find('td').first().text();
+          $.ajax({
+            type: "POST",
+            url: '/operationalization/consume',
+            data: {
+              serviceId: serviceId
+            }
+          }).done(function(data, textStatus, xhr) {
+              loadServices(function() {
+              });
+          });
         });
       });
     }
@@ -308,6 +332,8 @@
           name: $('#service-name').val()
         }
       }).done(function(data, textStatus, xhr) {
+          loadServices(function() {
+        });
       });
     });
 
