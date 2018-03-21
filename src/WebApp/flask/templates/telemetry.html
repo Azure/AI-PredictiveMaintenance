@@ -14,7 +14,7 @@
         <tbody>
           {% for asset in assets %}
           <tr>
-            <td><a href="/equipment/{{ asset.PartitionKey }}/{{ asset.RowKey }}">{{ asset.RowKey }}</a></td>
+            <td><a href="/telemetry/{{ asset.PartitionKey }}/{{ asset.RowKey }}">{{ asset.RowKey }}</a></td>
             <td>{{ asset.PartitionKey }}</td>
             <td>{{ asset.Installed.date() }}</td>
             <td>{{ asset.Model }}</td>

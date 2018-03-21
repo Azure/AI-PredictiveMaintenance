@@ -125,25 +125,52 @@ def view_asset_dlc(*args, **kwargs):
 
 
 @app.route('/operationalization/<operation>', methods=['GET'])
+@app.route('/operationalization/<operation>/<id>', methods=['GET'])
 @login_required
-def operationalization_get_operation(operation):
+def operationalization_get_operation(operation, id = None):
     model_management = ModelManagement(os.environ['MODEL_MANAGEMENT_SWAGGER_URL'], get_access_token())
     operation = operation.lower()
     if operation == 'models':
-        mm_response = json.loads(model_management.get('models?name=failure-prediction'))    
-        resp = Response(json.dumps(mm_response['value']))
+        mm_response = model_management.get('models?name=failure-prediction-model')
+        mm_response_json = json.loads(mm_response.text)    
+        resp = Response(json.dumps(mm_response_json['value']))
         resp.headers['Content-type'] = 'application/json'
         return resp
-    elif operation == 'images':
-        mm_response = json.loads(model_management.get('images'))    
-        resp = Response(json.dumps(mm_response['value']))
-        resp.headers['Content-type'] = 'application/json'
-        return resp        
     elif operation == 'manifests':
-        mm_response = json.loads(model_management.get('manifests'))    
-        resp = Response(json.dumps(mm_response['value']))
+        mm_response = model_management.get('manifests?manifestName=failure-prediction-manifest')
+        mm_response_json = json.loads(mm_response.text)    
+        resp = Response(json.dumps(mm_response_json['value']))
         resp.headers['Content-type'] = 'application/json'
         return resp        
+    elif operation == 'images':
+        if id == None:        
+            mm_response = model_management.get('images')
+            mm_response_json = json.loads(mm_response.text)    
+            resp = Response(json.dumps(mm_response_json['value']))
+            resp.headers['Content-type'] = 'application/json'
+            return resp
+        else:
+            mm_response = model_management.get('images/{0}'.format(id))                
+            resp = Response(mm_response.text)
+            resp.headers['Content-type'] = 'application/json'
+            return resp
+    elif operation == 'services':
+        if id == None:        
+            mm_response = model_management.get('services')
+            mm_response_json = json.loads(mm_response.text)    
+            resp = Response(json.dumps(mm_response_json['value']))
+            resp.headers['Content-type'] = 'application/json'
+            return resp
+        else:
+            mm_response = model_management.get('services/{0}'.format(id))                
+            resp = Response(mm_response.text)
+            resp.headers['Content-type'] = 'application/json'
+            return resp            
+    elif operation == 'operations':
+        mm_response = model_management.get('operations/{0}'.format(id))        
+        resp = Response(mm_response.text, status = mm_response.status_code)
+        resp.headers['Content-type'] = 'application/json'
+        return resp
 
 def create_snapshot(file_share, directory_name, file_name, container_name, correlation_guid = str(uuid.uuid4())):
     file_service = FileService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
@@ -177,10 +204,10 @@ def operationalization_post_operation(operation):
     model_management = ModelManagement(os.environ['MODEL_MANAGEMENT_SWAGGER_URL'], get_access_token())
 
     operation = operation.lower()
-    if operation == 'registermodel':    
+    if operation == 'registermodel':
         model_blob_url = create_snapshot('notebooks', None, 'model.tar.gz', 'o16n')
         payload = {
-    		"name": "failure-prediction",
+    		"name": "failure-prediction-model",
     		"tags": ["pdms"],
     		"url": model_blob_url,
     		"mimeType": "application/json",
@@ -189,7 +216,7 @@ def operationalization_post_operation(operation):
     	}
 
         mm_response = model_management.post('models', payload)
-        resp = Response(mm_response)
+        resp = Response(mm_response.text)
         resp.headers['Content-type'] = 'application/json'
         return resp
     elif operation == 'registermanifest':
@@ -237,24 +264,31 @@ def operationalization_post_operation(operation):
                 }
                 
         mm_response = model_management.post('manifests', payload)
-        resp = Response(mm_response)
+        resp = Response(mm_response.text)
         resp.headers['Content-type'] = 'application/json'
         return resp
-
-        try:
-            mm_response = model_management.post('manifests', payload)
-            resp = Response(mm_response)
-            resp.headers['Content-type'] = 'application/json'
-            return resp
-        except Exception as e:
-            return json.dumps(e.args)
+    elif operation == 'createimage':
+        manifest_id = request.form["manifestId"]
+        
+        payload = {
+            "computeResourceId": os.environ['ML_COMPUTE_RESOURCE_ID'],
+    		"name": "failure-prediction-image",    		
+    		"manifestId": manifest_id,    		
+    		"imageType": "Docker"
+    	}
+        
+        mm_response = model_management.post('images', payload)
+        
+        operation_location = mm_response.headers['operation-location']                       
+        resp = Response(status = mm_response.status_code)
+        resp.headers['Operation-Location'] = operation_location
+        return resp
 
 @app.route('/telemetry/<kind>/<tag>')
 @register_breadcrumb(app, '.telemetry.asset', '', dynamic_list_constructor=view_asset_dlc)
 @login_required
 def telemetry_asset(kind, tag):
-    asset = table_service.get_entity('telemetry', kind, tag)
-    print(asset)
+    asset = table_service.get_entity('equipment', kind, tag)    
     return render_template('asset.html', assets = [asset])
 
 if __name__ == "__main__":

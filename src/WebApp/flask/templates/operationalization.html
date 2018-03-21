@@ -49,7 +49,7 @@
               <tbody>
               <tr>
                 <td>
-                  <code>failure-prediction</code>            
+                  <code>failure-prediction-model</code>            
                 </td>
                 <td>
                   <select class="form-control" id="model-version-select">
@@ -61,10 +61,10 @@
               </tr>
             </tbody>
           </table>
-          <div>
-            <button type="submit" id="register-manifest" class="btn btn-primary btn-sm">Register</button>
-            <button type="submit" id="skip-and-continue-2" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">Skip and continue</button>
-          </div>
+        </div>
+        <div>
+          <button type="submit" id="register-manifest" class="btn btn-primary btn-sm">Register</button>
+          <button type="submit" id="skip-and-continue-2" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">Skip and continue</button>
         </div>
       </div>
     </div>
@@ -79,7 +79,41 @@
     </div>
     <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
       <div class="card-body">
-        TBD
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered">
+            <thead>
+              <tr>
+                <th>
+                  Manifest              
+                </th>
+                <th>
+                  Version              
+                </th>
+                <th>
+                  Type            
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td>
+                  <code>failure-prediction-manifest</code>            
+                </td>
+                <td>
+                  <select class="form-control" id="manifest-version-select">
+                  </select>
+                </td>
+                <td>
+                  Docker            
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <button type="submit" id="create-image" class="btn btn-primary btn-sm">Create</button>
+          <button type="submit" id="skip-and-continue-3" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">Skip and continue</button>
+        </div>
       </div>
     </div>
   </div>
@@ -93,17 +127,70 @@
     </div>
     <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion">
       <div class="card-body">
-        TBD
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered">
+            <thead>
+              <tr>
+                <th>
+                  Image              
+                </th>
+                <th>
+                  Version              
+                </th>
+                <th>
+                  Type            
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td>
+                  <code>failure-prediction-image</code>            
+                </td>
+                <td>
+                  <select class="form-control" id="image-version-select">
+                  </select>
+                </td>
+                <td>
+                  Realtime
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="input-group mb-2">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Service Name</span>
+          </div>
+          <input type="text" id="service-name" class="form-control" aria-label="Service Name">
+        </div>
+        <div>
+          <button type="submit" id="create-service" class="btn btn-primary btn-sm">Create</button>
+          <button type="submit" id="skip-and-continue-4" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive">Skip and continue</button>
+        </div>      
       </div>
     </div>
   </div>
+  <div class="card">
+    <div class="card-header" id="headingFive">
+      <h5 class="mb-0">
+        <button class="btn btn-link btn-sm collapsed" data-toggle="collapse" data-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+          5. Consume Service for real-time scoring
+        </button>
+      </h5>
+    </div>
+    <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordion">
+      <div class="card-body">
+        TBD
+      </div>
+    </div>
+  </div>  
 </div>
 {% endblock %}
 
 {% block script %}
 <script>
   $(document).ready(function() {
-    
     function loadModels() {
       $.get('/operationalization/models').done(function(models) {
         $.each(models, function(id, model) {
@@ -116,16 +203,30 @@
 
     function loadManifests() {
       $.get('/operationalization/manifests').done(function(manifests) {
-        console.log(manifests);
-      });
+        $.each(manifests, function(id, manifest) {
+          console.log(manifest);
+          $('#manifest-version-select').append(new Option(manifest.version, manifest.id));          
+          $('#manifest-version-select').val(manifest.id);
+        });
+      });     
     }
 
     function loadImages() {
       $.get('/operationalization/images').done(function(images) {
-        console.log(images);
+        $.each(images, function(id, image) {          
+          $('#image-version-select').append(new Option(image.version, image.id));          
+        });
       });
     }
     
+    function loadServices() {
+      $.get('/operationalization/services').done(function(services) {
+        $.each(services, function(id, service) {
+          console.log(service);
+        });
+      });
+    }
+
     $('#register-model').click(function() {
       var element = this;
       $(element).prop('disabled', true);
@@ -137,11 +238,10 @@
         $(element).prop('disabled', false);
       });
     });
-    
+
     $('#register-manifest').click(function() {
       var element = this;
-      $(element).prop('disabled', true);
-      
+      $(element).prop('disabled', true);      
       $.ajax({
         type: "POST",
         url: '/operationalization/registerManifest',
@@ -151,16 +251,70 @@
         dataType: 'json'
       }).done(function(manifest) {        
           console.log(manifest);
-          // $('#model-version-select').append(new Option(model.version + ' (New)', model.version));
-          // $('#model-version-select').val(model.version);
-          // $('#headingTwo button').click();
+          $('#manifest-version-select').append(new Option(manifest.version + ' (New)', manifest.version));
+          $('#manifest-version-select').val(manifest.version);
+          $('#headingThree button').click();
           $(element).prop('disabled', false);
       });
     });
+
+    function pollOperation(operationId, onSuccess, onFailure) {
+      $.get('operationalization/operations/' + operationId).done(function(operationStatus) {
+        if (operationStatus.state === 'Running') {
+          window.setTimeout(function() {pollOperation(operationId, onSuccess, onFailure)}, 3000);
+        } else if (operationStatus.state === 'Succeeded') {
+          if (onSuccess) onSuccess(operationStatus);
+        } else {
+          if (onFailure) onFailure(operationStatus);
+        }
+      });
+    }
+
+    function getResourceIdFromUrl(url) {
+      return url.replace(/.+\/([^\/])/, "$1");
+    }
+
+    $('#create-image').click(function() {
+      var element = this;
+      $(element).prop('disabled', true);      
+      $.ajax({
+        type: "POST",
+        url: '/operationalization/createImage',
+        data: {
+          manifestId: $('#manifest-version-select').val()
+        }
+      }).done(function(data, textStatus, xhr) {
+        var operationId = getResourceIdFromUrl(xhr.getResponseHeader('Operation-Location'));
+        pollOperation(operationId, function(operationStatus) {  
+          var resourceId = getResourceIdFromUrl(operationStatus.resourceLocation);        
+          $.get('/operationalization/images/' + resourceId).done(function(image) {            
+            $('#image-version-select').prepend(new Option(image.version + ' (New)', image.id));
+            $('#image-version-select').val(image.id);
+            $('#headingFour button').click();
+            $(element).prop('disabled', false);
+          });
+        });
+      });
+    });
     
+    $('#create-service').click(function() {
+      var element = this;
+      $(element).prop('disabled', true);      
+      $.ajax({
+        type: "POST",
+        url: '/operationalization/createService',
+        data: {
+          imageId: $('#image-version-select').val(),
+          name: $('#service-name').val()
+        }
+      }).done(function(data, textStatus, xhr) {
+      });
+    });
+
     loadModels();
     loadManifests();
     loadImages();
+    loadServices();
   });
 </script>
 {% endblock %}
