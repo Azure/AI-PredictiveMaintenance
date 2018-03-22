@@ -61,6 +61,18 @@
       "metadata": {
           "description": "Machine Learning Compute resource ID"
       }
+    },
+    "serviceBusPrimaryConnectionString": {
+      "type": "string",
+      "metadata": {
+          "description": "Service Bus primary connection string"
+      }      
+    },
+    "serviceBusQueueName": {
+      "type": "string",
+      "metadata": {
+          "description": "Service Bus queue name"
+      }      
     }
   },
   "variables": {
@@ -165,7 +177,7 @@
               "detailedErrorMessages": {
                 "enabled": true
               }
-            }            
+            }
           }
         },
         {
@@ -188,7 +200,9 @@
             "BATCH_ACCOUNT_URL": "[parameters('batchAccountUrl')]",
             "AML_ASSETS_URL": "[parameters('amlAssetsUrl')]",
             "MODEL_MANAGEMENT_SWAGGER_URL": "[parameters('modelManagementSwaggerUrl')]",
-            "ML_COMPUTE_RESOURCE_ID": "[parameters('computeResourceId')]"
+            "ML_COMPUTE_RESOURCE_ID": "[parameters('computeResourceId')]",
+            "SERVICE_BUS_CONNECTION_STRING": "[parameters('serviceBusPrimaryConnectionString')]",
+            "SERVICE_BUS_QUEUE_NAME": "[parameters('serviceBusQueueName')]"
           }
         },
         {

@@ -450,3 +450,7 @@ footer.sticky-footer {
     width: calc(100% - 55px);
   }
 }
+
+.table > tbody > tr > td {
+     vertical-align: middle;
+}

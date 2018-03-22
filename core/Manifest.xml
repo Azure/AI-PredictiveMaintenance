@@ -13,6 +13,11 @@
                 <Parameter name="dryRun" defaultValue="yes" hidden="true" />
             </Parameters>
         </ArmDeployment>        
+        <ArmDeployment source="arm/serviceBus.json" title="Creating Azure Service Bus">
+            <LocationProvidedFor>
+                <ResourceType>Microsoft.Resources/deployments</ResourceType>
+            </LocationProvidedFor>
+        </ArmDeployment>
         <ArmDeployment source="arm/demoDashboard.json" title="Setting up Azure Storage account and Demo Dashboard" autoResolveParameters="true">
             <LocationProvidedFor>
                 <ResourceType>Microsoft.Resources/deployments</ResourceType>
@@ -23,11 +28,6 @@
                 <Parameter name="modelManagementSwaggerUrl" defaultValue="{Outputs.modelManagementSwaggerLocation}" hidden="true" />
                 <Parameter name="computeResourceId" defaultValue="{Outputs.computeResourceId}" hidden="true" />
             </Parameters>
-        </ArmDeployment>
-        <ArmDeployment source="arm/serviceBus.json" title="Creating Azure Service Bus">
-            <LocationProvidedFor>
-                <ResourceType>Microsoft.Resources/deployments</ResourceType>
-            </LocationProvidedFor>
         </ArmDeployment>
         <ArmDeployment source="arm/iotHubStorageRoute.json" title="Configuring IoT Hub endpoints and routes (Azure Storage, Service Bus)">
             <Parameters>
