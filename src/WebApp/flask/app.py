@@ -311,12 +311,18 @@ def operationalization_post_operation(operation):
         mm_response_service_json = json.loads(mm_response_service.text)
         mm_response_service_keys_json = json.loads(mm_response_service_keys.text)
         
-        response_text = json.dumps({
+        scoring_config = json.dumps({
+            'id': service_id,
             'scoringUri': mm_response_service_json['scoringUri'],
             'primaryKey': mm_response_service_keys_json['primaryKey']
         })
         
-        resp = Response(response_text)
+        config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/scoring.json'))
+
+        with open(config_path, 'w') as f:
+            f.write(scoring_config)
+        
+        resp = Response(scoring_config)
         resp.headers['Content-type'] = 'application/json'
         return resp
 
