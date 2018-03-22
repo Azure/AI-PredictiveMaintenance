@@ -4,6 +4,7 @@ import json
 import time
 import re
 import os
+import sys
 from azure.servicebus import ServiceBusService, Message, Queue
 from multiprocessing import Queue, Process
 
@@ -24,20 +25,19 @@ def poll_service_bus(sb_connection_string, sb_queue_name, queue):
         shared_access_key_value = SHARED_ACCESS_KEY_VALUE)
 
     while True:
-            batch = []
-            for _ in range(BATCH_SIZE):
-                msg = bus_service.receive_queue_message(sb_queue_name, peek_lock=False)
-                data = pickle.loads(msg.body)
-                # TODO: everything needs to be float, otherwise PySpark breaks
-                data['ambient_temperature'] = 20.0
-                data['ambient_pressure'] = 101.0
-                batch.append(data)
-            queue.put(batch)
+        batch = []
+        for _ in range(BATCH_SIZE):
+            msg = bus_service.receive_queue_message(sb_queue_name, peek_lock=False)
+            data = pickle.loads(msg.body)
+            # TODO: everything needs to be float, otherwise PySpark breaks
+            data['ambient_temperature'] = 20.0
+            data['ambient_pressure'] = 101.0
+            batch.append(data)
+        queue.put(batch)
 
 def score_and_report(queue):    
     while True:        
         config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../scoring.json'))
-
         if not os.path.isfile(config_path):
             print('Scoring configuration missing.')
             time.sleep(10)
@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     service_bus_connection_string = os.environ['SERVICE_BUS_CONNECTION_STRING']
     service_bus_queue_name = os.environ['SERVICE_BUS_QUEUE_NAME']
-
+    
     producer = Process(target=poll_service_bus, args=(service_bus_connection_string, service_bus_queue_name, queue, ))
     producer.daemon = True
 
@@ -93,12 +93,15 @@ if __name__ == '__main__':
         Process(target=score_and_report, args=(queue, )),
         Process(target=drain_queue, args=(queue, ))
     ]
-
+    
     producer.start()
 
     for consumer in consumers:
         consumer.daemon = True
-
+        consumer.start()
+    
+    # producer.join()
     # bus_service.receive_queue_message doesn't handle the KeyboardInterrupt well and hangs forever...
-    while True:
-        time.sleep(60)
+    while producer.is_alive() and all(map(lambda c: c.is_alive, consumers)):
+        sys.stdout.flush()
+        time.sleep(3)
