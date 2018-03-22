@@ -27,14 +27,13 @@ class ModelManagement:
     def get(self, resource):
         endpoint = self.get_api_endpoint(resource)
         response = requests.get(endpoint, headers = self.get_auth_header())
-        return response.text
+        return response
         
     def post(self, resource, payload):
         data = json.dumps(payload)
         endpoint = self.get_api_endpoint(resource)
         response = requests.post(endpoint, headers = self.get_auth_header(), data = data)
-        return response.text     
-        #return json.dumps(response.json())
+        return response        
          
 if __name__ == '__main__':
     pass

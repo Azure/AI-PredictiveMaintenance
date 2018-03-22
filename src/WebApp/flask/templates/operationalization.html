@@ -224,7 +224,7 @@
       });
     }
 
-    function loadServices() {
+    function loadServices(onReady) {
       $('#services>tbody').empty();
       $.get('/operationalization/services').done(function(services) {
         $.each(services, function(id, service) {
@@ -232,7 +232,7 @@
           $('#services>tbody').append('<tr><td>' + service.id 
             + '</td><td>' + service.state 
             + '</td><td>' + '<button type="button" class="btn btn-link">Consume</button>' 
-            + '</td></tr>');            
+            + '</td></tr>');       
         });
 
         $('#services button').click(function() {
@@ -248,6 +248,9 @@
               });
           });
         });
+        if (onReady) {
+          onReady();
+        }
       });
     }
 
@@ -275,7 +278,7 @@
         dataType: 'json'
       }).done(function(manifest) {        
           console.log(manifest);
-          $('#manifest-version-select').append(new Option(manifest.version + ' (New)', manifest.version));
+          $('#manifest-version-select').append(new Option(manifest.version + ' (New)', manifest.id));
           $('#manifest-version-select').val(manifest.version);
           $('#headingThree button').click();
           $(element).prop('disabled', false);
@@ -333,6 +336,8 @@
         }
       }).done(function(data, textStatus, xhr) {
           loadServices(function() {
+            $('#headingFive button').click();
+            $(element).prop('disabled', false);
         });
       });
     });
