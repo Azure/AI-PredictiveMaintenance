@@ -8,7 +8,7 @@ import sys
 from azure.servicebus import ServiceBusService, Message, Queue
 from multiprocessing import Queue, Process
 
-BATCH_SIZE = 10
+BATCH_SIZE = 5
 MAX_QUEUE_LENGTH = 10
 
 def parse_connection_string(connection_string):
@@ -27,11 +27,15 @@ def poll_service_bus(sb_connection_string, sb_queue_name, queue):
     while True:
         batch = []
         for _ in range(BATCH_SIZE):
-            msg = bus_service.receive_queue_message(sb_queue_name, peek_lock=False)
+            msg = bus_service.receive_queue_message(sb_queue_name, peek_lock=False)            
+            print(msg.custom_properties['iothub-connection-device-id'])
             data = pickle.loads(msg.body)
-            # TODO: everything needs to be float, otherwise PySpark breaks
-            data['ambient_temperature'] = 20.0
-            data['ambient_pressure'] = 101.0
+
+            for k in data:
+                # TODO: everything needs to be float, otherwise PySpark breaks
+                if type(data[k]) is int:
+                    data[k] = float(data[k])
+
             batch.append(data)
         queue.put(batch)
 
@@ -82,8 +86,11 @@ def drain_queue(queue):
 if __name__ == '__main__':
     queue = Queue()
 
-    service_bus_connection_string = os.environ['SERVICE_BUS_CONNECTION_STRING']
-    service_bus_queue_name = os.environ['SERVICE_BUS_QUEUE_NAME']
+    # service_bus_connection_string = os.environ['SERVICE_BUS_CONNECTION_STRING']
+    # service_bus_queue_name = os.environ['SERVICE_BUS_QUEUE_NAME']
+
+    service_bus_connection_string = 'Endpoint=sb://servicebusd5f5th6wwgczg.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=MDhbbTwucSmN7253v+UVc+t2TZDFQ6c3ZtD222rZAFY='
+    service_bus_queue_name = 'serviceBusQueued5f5th6wwgczg'
     
     producer = Process(target=poll_service_bus, args=(service_bus_connection_string, service_bus_queue_name, queue, ))
     producer.daemon = True
@@ -93,7 +100,7 @@ if __name__ == '__main__':
         Process(target=score_and_report, args=(queue, )),
         Process(target=drain_queue, args=(queue, ))
     ]
-    
+
     producer.start()
 
     for consumer in consumers:
