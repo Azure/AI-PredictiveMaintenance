@@ -186,7 +186,7 @@
                     "defaultProvider": null,
                     "clientId": "[parameters('aadAppId')]",
                     "clientSecret": "[parameters('aadAppSecret')]",
-                    "issuer": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+                    "issuer": "[parameters('issuerUrl')]",
                     "allowedAudiences": null,
                     "additionalLoginParams": null,
                     "isAadAutoProvisioned": false,
