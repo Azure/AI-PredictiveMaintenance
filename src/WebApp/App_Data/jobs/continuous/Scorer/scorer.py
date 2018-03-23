@@ -7,7 +7,7 @@ import os
 import sys
 import datetime
 from azure.servicebus import ServiceBusService, Message, Queue
-from multiprocessing import Queue, Process
+from multiprocessing.dummy import Queue, Process
 from azure.storage.table import TableService, Entity, TablePermissions
 
 BATCH_SIZE = 5
@@ -48,10 +48,8 @@ def poll_service_bus(sb_connection_string, sb_queue_name, queue):
 
         queue.put((timestamps, device_ids, telemetry_entities))
 
-def write_scores(predictions_queue):
-    STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
-    STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
-    table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
+def write_scores(predictions_queue, storage_account_name, storage_account_key):
+    table_service = TableService(account_name=storage_account_name, account_key=storage_account_key)
     table_service.create_table('predictions')
     
     aggregate_predictions = {}
@@ -96,14 +94,16 @@ def write_scores(predictions_queue):
             table_service.insert_entity('predictions', entity)
         
         del aggregate_predictions[oldest_timestamp]
-        
-
 
 def score(telemetry_queue, predictions_queue):
     while True:
         config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../scoring.json'))
         if not os.path.isfile(config_path):
-            print('Scoring configuration missing.')
+            # WebJobs are sandboxed in D:\local\Temp\jobs, so relative paths don't work correctly
+            config_path = 'D:\home\site\wwwroot\App_Data\scoring.json'
+
+        if not os.path.isfile(config_path):
+            print('Scoring configuration missing in {0}'.format(config_path))
             time.sleep(10)
             continue
 
@@ -156,12 +156,14 @@ if __name__ == '__main__':
 
     service_bus_connection_string = os.environ['SERVICE_BUS_CONNECTION_STRING']
     service_bus_queue_name = os.environ['SERVICE_BUS_QUEUE_NAME']
+    storage_account_name = os.environ['STORAGE_ACCOUNT_NAME']
+    storage_account_key = os.environ['STORAGE_ACCOUNT_KEY']
     
     processes = [
         Process(target=poll_service_bus, args=(service_bus_connection_string, service_bus_queue_name, telemetry_queue)),
         Process(target=score, args=(telemetry_queue, predictions_queue)),
         Process(target=score, args=(telemetry_queue, predictions_queue)),
-        Process(target=write_scores, args=(predictions_queue, )),
+        Process(target=write_scores, args=(predictions_queue, storage_account_name, storage_account_key)),
         Process(target=drain_queue, args=(telemetry_queue, ))
     ]
 
