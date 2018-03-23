@@ -181,7 +181,7 @@
             "siteAuthSettings": {
                     "enabled": true,
                     "unauthenticatedClientAction": 0,
-                    "tokenStoreEnabled": null,
+                    "tokenStoreEnabled": true,
                     "allowedExternalRedirectUrls": null,
                     "defaultProvider": null,
                     "clientId": "[parameters('aadAppId')]",
