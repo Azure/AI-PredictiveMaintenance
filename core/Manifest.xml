@@ -9,13 +9,13 @@
         <ArmDeployment source="arm/replyUrl.json" title="Generate Reply Url" />
         <AzureActiveDirectory displayName="Myawesome" replyUrls= "{Outputs.replyUrl}"> 
         <ResourceAccess> 
-    <!-- Windows Azure Active Directory --> 
+        <!-- Windows Azure Active Directory --> 
         <ResourceApp id="d80f4d2b-d115-44ad-b39e-69ebdbe6c9fe"> 
             <Permissions> 
                 <Permission id="311a71cc-e848-46a1-bdf8-97ff7156d8e6" type= "Scope"/> 
             </Permissions> 
         </ResourceApp> 
-    <!-- Windows Azure Service Management API --> 
+        <!-- Windows Azure Service Management API --> 
         <ResourceApp id="b405cc54-89dd-42b6-81f0-f31603dbdaab"> 
             <Permissions> 
                 <Permission id="41094075-9dad-400e-a0bd-54e686782033" type= "Scope"/>
