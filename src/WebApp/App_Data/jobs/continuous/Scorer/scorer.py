@@ -129,11 +129,11 @@ if __name__ == '__main__':
     telemetry_queue = Queue()
     predictions_queue = Queue()
 
-    # service_bus_connection_string = os.environ['SERVICE_BUS_CONNECTION_STRING']
-    # service_bus_queue_name = os.environ['SERVICE_BUS_QUEUE_NAME']
+    service_bus_connection_string = os.environ['SERVICE_BUS_CONNECTION_STRING']
+    service_bus_queue_name = os.environ['SERVICE_BUS_QUEUE_NAME']
 
-    service_bus_connection_string = 'Endpoint=sb://servicebusd5f5th6wwgczg.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=MDhbbTwucSmN7253v+UVc+t2TZDFQ6c3ZtD222rZAFY='
-    service_bus_queue_name = 'serviceBusQueued5f5th6wwgczg'
+    # service_bus_connection_string = 'Endpoint=sb://servicebusd5f5th6wwgczg.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=MDhbbTwucSmN7253v+UVc+t2TZDFQ6c3ZtD222rZAFY='
+    # service_bus_queue_name = 'serviceBusQueued5f5th6wwgczg'
     
     processes = [
         Process(target=poll_service_bus, args=(service_bus_connection_string, service_bus_queue_name, telemetry_queue)),
