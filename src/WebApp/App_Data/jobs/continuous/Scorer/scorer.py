@@ -8,6 +8,7 @@ import sys
 import datetime
 from azure.servicebus import ServiceBusService, Message, Queue
 from multiprocessing import Queue, Process
+from azure.storage.table import TableService, Entity, TablePermissions
 
 BATCH_SIZE = 5
 MAX_QUEUE_LENGTH = 10
@@ -48,9 +49,11 @@ def poll_service_bus(sb_connection_string, sb_queue_name, queue):
         queue.put((timestamps, device_ids, telemetry_entities))
 
 def write_scores(predictions_queue):
-    # STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
-    # STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
-    # table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
+    STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
+    STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
+    table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
+    table_service.create_table('predictions')
+    
     aggregate_predictions = {}
 
     while True:
@@ -58,20 +61,42 @@ def write_scores(predictions_queue):
         stripped_datetime = str(prediction_row[0].replace(second=0, microsecond=0))
         device_id = prediction_row[1]
         prediction = prediction_row[2]
+
+        if stripped_datetime not in aggregate_predictions:
+            aggregate_predictions[stripped_datetime] = {}
+
+        if device_id not in aggregate_predictions[stripped_datetime]:
+            aggregate_predictions[stripped_datetime][device_id] = {}
+
+        if prediction not in aggregate_predictions[stripped_datetime][device_id]:
+            aggregate_predictions[stripped_datetime][device_id][prediction] = 0
+
+        aggregate_predictions[stripped_datetime][device_id][prediction] += 1
         
-        if device_id not in aggregate_predictions:
-            aggregate_predictions[device_id] = {}
+        if len(aggregate_predictions) < 2:
+            continue 
 
-        if stripped_datetime not in aggregate_predictions[device_id]:
-            aggregate_predictions[device_id][stripped_datetime] = {}
+        timestamps = list(aggregate_predictions.keys())
+        timestamps.sort()
+
+        oldest_timestamp = timestamps[0]
+        device_ids = aggregate_predictions[oldest_timestamp].keys()
+        predictions = aggregate_predictions[oldest_timestamp].values()
+
+        for partition_key, row_key, data in zip([oldest_timestamp] * len(device_ids), device_ids, predictions):
+            entity = {
+                'PartitionKey': partition_key,
+                'RowKey': row_key,
+                'Prediction': max(data, key=data.get),
+                'Debug': json.dumps(data)
+            }
+
+            # TODO: implement optimistic concurrency and merge to run this truly at scale.
+            # For now, simply inserting the record...
+            table_service.insert_entity('predictions', entity)
         
-        if prediction not in aggregate_predictions[device_id][stripped_datetime]:
-            aggregate_predictions[device_id][stripped_datetime][prediction] = 0
-
-        aggregate_predictions[device_id][stripped_datetime][prediction] += 1
-
-        # TODO: write this as time series into an Azure Table
-        print(json.dumps(aggregate_predictions))
+        del aggregate_predictions[oldest_timestamp]
+        
 
 
 def score(telemetry_queue, predictions_queue):
@@ -131,9 +156,6 @@ if __name__ == '__main__':
 
     service_bus_connection_string = os.environ['SERVICE_BUS_CONNECTION_STRING']
     service_bus_queue_name = os.environ['SERVICE_BUS_QUEUE_NAME']
-
-    # service_bus_connection_string = 'Endpoint=sb://servicebusd5f5th6wwgczg.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=MDhbbTwucSmN7253v+UVc+t2TZDFQ6c3ZtD222rZAFY='
-    # service_bus_queue_name = 'serviceBusQueued5f5th6wwgczg'
     
     processes = [
         Process(target=poll_service_bus, args=(service_bus_connection_string, service_bus_queue_name, telemetry_queue)),
