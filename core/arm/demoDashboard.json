@@ -73,6 +73,24 @@
       "metadata": {
           "description": "Service Bus queue name"
       }      
+    },
+    "aadAppId": {
+      "type": "string",
+      "metadata": {
+          "description": "AAD App id"
+      }      
+    },
+    "aadAppSecret": {
+      "type": "string",
+      "metadata": {
+          "description": "AAD App Secret"
+      }      
+    },
+    "issuerUrl": {
+      "type": "string",
+      "metadata": {
+          "description": "Issuer url"
+      }      
     }
   },
   "variables": {
@@ -144,7 +162,7 @@
           "name": "python364x64",          
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [
-            "[variables('web-site-id')]",
+            "[variables('web-site-id')]"
           ],
           "properties": { }
         },        
@@ -158,7 +176,32 @@
           ],
           "properties": {
             "use32BitWorkerProcess": false,
-            "alwaysOn": true
+            "alwaysOn": true,
+            "siteAuthEnabled": true,
+            "siteAuthSettings": {
+                    "enabled": true,
+                    "unauthenticatedClientAction": 0,
+                    "tokenStoreEnabled": null,
+                    "allowedExternalRedirectUrls": null,
+                    "defaultProvider": null,
+                    "clientId": "[parameters('aadAppId')]",
+                    "clientSecret": "[parameters('aadAppSecret')]",
+                    "issuer": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
+                    "allowedAudiences": null,
+                    "additionalLoginParams": null,
+                    "isAadAutoProvisioned": false,
+                    "googleClientId": null,
+                    "googleClientSecret": null,
+                    "googleOAuthScopes": null,
+                    "facebookAppId": null,
+                    "facebookAppSecret": null,
+                    "facebookOAuthScopes": null,
+                    "twitterConsumerKey": null,
+                    "twitterConsumerSecret": null,
+                    "microsoftAccountClientId": null,
+                    "microsoftAccountClientSecret": null,
+                    "microsoftAccountOAuthScopes": null
+                }
           }
         },        
         {
