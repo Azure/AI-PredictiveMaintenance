@@ -14,7 +14,7 @@
     },
     "resources": [
       {        
-        "name": "[variables('computeResourceName')]",
+        "name": "[parameters('computeResourceName')]",
         "location": "[variables('location')]",
         "type": "Microsoft.MachineLearningCompute/operationalizationClusters",
         "apiVersion": "2017-08-01-preview",                

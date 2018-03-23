@@ -39,7 +39,6 @@
       "apiVersion": "[variables('webSiteVersion')]",
       "location": "[resourceGroup().location]",
       "properties": {
-        //"serverFarmId": "[variables('web-farm-id')]"
       },
       "resources": [
         {

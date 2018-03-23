@@ -6,7 +6,7 @@
       "type": "string",
       "metadata": {
         "description": "Web site name"
-      }
+    }  
     },
     "webAppUrl": {
         "type": "string",
@@ -88,8 +88,9 @@
     "storageVersion": "2017-06-01",
     "web-farm-version": "2016-09-01",
     "web-site-version": "2016-08-01",    
+    "unique": "[uniqueString(resourceGroup().id)]",
     "location": "[resourceGroup().location]",
-    "web-farm-name": "[concat(variables('prefix'), 'webplan', variables('uniqueString'))]",
+    "web-farm-name": "[concat('webplan', variables('unique'))]",
     "web-site-name": "[parameters('webSiteName')]",
     "web-farm-id": "[resourceId('Microsoft.Web/serverfarms', variables('web-farm-name'))]",
     "web-site-id": "[resourceId('Microsoft.Web/sites', variables('web-site-name'))]"
@@ -148,7 +149,7 @@
           "name": "python364x64",          
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [
-            "[variables('web-site-id')]"
+            "[variables('web-site-id')]",
           ],
           "properties": { }
         },        
@@ -233,7 +234,7 @@
       "properties": {
           "mode": "Incremental",
           "templateLink": {
-              "uri": "[concat('https://', reference(variables('web-site-name')).hostNames[0], '/setup.js')]",
+              "uri": "[concat('https://', reference(variables('web-site-name')).hostNames[0], '/setup.js?arm=1')]",
               "contentVersion": "1.0.0.0"
           },
           "parameters":  {}

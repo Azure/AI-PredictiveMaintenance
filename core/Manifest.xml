@@ -39,9 +39,6 @@
                 <Parameter name="amlAssetsUrl" defaultValue="{PatternAssetBaseUrl}/AML.zip" hidden="true" />
                 <Parameter name="modelManagementSwaggerUrl" defaultValue="{Outputs.modelManagementSwaggerLocation}" hidden="true" />
                 <Parameter name="computeResourceId" defaultValue="{Outputs.computeResourceId}" hidden="true" />
-                <Parameter name="aadAppId" defaultValue="{Outputs.aadAppId}" hidden="true" />
-                <Parameter name="aadAppSecret" defaultValue="{Outputs.aadAppSecret}" hidden="true" />
-                <Parameter name="issuerUrl" defaultValue="{Outputs.issuerUrl}" hidden="true" />
             </Parameters>
         </ArmDeployment>
         <ArmDeployment source="arm/authSettings.json" title="Enabling Authentication/Authorization" autoResolveParameters="true" />
