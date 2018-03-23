@@ -7,70 +7,66 @@
       "metadata": {
         "description": "Web site name"
       }
-    },    
+    },
     "aadAppId": {
       "type": "string",
       "metadata": {
-          "description": "AAD App id"
-      }      
+        "description": "AAD App id"
+      }
     },
     "aadAppSecret": {
       "type": "string",
       "metadata": {
-          "description": "AAD App Secret"
-      }      
+        "description": "AAD App Secret"
+      }
     },
     "issuerUrl": {
       "type": "string",
       "metadata": {
-          "description": "Issuer url"
+        "description": "Issuer url"
       }
     }
   },
-  "variables": {        
-    "webSiteVersion": "2016-08-01",    
-    "location": "[resourceGroup().location]",    
+  "variables": {
+    "webSiteVersion": "2016-08-01",
+    "location": "[resourceGroup().location]",
     "webSiteResourceId": "[resourceId('Microsoft.Web/sites', parameters('webSiteName'))]"
   },
-  "resources": [    
+  "resources": [
     {
       "type": "Microsoft.Web/sites",
       "name": "[parameters('webSiteName')]",
       "apiVersion": "[variables('webSiteVersion')]",
       "location": "[resourceGroup().location]",
-      "properties": {
-      },
+      "properties": {},
       "resources": [
         {
           "type": "config",
-          "name": "web",
+          "name": "authsettings",
           "apiVersion": "[variables('webSiteVersion')]",
           "properties": {
-            "siteAuthEnabled": true,
-            "siteAuthSettings": {
-                    "enabled": true,
-                    "unauthenticatedClientAction": 0,
-                    "tokenStoreEnabled": true,
-                    "allowedExternalRedirectUrls": null,
-                    "defaultProvider": null,
-                    "clientId": "[parameters('aadAppId')]",
-                    "clientSecret": "[parameters('aadAppSecret')]",
-                    "issuer": "[parameters('issuerUrl')]",
-                    "allowedAudiences": null,
-                    "additionalLoginParams": null,
-                    "isAadAutoProvisioned": false,
-                    "googleClientId": null,
-                    "googleClientSecret": null,
-                    "googleOAuthScopes": null,
-                    "facebookAppId": null,
-                    "facebookAppSecret": null,
-                    "facebookOAuthScopes": null,
-                    "twitterConsumerKey": null,
-                    "twitterConsumerSecret": null,
-                    "microsoftAccountClientId": null,
-                    "microsoftAccountClientSecret": null,
-                    "microsoftAccountOAuthScopes": null
-            }
+            "enabled": true,
+            "unauthenticatedClientAction": 0,
+            "tokenStoreEnabled": true,
+            "allowedExternalRedirectUrls": null,
+            "defaultProvider": 0,
+            "clientId": "[parameters('aadAppId')]",
+            "clientSecret": "[parameters('aadAppSecret')]",
+            "issuer": "[parameters('issuerUrl')]",
+            "allowedAudiences": null,
+            "additionalLoginParams": null,
+            "isAadAutoProvisioned": false,
+            "googleClientId": null,
+            "googleClientSecret": null,
+            "googleOAuthScopes": null,
+            "facebookAppId": null,
+            "facebookAppSecret": null,
+            "facebookOAuthScopes": null,
+            "twitterConsumerKey": null,
+            "twitterConsumerSecret": null,
+            "microsoftAccountClientId": null,
+            "microsoftAccountClientSecret": null,
+            "microsoftAccountOAuthScopes": null
           },
           "dependsOn": [
             "[variables('webSiteResourceId')]"
