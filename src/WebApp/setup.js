@@ -7,14 +7,23 @@ var fullSetupMarkerFilePath = 'D:\\home\\site\\wwwroot\\READY';
 var templateProvisioningInProgress = 'D:\\home\\site\\wwwroot\\setup.html';
 
 http.createServer(function (req, res) {
-    function setupInitial()
+    function setupInitial(firstAttempt)
     {
+        function end() {
+            res.end(fs.readFileSync(path.join(__dirname, 'blankArmTemplate.json')));          
+        }
+
+        if (!firstAttempt) {
+            end();
+            return;
+        }
+
         var spawn = require("child_process").spawn;  
         child = spawn("powershell.exe", [path.join(__dirname, 'setup.ps1')]);
         child.stdout.on("data",function(data) {
             console.log("Powershell Data: " + data);
         });
-        child.stderr.on("data",function(data) {
+        child.stderr.on("data", function(data) {
             console.log("Powershell Errors: " + data);
         });
         child.on("exit",function() {
@@ -24,16 +33,16 @@ http.createServer(function (req, res) {
                 if (err) {                    
                     res.end('ouch!'); // this would result in a deployment failure and should never happen.
                 } else {               
-                    res.end(fs.readFileSync(path.join(__dirname, 'blankArmTemplate.json')));
+                    end();
                 }
             });
-        });                
+        });
     }
     
     fs.readFile(initialSetupMarkerFilePath, function(err) {
-        if (err) {
+        if (req.url.indexOf('arm') > -1) {
             // marker file doesn't exist?
-            setupInitial();            
+            setupInitial(err);
         } else {
             fs.readFile(fullSetupMarkerFilePath, function(err) {
                 if (err) {

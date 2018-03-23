@@ -1,0 +1,24 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "variables": {        
+        "uniqueString": "[uniqueString(resourceGroup().id)]",        
+        "webSiteName": "[concat('pdm-demo-', variables('uniqueString'))]",
+        "computeResourceName": "[concat('aml-o16n-', variables('uniqueString'))]"
+    },
+    "resources": [],
+    "outputs": {
+        "webSiteName": {
+            "type": "string",
+            "value": "[variables('webSiteName')]"
+        },
+        "computeResourceName": {
+            "type": "string",
+            "value": "[variables('computeResourceName')]"
+        },
+        "computeResourceId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.MachineLearningCompute/operationalizationClusters', variables('computeResourceName'))]"
+        }
+    }
+}
