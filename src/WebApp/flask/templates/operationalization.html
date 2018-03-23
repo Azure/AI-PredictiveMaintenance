@@ -279,7 +279,7 @@
       }).done(function(manifest) {        
           console.log(manifest);
           $('#manifest-version-select').append(new Option(manifest.version + ' (New)', manifest.id));
-          $('#manifest-version-select').val(manifest.version);
+          $('#manifest-version-select').val(manifest.id);
           $('#headingThree button').click();
           $(element).prop('disabled', false);
       });
