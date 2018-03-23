@@ -2,6 +2,12 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "webSiteName": {
+      "type": "string",
+      "metadata": {
+        "description": "Web site name"
+      }
+    },
     "webAppUrl": {
         "type": "string",
         "metadata": {
@@ -73,24 +79,6 @@
       "metadata": {
           "description": "Service Bus queue name"
       }      
-    },
-    "aadAppId": {
-      "type": "string",
-      "metadata": {
-          "description": "AAD App id"
-      }      
-    },
-    "aadAppSecret": {
-      "type": "string",
-      "metadata": {
-          "description": "AAD App Secret"
-      }      
-    },
-    "issuerUrl": {
-      "type": "string",
-      "metadata": {
-          "description": "Issuer url"
-      }      
     }
   },
   "variables": {
@@ -99,12 +87,10 @@
     "storageResourceId": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
     "storageVersion": "2017-06-01",
     "web-farm-version": "2016-09-01",
-    "web-site-version": "2016-08-01",
-    "prefix": "image",
-    "unique": "[uniqueString(resourceGroup().id)]",
+    "web-site-version": "2016-08-01",    
     "location": "[resourceGroup().location]",
-    "web-farm-name": "[concat(variables('prefix'), 'webplan', variables('unique'))]",
-    "web-site-name": "[concat(variables('prefix'), 'web', variables('unique'))]",
+    "web-farm-name": "[concat(variables('prefix'), 'webplan', variables('uniqueString'))]",
+    "web-site-name": "[parameters('webSiteName')]",
     "web-farm-id": "[resourceId('Microsoft.Web/serverfarms', variables('web-farm-name'))]",
     "web-site-id": "[resourceId('Microsoft.Web/sites', variables('web-site-name'))]"
   },
@@ -176,32 +162,7 @@
           ],
           "properties": {
             "use32BitWorkerProcess": false,
-            "alwaysOn": true,
-            "siteAuthEnabled": true,
-            "siteAuthSettings": {
-                    "enabled": true,
-                    "unauthenticatedClientAction": 0,
-                    "tokenStoreEnabled": true,
-                    "allowedExternalRedirectUrls": null,
-                    "defaultProvider": null,
-                    "clientId": "[parameters('aadAppId')]",
-                    "clientSecret": "[parameters('aadAppSecret')]",
-                    "issuer": "[parameters('issuerUrl')]",
-                    "allowedAudiences": null,
-                    "additionalLoginParams": null,
-                    "isAadAutoProvisioned": false,
-                    "googleClientId": null,
-                    "googleClientSecret": null,
-                    "googleOAuthScopes": null,
-                    "facebookAppId": null,
-                    "facebookAppSecret": null,
-                    "facebookOAuthScopes": null,
-                    "twitterConsumerKey": null,
-                    "twitterConsumerSecret": null,
-                    "microsoftAccountClientId": null,
-                    "microsoftAccountClientSecret": null,
-                    "microsoftAccountOAuthScopes": null
-                }
+            "alwaysOn": true
           }
         },        
         {
