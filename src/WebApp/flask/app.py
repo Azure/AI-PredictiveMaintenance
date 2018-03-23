@@ -333,6 +333,13 @@ def telemetry_asset(kind, tag):
     asset = table_service.get_entity('equipment', kind, tag)
     return render_template('asset.html', assets = [asset])
 
+@app.route('/intelligence')
+@register_breadcrumb(app, '.intelligence', 'Intelligence')
+@login_required
+def intelligence():    
+    return render_template('intelligence.html')
+
+
 if __name__ == "__main__":
     table_service.create_table('equipment')
     table_service.create_table('cluster')
