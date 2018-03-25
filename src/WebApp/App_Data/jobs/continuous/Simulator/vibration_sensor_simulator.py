@@ -59,9 +59,7 @@ class VibrationSensorSimulator:
         return np.int16(a / 100 * 32767).tolist()
 
 if __name__ == '__main__':
-    W = (1, 2, 3, 5, 12, 15)
-    A = (5, 8, 2/3, 8, 13, 5)
-
+    # test code
     W = (1/10, 1, 2, 3, 5, 12, 15, 18)
     A = (0, 5, 8, 30, 8, 13, 5, 8)
 

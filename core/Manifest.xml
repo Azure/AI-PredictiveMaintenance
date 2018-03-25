@@ -3,7 +3,7 @@
     <Title>Predictive Maintenance</Title>
     <ImageUrl>{PatternAssetBaseUrl}/thank_you.jpg</ImageUrl>
     <Description>Your equipment will thank you.</Description>
-    <EstimatedTime>10 Minutes</EstimatedTime>
+    <EstimatedTime>20 Minutes</EstimatedTime>
     <ProvisioningSteps>
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
         <ArmDeployment source="arm/azureBatch.json" title="Creating Azure Batch account" />
