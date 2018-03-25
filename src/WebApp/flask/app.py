@@ -17,6 +17,10 @@ from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 from aztk_cluster import AztkCluster
 from model_management import ModelManagement
 
+simulator_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/jobs/continuous/Simulator'))
+sys.path.append(simulator_path)
+from iot_hub import IoTHub
+
 app = Flask(__name__)
 app.debug = True
 
@@ -48,8 +52,25 @@ def home():
 @register_breadcrumb(app, '.telemetry', 'Telemetry')
 @login_required
 def telemetry():
+    iot_hub = IoTHub(os.environ['IOT_HUB_NAME'], os.environ['IOT_HUB_OWNER_KEY'])
     assets = table_service.query_entities('equipment')
-    return render_template('telemetry.html', assets = assets)
+    devices = iot_hub.get_device_list()
+    return render_template('telemetry.html', assets = devices)
+    
+def view_asset_dlc(*args, **kwargs):
+    device_id = request.view_args['device_id']
+    return [
+        {'text': device_id, 'url': '/telemetry/{0}'.format(device_id)}]
+
+@register_breadcrumb(app, '.telemetry.twin', '', dynamic_list_constructor=view_asset_dlc)
+@app.route('/telemetry/<device_id>')
+@login_required
+def telemetry_twin(device_id):
+    iot_hub = IoTHub(os.environ['IOT_HUB_NAME'], os.environ['IOT_HUB_OWNER_KEY'])
+    assets = table_service.query_entities('equipment')
+    twin = iot_hub.get_device_twin(device_id)
+    # return json.dumps(twin)
+    return render_template('twin.html', twin = twin)
 
 def get_access_token():
     parameters = {
@@ -62,14 +83,8 @@ def get_access_token():
 
     result = requests.post('https://login.microsoftonline.com/microsoft.com/oauth2/token', data = parameters)
     
-    #return json.dumps(result.json())
     access_token = result.json()['access_token']
     return access_token
-
-@app.route('/test')
-@login_required
-def test_model_management_access():
-    pass
     
 
 def parse_website_owner_name():
@@ -115,13 +130,6 @@ def deleteCluster():
 @login_required
 def operationalization():
     return render_template('operationalization.html')
-
-def view_asset_dlc(*args, **kwargs):
-    kind = request.view_args['kind']
-    tag = request.view_args['tag']
-    return [
-        {'text': kind, 'url': '/telemetry/{0}'.format(kind)},
-        {'text': tag, 'url': '/telemetry/{0}/{1}'.format(kind, tag)}]
 
 
 @app.route('/operationalization/<operation>', methods=['GET'])
@@ -326,13 +334,6 @@ def operationalization_post_operation(operation):
         resp.headers['Content-type'] = 'application/json'
         return resp
 
-@app.route('/telemetry/<kind>/<tag>')
-@register_breadcrumb(app, '.telemetry.asset', '', dynamic_list_constructor=view_asset_dlc)
-@login_required
-def telemetry_asset(kind, tag):
-    asset = table_service.get_entity('equipment', kind, tag)
-    return render_template('asset.html', assets = [asset])
-
 @app.route('/intelligence')
 @register_breadcrumb(app, '.intelligence', 'Intelligence')
 @login_required
@@ -341,13 +342,4 @@ def intelligence():
 
 
 if __name__ == "__main__":
-    table_service.create_table('equipment')
-    table_service.create_table('cluster')
-
-    asset = {'PartitionKey': 'pm1', 'RowKey': 'pm1-353', 'Installed': datetime(2009, 10, 10), 'Model': 'M009'}
-    table_service.insert_or_merge_entity('equipment', asset)
-
-    asset = {'PartitionKey': 'pm1', 'RowKey': 'pm1-354', 'Installed': datetime(2001, 1, 13), 'Model': 'M009'}
-    table_service.insert_or_merge_entity('equipment', asset)
-
     app.run('0.0.0.0', 8000, debug=True)

@@ -20,6 +20,11 @@ class IoTHub:
     def create_device(self, device_id, primary_key = '', secondary_key = ''):
         return self.registry_manager.create_device(device_id, primary_key, secondary_key, IoTHubRegistryManagerAuthMethod.SHARED_PRIVATE_KEY)
 
+    def get_device_list(self):
+        return self.registry_manager.get_device_list(1000)  # NOTE: this API is marked as deprecated,
+                                                            # but Python SDK doesn't seem to offer
+                                                            # an alternative yet (03/25/2018).
+
     def get_device_twin(self, device_id):
         return self.device_twin.get_twin(device_id)
 
