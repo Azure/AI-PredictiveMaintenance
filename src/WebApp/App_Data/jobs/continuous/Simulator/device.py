@@ -51,8 +51,6 @@ class Device:
             'vibration': self.__vibration_sensor.next_sample(self.speed / 60)
         }
         return state
-        
-    
 
 if __name__ == '__main__':
     pass

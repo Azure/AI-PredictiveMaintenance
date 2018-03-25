@@ -5,7 +5,7 @@ import random
 from multiprocessing import Pool, TimeoutError, cpu_count
 from multiprocessing.dummy import Pool as DummyPool
 from multiprocessing import Process
-from iot_hub import IotHub
+from iot_hub import IoTHub, IoTHubDevice
 from device import Device
 from azure.storage.table import TableService, Entity, TablePermissions
 import datetime
@@ -21,21 +21,33 @@ IOT_HUB_DEVICE_KEY = os.environ['IOT_HUB_DEVICE_KEY']
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
 def device_driver(device):
-    iot_hub = IotHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY, IOT_HUB_DEVICE_KEY)
+    iothub_device = IoTHubDevice(IOT_HUB_NAME, device.device_id, IOT_HUB_DEVICE_KEY)
 
     def get_target_speed(device):
         asset = table_service.get_entity('equipment', device.make, device.device_id)
         return asset['Speed']
 
+    def device_twin_callback(update_state, payload, user_context):
+        print ( "" )
+        print ( "Twin callback called with:" )
+        print ( "    updateStatus: %s" % update_state )
+        print ( "    payload: %s" % payload )
+
+    iothub_device.client.set_device_twin_callback(device_twin_callback, 0)
+
     while True:
         interval_start = time.time()
         device = device.next_state_device()
         
-        pl = pickle.dumps(device.state())
-        iot_hub.send_device_message(device.device_id, pl)
+        pl = bytearray(pickle.dumps(device.state()))
+
+        iothub_device.send_message(pl)
 
         target_speed = get_target_speed(device)
         device.set_speed((target_speed + device.get_speed()) / 2)
+
+        iothub_device.send_reported_state({'speed': device.get_speed()})
+
         time_elapsed = time.time() - interval_start
         print('Cadence: {0}'.format(time_elapsed))
         time.sleep(max(1 - time_elapsed, 0))
