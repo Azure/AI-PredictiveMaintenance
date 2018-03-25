@@ -56,9 +56,11 @@ if __name__ == '__main__':
 
     assets = table_service.query_entities('equipment')
     
+    iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
+
     for asset in assets:
         device_id = asset.RowKey
-        #iot_hub.create_device(device_id)
+        iot_hub.create_device(device_id)
 
     devices = []
     processes = []
