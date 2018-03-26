@@ -45,7 +45,7 @@ From a problem solving perspective, this solution template shows how to _train_ 
 The logical input, consisting of all _predictor variables_ would be several million rows like this.
 
 | Timestamp | machine | pressure | speed | ... | model | age | ... | failure | error |
-|-----------|---------|----------|-------|-----|-------|-----|-----|--------|-------|----|
+|-----------|---------|----------|-------|-----|-------|-----|-----|-----|-----|
 |2016-01-01 12:00:00 | m27 | 162.37 | 445.71 | ... | model3 | 9 | ... | 0.0 | 0.3 |
 
 This input would be sampled into a candidate data set of a few 10Ks of rows, split 40-30-30 between training, test, and validation data sets. Then the model would be trained 
@@ -158,7 +158,7 @@ Predictive Maintenance solution deployments are required in three fronts:
 
 The Cloud Based architecture is described in this solution template.
 
-![Pdm_Solution_Template](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Pdm_Solution_Template.png)
+![PdM_Solution_Template](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/PdM_Solution_Template.png)
 
 ### Operational walk-through
 
