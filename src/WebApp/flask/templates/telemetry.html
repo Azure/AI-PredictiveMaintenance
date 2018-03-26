@@ -5,19 +5,17 @@
       <table class="table table-hover">
         <thead>
           <tr>
-            <th>Tag</th>
-            <th>Kind</th>
-            <th>Date of Installation</th>
-            <th>Model</th>
+            <th>Device ID</th>
+            <th>Last activity</th>
+            <th>Connection state</th>
           </tr>
         </thead>
         <tbody>
           {% for asset in assets %}
           <tr>
-            <td><a href="/telemetry/{{ asset.PartitionKey }}/{{ asset.RowKey }}">{{ asset.RowKey }}</a></td>
-            <td>{{ asset.PartitionKey }}</td>
-            <td>{{ asset.Installed.date() }}</td>
-            <td>{{ asset.Model }}</td>
+            <td><a href="/telemetry/{{ asset.deviceId }}">{{ asset.deviceId }}</a></td>
+            <td>{{ asset.lastActivityTime }}</td>
+            <td>{{ asset.connectionState }}</td>
           </tr>
           {% endfor %}
         </tbody>
