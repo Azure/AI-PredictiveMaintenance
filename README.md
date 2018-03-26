@@ -24,19 +24,6 @@ If you are a sofware architect or developer, see the section [Architecture](#Arc
 ### Prerequisites
 You need an Azure subscription and [sufficient quota for the services](https://blogs.msdn.microsoft.com/skeeler/2017/01/subscription-usage-and-quotas-in-the-azure-portal/)  listed in the section [Resource Consumption](#Resource-Consumption).
 
-### Getting Started
-
-**Estimated Provisioning Time:** 30 minutes **(TBD)**
-
-You can have have this solution template up and running quickly:
-- Click on the Deploy button, shown above.
-- Follow the deployment instructions to authenticate, specify service, etc.
-- This will deploy the solution with the components and process flow shown in the [Architecture](#Architecture) section, in a dedicated resource group.
-- From the web console provided at the end of a successful deployment, run the featurization, model creation, and model scoring steps, based on instructions in the [User Guide](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/User%20Guides/README.md).
-- To modify the solution to fit your scenario, follow the guidelines in the [Technical Guide](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Technical%20Guides/Technical%20Guide.md).
-- Read the [Data Science Guide](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Data%20Science%20Guides/Data%20Science%20Guide.md) and the [Technical guide](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Technical%20Guides/Technical%20Guide.md) for details on the algorithms and services.
-- Use the community forum at the bottom of this page for questions and clarifications.
-
 ### What does this solution template offer
 From a software design perspective, this template shows how to construct a complete PdM solution by surrounding an _inner machine learning loop_ with an _outer processing loop_, and the use of appropriate Azure services and products at each stage of the end to end processing pipeline. The adjoining documentation provides guidance on how to scale out this POC for production deployments.The inner machine learning loop for this solution template is based on  the  [_Advanced Predictive Maintenance Machine Learning Sample_]( https://github.com/Azure/MachineLearningSamples-PredictiveMaintenance/blob/master/Code/1_data_ingestion.ipynb).
 
@@ -51,27 +38,128 @@ The logical input, consisting of all _predictor variables_ would be several mill
 This input would be sampled into a candidate data set of a few 10Ks of rows, split 40-30-30 between training, test, and validation data sets. Then the model would be trained 
 and for each logical row of input, a row of scored output, like this:
 
-| machine | ... _predictors_ ... | error | <span style="color:green">_will_fail_ | <span style="color:green">_failure_type_ | <span style="color:green">_probability_<span> |
+| machine | ... _attributes_ ... | error | <span style="color:green">_will_fail_ | <span style="color:green">_failure_type_ | <span style="color:green">_probability_<span> |
 |-----------|---------|-----|-------|-----------|--------------|
 | m27 | ... | 0.3 | yes | F034 | 0.85034 |
 
 NOTE: There are several solution templates titled Predictive Maintenance authored by Microsoft in GitHub and Microsoft sites. See section [Related Work](#Related-Work) for the list of these articles and their brief description, and about the need to consolidate them.
 
+### Getting Started
+
+**Estimated Provisioning Time:** 30 minutes **(TBD)**
+
+You can have this solution template up and running in a few steps:
+
+**Step 1:** Click on the Deploy button, shown above.
+
+**Step 2:** Enter the details requested in the 'Create new deployment' form.
+
+![Deploy_1](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Deploy_1.png)
+
+The deployment engine will create a resource group and start creating the Azure service instances and features that compose the deployment.
+
+![Deploy_2](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Deploy_2.png)
+
+Upon successful completion of the deployment, you will be presented with a link to a web console/dashboard to operate the solution.
+
+![Deploy_3](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Deploy_3.png)
+
+**Step 3:** Click on the link to the dashboard, and click Accept to the access request. This will provide you with the web console/dashboard. Click on **Analytics** in the left pane, which will bring up the UX to create the compute resources required to train the model.
+
+![Deploy_4](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Deploy_4.png)
+
+**Step 4:** Choose a SKU for the VM's (Standard_d2_v2), provide a username and password for the cluster, and start the training cluster creation.
+
+![Deploy_5](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Deploy_5.png)
+
+This will start the creation of a Spark cluster on Azure Batch via AZTK, which will take a few 10's of minutes to complete.
+
+![Deploy_6](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Deploy_6.png)
+
+**Step 5:** Upon completion of Spark cluster creation, you will have link to the Predictive Maintenance Dashboard. This is the main web console from which you will execute your main operations. The dashboard will show the cluster connection details.
+![Deploy_7](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Deploy_7.png)
+
+The next step is to connect to the Jupyter Notebooks that run the PySpark code for model training and testing. For this, you need to tunnel through to these Jupyter notebooks that are installed on the cluster itself. You can accomplish this in two ways:
+
+If you have a SSH capable command line tool (CMD or other alternative), then you can directly cut paste the SSH command that shows up in the dashboard.
+
+![Deploy_6a](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Deploy_6a.png)
+
+Alternatively, you can download PuTTy from the link provided in the dashboard, and provide Port number: **8888** as input, and use the password that you established in **Step 4**.
+
+![Putty_2](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Putty_2.png)
+
+**Step 6:** Then open a web browser and type http://localhost/8888. This will show the Jupyter dashboard with a folder for Notebooks.
+
+![Deploy_8](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Deploy_8.png)
+
+Open the Notebooks folder to see FOUR notebooks - one for each main task in the inner loop. Keep this tab open, you will return to this after each notebook run.
+
+![Deploy_9](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Deploy_9.png)
+
+**Step 7:** **Now, it is important that you open just one Notebook at a time.** Click on FeatureEngineering.ipynb - this opens up the notebook in a new tab, and starts up a _PySpark_ kernel in the cluster. 
+
+![Deploy_10](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Deploy_10.png)
+
+Click on section of the code and click on _Run_. This will complete the data preparation step of the inner machine learning loop. Once completed, **remember to shutdown the kernel from the Kernel pulldown tab, and close the browser tab**
+
+**Step 8:** Go back to the list of notebooks. Confirm that FeatureEngineering.ipynb does not have the status of Running. Then click on ModelTraining.ipynb. Repeat the same steps as **Step 7**.
+
+![Deploy_11](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Deploy_11.png)
+
+**Step 9:** Go back to the list of notebooks. Confirm that ModelTraining.ipynb does not have the status of Running. Next to **test** the model, click on Operationalization.ipynb to test the model, and run it to completion.
+
+![Deploy_12](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Deploy_12.png)
+
+**Step 10:** As of this point, the model has been created and tested in the training cluster. The next step is to deploy this model for scoring - i.e. operationalizing the model for new data. This solution template supports online scoring - i.e. for each input record, the scoring engine returns a predicted value. This scoring engine is deployed as a web service in a Docker container which is then deployed on a Azure Kubernetes cluster.
+
+For this, go back to the Predictive Maintenence dashboard (not the Jupyter dashboard) shown in **Step 5**. Click on Operationalization (also termed 'O16n') tab.
+
+![Deploy_13](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Deploy_13.png)
+
+There are five steps in the O16n tab:
+- Register model with Azure ML.
+- Register the Manifest.
+
+![Deploy_14](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Deploy_14.png)
+
+- Create Image to create a Docker Image for the web service. This will take some time, and when complete, it moves to the next step.
+
+![Deploy_15](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Deploy_15.png)
+
+- Create Service to create a web service in the docker image, and deploys the image to the cluster.
+
+![Deploy_16](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Deploy_16.png)
+
+Provide a service name here, and then click on Create. This quickly creates a service.
+
+![Deploy_17](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Deploy_17.png)
+
+- Finally click on the Consume link - this will generate the output in an Azure Table.
+
+**Step 6** Next go look at the results in Azure.
+- Install Azure Storage Explorer ([Install from here](https://azure.microsoft.com/en-us/features/storage-explorer/) if you do not have it).
+- Connect to your Azure account, and from the portal, find your storage account from the resource group.
+
+![Deploy_18](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Deploy_18.png)
+
+
+ to tunnel to the Spark cluster via the VM.
+or  you haeOnce the Spark cluster is deployed, 
+- Follow the deployment instructions to authenticate, specify service, etc.
+- This will deploy the solution with the components and process flow shown in the [Architecture](#Architecture) section, in a dedicated resource group.
+- From the web console provided at the end of a successful deployment, run the featurization, model creation, and model scoring steps, based on instructions in the [User Guide](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/User%20Guides/README.md).
+- To modify the solution to fit your scenario, follow the guidelines in the [Technical Guide](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Technical%20Guides/Technical%20Guide.md).
+- Read the [Data Science Guide](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Data%20Science%20Guides/Data%20Science%20Guide.md) and the [Technical guide](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Technical%20Guides/Technical%20Guide.md) for details on the algorithms and services.
+- Use the community forum at the bottom of this page for questions and clarifications.
+
 ### Resource Consumption
 
 **Estimated Daily Cost:** $150.00 **(TBD)**
 
-A successful deployment will result in the creation of the following resources in your resource group:
-- a
-- b
-- c
-- d
-- e
-- f
-
 **TBD** - Provide the list of resources from the resource group.
 
-## Business Case
+## Business Case for PdM
 
 Businesses require critical equipment and assets - from specialized equipment such as aircraft engines, turbines, and industrial chillers down to more familiar conveniences like elevators and xray machines - to be running at maximum utilization and efficiency.
 
@@ -113,11 +201,13 @@ The common _data elements_ for PdM problems can be summarized as follows:
 - _Equipment features_: The metadata specific to each individual equipment. Examples for a pump or engine are size, make, model, location, installation date; for a circuit breaker, technical specs like voltage and amperage levels.
 - In addition, different business domains may have a variety of other data sources that influence failure patterns not listed here. These should be identified by consulting the domain experts when building predictive models.
 
-The two main _data types_ observed in PdM are _temporal/time series/historian data_ and _static data_. Failure history, machine conditions, repair history, usage history are time series indicated by the timestamp of data collection. Machine and operator specific features, are static - they usually describe the technical specifications of machines or operator’s properties.
+The two main _data types_ observed in PdM are:
+- _temporal/time series/historian data_: Failure history, machine conditions, repair history, usage history are time series indicated by the timestamp of data collection.
+- _static metadata_: Machine and operator specific features, are static - they usually describe the technical specifications of machines or operator’s properties.
 
 ### Data Preparation
 
-This is an equally important task as modeling for any AI problem, let alone predictive maintenance. Attributes for ML algorithms can be _numerical_ (continuous numbers), _categorical_ (discrete categories - either numbered or in text), _ordinal_ (categorical, but with values in order), _n-grams_ (a text phrase split into various combinations of _n_ words). In general, some of the key actions for data preparation are:
+This is an exercise that is equal in importance to model creation for any AI problem, let alone predictive maintenance. Attributes for ML algorithms can be _numerical_ (continuous numbers), _categorical_ (discrete categories - either numbered or in text), _ordinal_ (categorical, but with values in order), _n-grams_ (a text phrase split into various combinations of _n_ words). In general, some of the key actions for data preparation are:
 
 _Data selection_ - we have already discussed the kind of data we need to select for the predictive maintenance problem in the previous section.
 
