@@ -9,13 +9,13 @@ Documentation provided with the template explains the scenario, the data science
 
 ## Audience
 
-If you are a business decision maker (BDM) looking for ways to reduce the downtime and improve utilization of your critical equipment, see the section [Business Case for PdM](#Business-case-for_PdM).
-
-If you are a technical decision maker (TDM) evaluating PdM technologies, review the section [Data Science for PdM](#Data-Science-for-PdM) to understand how the requirements and processing for predictive analytics are different than traditional query-based analytics.
-
-If you are a sofware architect looking to quickly stand up a POC, see the section [Architecture for PdM](#Architecture-for-PdM) in addition to the above. To directly get started with the deployment, go to [Getting started](#Getting-Started) section to start the deployment.
-
-Finally, to understand both the architecture and data science behind the solution in-depth, see  [Advanced Topics](#Advanced-Topics).
+| If you are ... | start with |
+|:-----------|:----------------|
+| a business decision maker (BDM) looking for ways to reduce the downtime and improve utilization of critical equipment  | [Business case for PdM](#Business-Case-for-PdM)|
+| a technical decision maker (TDM) evaluating PdM technologies, to understand how the requirements and processing for predictive analytics are different than traditional query-based analytics |[Data Science for PdM](#Data-Science-for-PdM) |
+|a sofware architect looking to quickly stand up a POC | [Architecture for PdM](#Architecture-for-PdM)|
+|a developer eager to directly get started with the deployment | [Deployment](#Deployment) |
+|all of the above, seeking to understand the data science and architecture behind the solution in-depth |[Advanced Topics](#Advanced-Topics)|
 
 ## Business Case for PdM
 
@@ -23,9 +23,9 @@ Businesses require critical equipment and assets - from specialized equipment su
 
 Today, most businesses rely on _corrective maintenance_, where parts are replaced as they fail. This ensures parts are used completely (not wasting component life), but costs the business in both downtime and unscheduled maintenance (off hours, or inconvenient locations).
 
-The next alternative is a _preventative maintenance_ - where the business heuristically estimates a safe lifespan of a component, and replaces it before failure. This avoids unscheduled failures, but still incurs the cost of scheduled downtime, under utilization of the component before its full life time, and the cost of labor.
+The next alternative is a _preventative maintenance_ - where the business heuristically estimates a safe lifespan of a component, and replaces it before failure. This avoids unscheduled failures, but still incurs the cost of scheduled downtime, under-utilization of the component before its full life time, and the cost of labor for premature replacement.
 
-The goal of _predictive maintenance_ is to optimize the balance between corrective and preventative maintenance, by enabling _just in time_ replacement of components only when they are close to failure. The savings come from both extending component lifespans (compared to preventive maintenance), and reducing unscheduled maintenance (over corrective maintenance), offering businesses a competitive ROI advantage over their peers with traditional maintenance procedures.
+The goal of _predictive maintenance_ is to optimize the balance between corrective and preventative maintenance, by enabling _just in time_ replacement of components only when they are close to failure. The savings come from both extending component lifespans (compared to preventive maintenance), reducing unscheduled maintenance and labor costs (over corrective maintenance), offering businesses a competitive ROI advantage over their peers with traditional maintenance procedures.
 
 PdM solutions can help businesses that want to reduce  operational risk due to unexpected failures of equipment, require insight into the root cause of problems in an equipment as a whole, or from its subcomponents. Problems commonly observed in most businesses are:
 
@@ -98,37 +98,64 @@ The PdM business problems listed above can be mapped to specific AI techniques a
 
 The AI technique and algorithm for the _failure prediction problem_ described in this template is discussed in [Failure Prediction - Algorithm](#Failure-Prediction-Algorithm). For a general discussion on AI Techniques and algorithms for PdM, see the [Data Science Guide for PdM](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Data%20Science%20Guides/Data%20Science%20Guide.md).
 
-## Architecture
-Customers need PdM solution deployments in three areas:
+## Architecture for PdM
+
+PdM solution deployments are observed in three forms:
+
 - _On Prem_ - for scenarios where customers do not want to connect to the cloud, but with the data delivered via local, private networks to central, on-prem servers where modeling and analytics are done. This the past.
 - _Cloud based_ - for scenarios where devices are managed from the cloud for infinite scale, with with centralized ML and analytics in the cloud based on data delivered via the Internet from IoTs. The models are managed from a central repository, and the scoring is also done in batch in the cloud, and the results disseminated to the edge. Most leaders in the industry are migrating towards this scenario - minimally with lift and shift; and then building cloud-first solutions.
 - _Edge based_ - This is a variant of the cloud scenario, where modeling is done centrally in the cloud, but the models have to be delivered to edge devices that cannot be connected to the cloud,for data
 
-This solution template shows the **Cloud based architecture**; the Edge-based solution will also be provided by public preview.
+This solution template shows the **Cloud based architecture**; the Edge-based solution will be provided by public preview.
 
 ![PdM_Solution_Template](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/PdM_Solution_Template.png)
 
-### Operational walk-through
+### How this solution template operates - in a Nutshell
+
+The architecture is best viewed left to right, where the operations go through the stages of:
+- INGEST data into the cloud
+- STAGE the data from various sources, in the cloud (optional)
+- PREPARE the data for training and scoring
+- TRAIN the models based on the prepared data, and TEST it
+- DEPLOY the model for scoring new data
+- PUBLISH the results from a streaming or persisted store
+- CONSUME the results from a suitable visualizer or reporting mechanism.
 
 #### INGEST
+**(1)** Multiple streams of sensor data, each generated by a general purpose [Sensor Data Simulator](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/src/WebApp/App_Data/jobs/continuous/Simulator/simulator.py) ([documentation](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/src/Notebooks/DataGeneration.ipynb)) are ingested into an [Azure IoT Hub](https://azure.microsoft.com/en-us/services/iot-hub/). Each stream represents data for ONE specific measurement - such as temperature, pressure etc.- from one particular device. There can be multiple devices, each with multiple sensors. The simulator should ideally run outside the cloud in a VM (for private preview, it runs in the cloud itself).
 
-This solution template provides a general purpose [Sensor Data Simulator](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/src/WebApp/App_Data/jobs/continuous/Simulator/simulator.py) along with [documentation](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/src/Notebooks/DataGeneration.ipynb) to produce synthesized data for specific measurements of an equipment such as temperature, pressure etc. 
-
-Multiple streams of sensor data are ingested into an [Azure IoT Hub](https://azure.microsoft.com/en-us/services/iot-hub/)
+**(2)** To complement the sensor data for modeling purposes, metadata about the devices, along with maintenance logs, error logs, failure history etc. are also ingested into Azure Blobs.
 
 #### STAGE
 
-#### PROCESS
+**(3)** The data from IoTHub is sent as-is for storage in multiple files in the Azure Blob.
+
+#### PREPARE
+See TRAIN
 
 #### TRAIN
+**(4)** For scalable training of models, Spark clusters are deployed on Azure Batch Services using the Azure Toolkit. The code to train the models is written using PySpark - this PySpark code reads the individual sensor streams from Azure Blob files, joins them together to an appropriate schema, prepares them for training, and builds a decision tree or random forest model using the training data set. The model is also tested for accuracy in this stage. 
+
+**(5)** The training stage can be an experimental, iterative loop between training the model using a training data set, and testing it with a test data set. The model(s) are registered in Azure Model Management service - so that multiple versions of the model with their specific data preparations are available for deployment.
+
+#### DEPLOY
+
+**(6)** The candidate model is then deployed using Azure ML deployment services for **online scoring** (Most people wrongly call this _real time scoring_; it is essentially scoring one record at a time - and is at best, near real time. The other alternative is batch scoring where large volumes of new data are scored in batches).
+
+The socring engine is the same PySpark code that was used for TEST in the training phase, but deployed in a web service in a Docker container that is deployed on Azure Kubernetes cluster for cloud scale.
 
 #### SCORE
+**(7)** To handle varying throttling and resourcing constraints in Azure, the data is fed from IoTHub into a Service Bus - so that the online scoring engine has the flexibility to _pull_ events as required from the service bus **(8)** and compute the score, as opposed to data being _pushed_ to it for scoring.
 
 #### PUBLISH
+**(9)** The scored output is stored in an Azure Table, for further consumption.
 
 #### CONSUME
+**(10)** The scored results can be viewed via PowerBI or other analytics tools (TBD - implementation pending)
 
-## Getting Started
+Finally, the grayed out section of the architecture shows a placeholder for batch scoring, which will also be supported for public preview.
+
+## Deployment
 
 **Note:** If you have already deployed this solution, click [here](https://start.cortanaintelligence.com/Deployments) to view your deployment.
 
@@ -156,7 +183,7 @@ and for each logical row of input, a row of scored output, like this:
 
 NOTE: There are several solution templates titled Predictive Maintenance authored by Microsoft in GitHub and Microsoft sites. See section [Related Work](#Related-Work) for the list of these articles and their brief description, and about the need to consolidate them.
 
-### Getting Started
+### Deployment walk-through
 
 **Estimated Provisioning Time:** 30 minutes **(TBD)**
 
@@ -255,15 +282,13 @@ Provide a service name here, and then click on Create. This quickly creates a se
 
 ![Deploy_18](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/deploy_18.png)
 
-
-
-### Resource Consumption
+## Resource Consumption
 
 **Estimated Daily Cost:** $150.00 **(TBD)**
 
 **TBD** - Provide the list of resources from the resource group.
 
-# Advanced Topic - Data Science behind the Failure Prediction solution
+## Advanced Topic - Data Science behind the Failure Prediction solution
 
 ## Problem Statement
 The problem here is to predict the failure of a device, indicating the type of failure, along with the probability (chance) of its occurrence, over the next N days, given a set of _predictor variables_ such as temperature, pressure, etc over time.
@@ -279,8 +304,5 @@ Stated in modeling terms, this is a _multi-class classification_ problem that _c
 ### Model Validation
 
 
-# Advanced Topic - Design of the Failure Prediction solution
+## Advanced Topic - Architecture of the Failure Prediction solution
 
-[Train](https://quickstart.azure.ai/Deployments/new/training)
-
-[Operationalize](https://quickstart.azure.ai/Deployments/new/operationalization)
