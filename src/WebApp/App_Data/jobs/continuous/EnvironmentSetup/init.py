@@ -15,6 +15,9 @@ table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STOR
 
 table_service.create_table('cluster')
 
+asset = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Not Created'}
+table_service.insert_or_merge_entity('cluster', asset)
+
 file_service = FileService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 file_service.create_share(share_name='notebooks', quota=1)
 
