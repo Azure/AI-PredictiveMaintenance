@@ -30,18 +30,13 @@ class Device:
     def set_speed(self, speed):
         self.speed = speed
 
-    def __g(self, v, min_v, max_v, p, decrement):
-        limit = max(min_v, p, v - decrement)
-        delta = (limit - v) * np.sqrt(limit - v) * (decrement ** 2)
-        return min(max_v, limit, v + delta)
+    def __g(self, v, min_v, max_v, target, rate):
+        delta = (target - v) * rate
+        return max(min(v + delta, max_v), min_v)
 
-    def next_state_device(self):
-        self.temperature = self.__g(self.temperature, self.ambient_temperature, self.max_temperature, self.speed / 10, 0.01)
-        self.pressure = self.__g(self.pressure, self.ambient_pressure, np.inf, self.speed * self.pressure_factor, 100 / self.speed)
-        device = self
-        return device
-    
     def next_state(self):
+        self.temperature = self.__g(self.temperature, self.ambient_temperature, self.max_temperature, self.speed / 10, 0.01 * self.speed / 1000)
+        self.pressure = self.__g(self.pressure, self.ambient_pressure, np.inf, self.speed * self.pressure_factor, 0.3 * self.speed / 1000)
         state = {        
             'ambient_temperature': self.ambient_temperature,
             'ambient_pressure': self.ambient_pressure,
@@ -50,9 +45,8 @@ class Device:
             'pressure': self.pressure,
             'vibration': self.__vibration_sensor.next_sample(self.speed / 60)
         }
+
         return state
-        
-    
 
 if __name__ == '__main__':
     pass
