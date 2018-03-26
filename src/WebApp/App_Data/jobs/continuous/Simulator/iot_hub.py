@@ -1,104 +1,83 @@
-import os
-import base64
-import hmac
-import hashlib
-import time
-import requests
-import urllib
-import urllib.parse
-from multiprocessing import Pool
 import json
-from random import randint
+from base64 import b64encode, b64decode
+from hashlib import sha256
+from time import time
+from urllib.parse import quote_plus, urlencode
+from hmac import HMAC
+from iothub_service_client import IoTHubRegistryManager, IoTHubRegistryManagerAuthMethod, IoTHubDeviceTwin
+from iothub_client import IoTHubClient, IoTHubMessage, IoTHubConfig, IoTHubTransportProvider
 
-class DeviceManager:    
-    API_VERSION = '2016-02-03'
-    TOKEN_VALID_SECS = 365 * 24 * 60 * 60
-    TOKEN_FORMAT = 'SharedAccessSignature sr=%s&sig=%s&se=%s&skn=%s'
+class IoTHub:
+    def __init__(self, iothub_name, owner_key, suffix='.azure-devices.net'):
+        self.iothub_name = iothub_name
+        self.owner_key = owner_key
+        self.suffix = suffix
+        self.owner_connection_string ='HostName={0}{1};SharedAccessKeyName=iothubowner;SharedAccessKey={2}'.format(self.iothub_name, self.suffix, owner_key)
+        self.registry_manager = IoTHubRegistryManager(self.owner_connection_string)
+        self.device_twin = IoTHubDeviceTwin(self.owner_connection_string)
+        self.__device_clients = {}
     
-    def __init__(self, connectionString=None):
-        if connectionString != None:
-            iotHost, keyName, keyValue = [sub[sub.index('=') + 1:] for sub in connectionString.split(";")]
-            self.iotHost = iotHost
-            self.keyName = keyName
-            self.keyValue = keyValue
-    
-    def _buildExpiryOn(self):
-        return '%d' % (time.time() + self.TOKEN_VALID_SECS)
-    
-    def _buildSasToken(self):
-        targetUri = self.iotHost.lower()
-        expiryTime = self._buildExpiryOn()
-        toSign = '%s\n%s' % (targetUri, expiryTime)
-        key = base64.b64decode(self.keyValue.encode('utf-8'))
-        signature = urllib.parse.quote(
-            base64.b64encode(
-                hmac.HMAC(key, toSign.encode('utf-8'), hashlib.sha256).digest()
-                )
-        ).replace('/', '%2F')
-        return self.TOKEN_FORMAT % (targetUri, signature, expiryTime, self.keyName)
-    
-    def createDeviceId(self, deviceId):
-        sasToken = self._buildSasToken()
-        url = 'https://%s/devices/%s?api-version=%s' % (self.iotHost, deviceId, self.API_VERSION)
-        body = '{deviceId: "%s"}' % deviceId
-        r = requests.put(url, headers={'Content-Type': 'application/json', 'Authorization': sasToken}, data=body)
-        return r.text, r.status_code
-    
-    def retrieveDeviceId(self, deviceId):
-        sasToken = self._buildSasToken()
-        url = 'https://%s/devices/%s?api-version=%s' % (self.iotHost, deviceId, self.API_VERSION)
-        r = requests.get(url, headers={'Content-Type': 'application/json', 'Authorization': sasToken})
-        return r.text, r.status_code
-    
-    def listDeviceIds(self, top=None):
-        if top == None:
-            top = 1000
-        sasToken = self._buildSasToken()
-        url = 'https://%s/devices?top=%d&api-version=%s' % (self.iotHost, top, self.API_VERSION)
-        r = requests.get(url, headers={'Content-Type': 'application/json', 'Authorization': sasToken})
-        return r.text, r.status_code
+    def create_device(self, device_id, primary_key = '', secondary_key = ''):
+        return self.registry_manager.create_device(device_id, primary_key, secondary_key, IoTHubRegistryManagerAuthMethod.SHARED_PRIVATE_KEY)
 
-    def deleteDeviceId(self, deviceId):
-        sasToken = self._buildSasToken()
-        url = 'https://%s/devices/%s?api-version=%s' % (self.iotHost, deviceId, self.API_VERSION)
-        r = requests.delete(url, headers={'Content-Type': 'application/json', 'Authorization': sasToken, 'If-Match': '*' }) 
-        # If-Match Etag, but if * is used, no need to precise the Etag of the device. The Etag of the device can be seen in the header requests.text response 
-        return r.text, r.status_code
+    def get_device_list(self):
+        return self.registry_manager.get_device_list(1000)  # NOTE: this API is marked as deprecated,
+                                                            # but Python SDK doesn't seem to offer
+                                                            # an alternative yet (03/25/2018).
 
+    def get_device_twin(self, device_id):
+        return self.device_twin.get_twin(device_id)
+    
+    def update_twin(self, device_id, payload):
+        return self.device_twin.update_twin(device_id, payload)
 
-class D2CMessageSender:
-    API_VERSION = '2016-02-03'
-    TOKEN_VALID_SECS = 300
-    TOKEN_FORMAT = 'SharedAccessSignature sig=%s&se=%s&skn=%s&sr=%s'
-    
-    def __init__(self, connectionString=None):
-        if connectionString != None:
-            iotHost, keyName, keyValue = [sub[sub.index('=') + 1:] for sub in connectionString.split(";")]
-            self.iotHost = iotHost
-            self.keyName = keyName
-            self.keyValue = keyValue
-            
-    def _buildExpiryOn(self):
-        return '%d' % (time.time() + self.TOKEN_VALID_SECS)
-    
-    def _buildIoTHubSasToken(self, deviceId):
-        resourceUri = '%s/devices/%s' % (self.iotHost, deviceId)
-        targetUri = resourceUri.lower()
-        expiryTime = self._buildExpiryOn()
-        toSign = '%s\n%s' % (targetUri, expiryTime)
-        key = base64.b64decode(self.keyValue.encode('utf-8'))
-        signature = urllib.parse.quote(
-            base64.b64encode(
-                hmac.HMAC(key, toSign.encode('utf-8'), hashlib.sha256).digest()
-            )
-        ).replace('/', '%2F')
-        return self.TOKEN_FORMAT % (signature, expiryTime, self.keyName, targetUri)
-    
-    def sendD2CMsg(self, deviceId, message):
-        sasToken = self._buildIoTHubSasToken(deviceId)
-        url = 'https://%s/devices/%s/messages/events?api-version=%s' % (self.iotHost, deviceId, self.API_VERSION)
-        r = requests.post(url, headers={'Authorization': sasToken}, data=message)
-        return r.text, r.status_code
+class IoTHubDevice:
+    def __init__(self, iothub_name, device_id, device_key, suffix='.azure-devices.net'):
+        self.iothub_name = iothub_name
+        self.device_id = device_id
+        self.device_key = device_key
+        self.policy_name = 'device'
+        self.suffix = suffix
+        device_connection_string = self.__get_device_connection_string()
+        self.client = IoTHubClient(device_connection_string, IoTHubTransportProvider.MQTT) # HTTP, AMQP, MQTT ? 
 
+    def send_message(self, message):
+        m = IoTHubMessage(message) # string or bytearray
+        self.client.send_event_async(m, IoTHubDevice.__dummy_send_confirmation_callback, 0)
+
+    def send_reported_state(self, state):
+        state_json = json.dumps(state)
+        self.client.send_reported_state(state_json, len(state_json), IoTHubDevice.__dummy_send_reported_state_callback, 0)
+
+    def __get_device_connection_string(self, expiry=3600):        
+        ttl = time() + expiry
+        uri = '{0}{1}/devices/{2}'.format(self.iothub_name, self.suffix, self.device_id)
+        sign_key = "%s\n%d" % ((quote_plus(uri)), int(ttl))
+        
+        signature = b64encode(HMAC(b64decode(self.device_key), sign_key.encode('utf-8'), sha256).digest())
+
+        rawtoken = {
+            'sr' :  uri,
+            'sig': signature,
+            'se' : str(int(ttl))
+        }
+
+        if self.policy_name is not None:
+            rawtoken['skn'] = self.policy_name
+
+        sas = 'SharedAccessSignature ' + urlencode(rawtoken)
+        return 'HostName={0}{1};DeviceId={2};SharedAccessSignature={3}'.format(self.iothub_name, self.suffix, self.device_id, sas)
+    
+    @staticmethod
+    def __dummy_send_confirmation_callback(message, result, user_context):
+        pass
+        # print(result)
+
+    @staticmethod
+    def __dummy_send_reported_state_callback(status_code, user_context):
+        pass
+        # print(status_code)
+        
 if __name__ == '__main__':
-    pass
+    iot_hub = IoTHub('iothub-sz3hgnexzw2ty', 'A0GOfwxELSw6mxaw4nHYfT1ivdhBTYOK1+OVDmAOKxw=')
+    print(iot_hub.get_device_twin('test_device'))

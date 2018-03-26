@@ -1,0 +1,148 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div class="row">
+    <div class="col-sm-3">
+      <p>
+        <i>Speed setting: </i> <span id="desired-speed"></span> RPM
+      </p>
+      <p>
+        <input id="desired-speed-range" type="range" min="60" max="1500">
+      </p>
+    </div>  
+  </div>
+  <div class="row">
+    <div class="col-lg-11 col-md-11 col-sm-12">
+      <div id="sensor-stream"></div>
+    </div>
+  </div>
+  <div class="row">
+  <div class="col-lg-7">
+    <div id="ambient-sensor-readings">
+      <p>
+        <i>Ambient temperature</i>: <span id="ambient-temperature"></span> °C
+      </p>
+      <p>
+        <i>Ambient pressure</i>: <span id="ambient-pressure"></span> kPa
+      </p>
+    </div>
+  </div>
+  </div>
+{% endblock %}
+{% block script %}
+<script>
+  
+  var layout = {
+    title: 'Real-time sensor data',    
+    xaxis: {
+      type: 'date',
+      fixedrange: true      
+    },
+    yaxis: {
+      domain: [0, 0.45],
+      side: 'right',
+      zeroline: false
+    },
+    legend: {
+      traceorder: 'reversed'
+    },
+    yaxis2: {
+      domain: [0.45, 0.75],
+      side: 'right',
+      zeroline: false,
+      tickfont: {
+        color: '#A00'
+      }
+
+    },
+    yaxis3: {
+      domain: [0.75, 1],
+      side: 'right',
+      zeroline: false
+    },
+    legend: {
+      "orientation": "h", 
+      y: 100
+    }
+  };
+
+  var trace1 = {
+    name: 'Speed (RPM)',
+    x: [],
+    y: [],
+    mode: 'lines'
+  };
+  
+  var trace2 = {
+    name: 'Temperature (°C)',
+    x: [],
+    y: [],    
+    yaxis: 'y2',
+    mode: 'lines'
+  };
+  
+  var trace3 = {
+    name: 'Pressure (kPa)',
+    x: [],
+    y: [],
+    yaxis: 'y3',
+    mode: 'lines'
+  };
+
+  var data = [trace1, trace2, trace3];
+
+  Plotly.newPlot('sensor-stream', data, layout);
+
+  function pollLatestData() {
+    $.get('/twin/{{device_id}}').done(function(twin) {
+      var timestamp = Date.parse(twin.properties.reported.$metadata.$lastUpdated); 
+      var desiredProperties = twin.properties.desired;
+      var reportedProperties = twin.properties.reported;      
+      
+      var time = new Date();
+      console.log(time);
+      
+      var update = {
+        x: [[timestamp],[timestamp],[timestamp]],
+        y: [[reportedProperties.speed],[reportedProperties.temperature],[reportedProperties.pressure]]
+      };
+      
+      if (!$('#desired-speed').text()) {
+        $('#desired-speed').text(desiredProperties.speed);
+        $('#desired-speed-range').val(desiredProperties.speed);
+      }
+      
+      $('#ambient-temperature').text(reportedProperties.ambientTemperature);
+      $('#ambient-pressure').text(reportedProperties.ambientPressure);
+    
+      var rangeMin = new Date(time.getTime() - 30000);
+    
+      layout.xaxis.range = [rangeMin, time];
+      Plotly.relayout('sensor-stream', layout);
+      
+      Plotly.extendTraces('sensor-stream', update, [0, 1, 2]);
+    }).always(function() {
+      window.setTimeout(pollLatestData, 1000);
+    });
+  }
+
+  pollLatestData();
+  
+  function setDesiredSpeed(speed) {
+    $.ajax({
+      type: "POST",
+      url: '/twin/{{device_id}}',
+      data: {
+        speed: speed
+      }
+    })
+  }
+  
+  var timeoutHandle = 0;
+  $('#desired-speed-range').on('input', function(val) {
+    var value = $(this).val();
+    $('#desired-speed').text(value);
+    window.clearTimeout(timeoutHandle);
+    timeoutHandle = window.setTimeout(setDesiredSpeed, 300, value);    
+  });
+</script>
+{% endblock %}
