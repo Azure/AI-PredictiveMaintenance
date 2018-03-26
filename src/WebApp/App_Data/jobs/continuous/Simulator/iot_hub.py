@@ -27,6 +27,9 @@ class IoTHub:
 
     def get_device_twin(self, device_id):
         return self.device_twin.get_twin(device_id)
+    
+    def update_twin(self, device_id, payload):
+        return self.device_twin.update_twin(device_id, payload)
 
 class IoTHubDevice:
     def __init__(self, iothub_name, device_id, device_key, suffix='.azure-devices.net'):
@@ -67,11 +70,13 @@ class IoTHubDevice:
     
     @staticmethod
     def __dummy_send_confirmation_callback(message, result, user_context):
-        print(result)
+        pass
+        # print(result)
 
     @staticmethod
     def __dummy_send_reported_state_callback(status_code, user_context):
-        print(status_code)
+        pass
+        # print(status_code)
         
 if __name__ == '__main__':
     iot_hub = IoTHub('iothub-sz3hgnexzw2ty', 'A0GOfwxELSw6mxaw4nHYfT1ivdhBTYOK1+OVDmAOKxw=')

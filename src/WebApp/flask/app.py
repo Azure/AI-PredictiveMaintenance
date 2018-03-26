@@ -76,6 +76,25 @@ def get_device_twin(device_id):
     resp = Response(twin_data)
     resp.headers['Content-type'] = 'application/json'
     return resp
+    
+@app.route('/twin/<device_id>', methods=['POST'])
+@login_required
+def set_desired_properties(device_id):
+    speed = request.form["speed"]
+    payload = {
+        'properties': {
+            'desired': {
+                'speed': int(speed)
+            }
+        }
+    }
+    payload_json = json.dumps(payload)
+
+    iot_hub = IoTHub(os.environ['IOT_HUB_NAME'], os.environ['IOT_HUB_OWNER_KEY'])    
+    twin_data = iot_hub.update_twin(device_id, payload_json)
+    resp = Response(twin_data)
+    resp.headers['Content-type'] = 'application/json'
+    return resp
 
 def get_access_token():
     parameters = {
