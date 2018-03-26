@@ -66,11 +66,16 @@ def view_asset_dlc(*args, **kwargs):
 @app.route('/telemetry/<device_id>')
 @login_required
 def telemetry_twin(device_id):
-    iot_hub = IoTHub(os.environ['IOT_HUB_NAME'], os.environ['IOT_HUB_OWNER_KEY'])
-    assets = table_service.query_entities('equipment')
-    twin = iot_hub.get_device_twin(device_id)
-    # return json.dumps(twin)
-    return render_template('twin.html', twin = twin)
+    return render_template('twin.html', device_id = device_id)
+
+@app.route('/twin/<device_id>', methods=['GET'])
+@login_required
+def get_device_twin(device_id):
+    iot_hub = IoTHub(os.environ['IOT_HUB_NAME'], os.environ['IOT_HUB_OWNER_KEY'])    
+    twin_data = iot_hub.get_device_twin(device_id)
+    resp = Response(twin_data)
+    resp.headers['Content-type'] = 'application/json'
+    return resp
 
 def get_access_token():
     parameters = {

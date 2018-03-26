@@ -1,66 +1,107 @@
 {% extends "layout.html" %}
-{% block body %}
-  <!-- Area Chart Example-->
+{% block body %}  
   <div class="row">
-    <div class="col-lg-3">
-      <!-- Example Bar Chart Card-->
-      <div class="card mb-3">
-        <div class="card-header">
-          <i class="fa fa-bullhorn"></i> Vibration</div>
-          <canvas id="oscilloscope" class="card-body" height="50"></canvas>                
-      </div>
-        <!-- /Card Columns-->
-    </div>    
-    <div class="col-lg-3">
-      <!-- Example Bar Chart Card-->
-      <div class="card mb-3">
-        <div class="card-header">
-          <i class="fa fa-rotate-right"></i> Speed (RPM)</div>
-          <canvas id="speed" class="card-body" height="250"></canvas>
-      </div>
-      <!-- /Card Columns-->
-    </div>
-    <div class="col-lg-6">
-      <!-- Example Pie Chart Card-->
-      <div class="card mb-3">
-        <div class="card-header">
-          <i class="fa fa-sliders"></i> Pie Chart Example</div>
-        <div class="card-body">
-          <input id="ex1" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="20" data-slider-step="1" data-slider-value="14" />
-        </div>
-      </div>
+    <div class="col-lg-7">
+      <div id="sensor-stream"></div>
     </div>
   </div>
-</div>
-<!-- /.container-fluid-->
-<!-- /.content-wrapper-->
-<footer class="sticky-footer">
-  <div class="container">
-    <div class="text-center">
-      <small>Copyright © Your Website 2018</small>
+  <div class="row">
+  <div class="col-lg-7">
+    <div id="ambient-sensor-readings">
+      <p>
+        <i>Ambient temperature</i>: <span id="ambient-temperature"></span> °C
+      </p>
+      <p>
+        <i>Ambient pressure</i>: <span id="ambient-pressure"></span> kPa
+      </p>
     </div>
   </div>
-</footer>
-<!-- Scroll to Top Button-->
-<a class="scroll-to-top rounded" href="#page-top">
-  <i class="fa fa-angle-up"></i>
-</a>
-<!-- Logout Modal-->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">×</span>
-        </button>
-      </div>
-      <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-        <a class="btn btn-primary" href="login.html">Logout</a>
-      </div>
-    </div>
   </div>
-</div>
+{% endblock %}
+{% block script %}
+<script>
+  
+  var layout = {
+    title: 'Real-time sensor data',    
+    xaxis: {
+      type: 'date',
+      fixedrange: true      
+    },
+    yaxis: {
+      domain: [0, 0.45],
+      //rangemode: 'nonnegative',
+      zeroline: false
+    },
+    legend: {
+      traceorder: 'reversed'
+    },
+    yaxis2: {
+      domain: [0.45, 0.75],
+      side: 'right'
+    },
+    yaxis3: {
+      domain: [0.75, 1]
+    },
+    legend: {
+      "orientation": "h", 
+      y: 100
+    }
+  };
+
+  var trace1 = {
+    name: 'Speed (RPM)',
+    x: [],
+    y: [],
+    mode: 'lines'
+  };
+  
+  var trace2 = {
+    name: 'Temperature (°C)',
+    x: [],
+    y: [],    
+    yaxis: 'y2',
+    mode: 'lines'
+  };
+  
+  var trace3 = {
+    name: 'Pressure (kPa)',
+    x: [],
+    y: [],
+    yaxis: 'y3',
+    mode: 'lines'
+  };
+
+  var data = [trace1, trace2, trace3];
+
+  Plotly.newPlot('sensor-stream', data, layout);
+
+  function pollLatestData() {
+    $.get('/twin/{{ device_id}}').done(function(twin) {
+      var timestamp = Date.parse(twin.properties.reported.$metadata.$lastUpdated); 
+      var reportedProperties = twin.properties.reported;      
+      
+      var time = new Date();
+      console.log(time);
+      
+      var update = {
+        x: [[timestamp],[timestamp],[timestamp]],
+        y: [[reportedProperties.speed],[reportedProperties.temperature],[reportedProperties.pressure]]
+      };
+      
+      $('#ambient-temperature').text(reportedProperties.ambientTemperature);
+      $('#ambient-pressure').text(reportedProperties.ambientPressure);
+    
+      var rangeMin = new Date(time.getTime() - 30000);
+    
+      layout.xaxis.range = [rangeMin, time];
+      Plotly.relayout('sensor-stream', layout);
+      
+      Plotly.extendTraces('sensor-stream', update, [0, 1, 2]);
+    }).always(function() {
+      window.setTimeout(pollLatestData, 1000);
+    });
+  }
+
+  pollLatestData();
+</script>
 {% endblock %}

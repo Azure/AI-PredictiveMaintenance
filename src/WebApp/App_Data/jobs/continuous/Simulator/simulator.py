@@ -11,23 +11,31 @@ from azure.storage.table import TableService, Entity, TablePermissions
 import datetime
 import time
 
-STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
-STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
+# STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
+# STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 
-IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
-IOT_HUB_OWNER_KEY = os.environ['IOT_HUB_OWNER_KEY']
-IOT_HUB_DEVICE_KEY = os.environ['IOT_HUB_DEVICE_KEY']
+# IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
+# IOT_HUB_OWNER_KEY = os.environ['IOT_HUB_OWNER_KEY']
+# IOT_HUB_DEVICE_KEY = os.environ['IOT_HUB_DEVICE_KEY']
+
+STORAGE_ACCOUNT_NAME = 'stg3u4jj65poah32'
+STORAGE_ACCOUNT_KEY = 'nChg7vz6IgjVyGw6ZCx/xL04HmRH8XJ3ojC70B1LAO34HmeS37Zzyl2VKfYSm3cDGMtuWbdtTjifFvTintU4dg=='
+
+IOT_HUB_NAME = 'iothub-3u4jj65poah32'
+IOT_HUB_OWNER_KEY = '1/pqDwtTt3DZ/eitCpSSiIJzoY2/S/K6LU0Dzch55mM='
+IOT_HUB_DEVICE_KEY = 'Yq26jolRuECmAWQdLAvW/GnR9TOkxXF1/61c760sjzk='
+
 
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
 def device_driver(device):
     iothub_device = IoTHubDevice(IOT_HUB_NAME, device.device_id, IOT_HUB_DEVICE_KEY)
-
-    def get_target_speed(device):
-        asset = table_service.get_entity('equipment', device.make, device.device_id)
-        return asset['Speed']
+    
+    global target_speed
+    target_speed = 0
 
     def device_twin_callback(update_state, payload, user_context):
+        target_speed = 900
         print ( "" )
         print ( "Twin callback called with:" )
         print ( "    updateStatus: %s" % update_state )
@@ -38,35 +46,39 @@ def device_driver(device):
     while True:
         interval_start = time.time()
         device = device.next_state_device()
+        state = device.state()
         
         pl = bytearray(pickle.dumps(device.state()))
 
         iothub_device.send_message(pl)
-
-        target_speed = get_target_speed(device)
+        
         device.set_speed((target_speed + device.get_speed()) / 2)
 
-        iothub_device.send_reported_state({'speed': device.get_speed()})
+        iothub_device.send_reported_state({
+            'speed': state['speed'],
+            'temperature': state['temperature'],
+            'pressure': state['pressure'],
+            'ambientTemperature': state['ambient_temperature'],
+            'ambientPressure': state['ambient_pressure']
+            })
 
         time_elapsed = time.time() - interval_start
         print('Cadence: {0}'.format(time_elapsed))
         time.sleep(max(1 - time_elapsed, 0))
 
-if __name__ == '__main__':
-
-    assets = table_service.query_entities('equipment')
-    
+if __name__ == '__main__':    
     iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
+    
+    devices = iot_hub.get_device_list()
 
-    for asset in assets:
-        device_id = asset.RowKey
-        iot_hub.create_device(device_id)
+    # for device in devices:
+    #     device_id = asset.RowKey
+        #iot_hub.create_device(device_id)
 
-    devices = []
     processes = []
-    for asset in assets:
-        device = Device(asset.RowKey, make=asset.PartitionKey, W = (1, 2, 3, 4, 5, 12, 15), A = (5, 8, 2/3, 9, 8, 13, 5))
-        processes.append(Process(target=device_driver, args=(device, )))
+    for device in devices:
+        digital_twin = Device(device.deviceId, make='model1', W = (1, 2, 3, 4, 5, 12, 15), A = (5, 8, 2/3, 9, 8, 13, 5))
+        processes.append(Process(target=device_driver, args=(digital_twin, )))
 
     for process in processes:
         process.daemon = True
