@@ -17,14 +17,17 @@
         <div>
           <button type="submit" id="register-model" class="btn btn-primary btn-sm">Register</button>
           <button type="submit" id="skip-and-continue-1" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">Skip and continue</button>
+          <code style = "visibility:hidden" id= "register-model-status"><h5 class="fa fa-spinner fa-spin" id="smallspinner"></h5>
+          Registering Model
+          </code>
         </div>
-      </div>
+        <div>
     </div>
   </div>
-  <div class="card">
+  <div class="card" id ="register-manifest-div">
     <div class="card-header" id="headingTwo">
       <h5 class="mb-0">
-        <button class="btn btn-link btn-sm collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+        <button id ="register-manifest-collapse" class="btn btn-link btn-sm collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
           2. Register Manifest
         </button>
       </h5>
@@ -65,6 +68,8 @@
         <div>
           <button type="submit" id="register-manifest" class="btn btn-primary btn-sm">Register</button>
           <button type="submit" id="skip-and-continue-2" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">Skip and continue</button>
+          <code style = "visibility:hidden" id = "register-manifest-status"><h5 class="fa fa-spinner fa-spin" id="smallspinner"></h5>
+          Registering Manifest</code>
         </div>
       </div>
     </div>
@@ -72,7 +77,7 @@
   <div class="card">
     <div class="card-header" id="headingThree">
       <h5 class="mb-0">
-        <button class="btn btn-link btn-sm collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+        <button id="create-image-collapse" class="btn btn-link btn-sm collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
           3. Create Image
         </button>
       </h5>
@@ -113,6 +118,8 @@
         <div>
           <button type="submit" id="create-image" class="btn btn-primary btn-sm">Create</button>
           <button type="submit" id="skip-and-continue-3" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">Skip and continue</button>
+          <code style = "visibility:hidden" id = "create-image-status"><h5 class="fa fa-spinner fa-spin" id="smallspinner"></h5>
+          Creating Image</code>
         </div>
       </div>
     </div>
@@ -120,7 +127,7 @@
   <div class="card">
     <div class="card-header" id="headingFour">
       <h5 class="mb-0">
-        <button class="btn btn-link btn-sm collapsed" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+        <button id = "create-service-collapse" class="btn btn-link btn-sm collapsed" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
           4. Create Service
         </button>
       </h5>
@@ -167,14 +174,16 @@
         <div>
           <button type="submit" id="create-service" class="btn btn-primary btn-sm">Create</button>
           <button type="submit" id="skip-and-continue-4" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive">Skip and continue</button>
-        </div>      
+          <code style = "visibility:hidden" id = "create-service-status"><h5 class="fa fa-spinner fa-spin" id="smallspinner"></h5>
+          Creating Service</code>       
+        </div>
       </div>
     </div>
   </div>
   <div class="card">
     <div class="card-header" id="headingFive">
       <h5 class="mb-0">
-        <button class="btn btn-link btn-sm collapsed" data-toggle="collapse" data-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+        <button id = "consume-service-collapse" class="btn btn-link btn-sm collapsed" data-toggle="collapse" data-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
           5. Consume Service for real-time scoring
         </button>
       </h5>
@@ -196,6 +205,7 @@
 {% block script %}
 <script>
   $(document).ready(function() {
+
     function loadModels() {
       $.get('/operationalization/models').done(function(models) {
         $.each(models, function(id, model) {
@@ -204,6 +214,13 @@
           $('#model-version-select').val(model.id);
         });
       });
+      if($('#model-version-select').val() == null || $('#model-version-select').val().length == 0) 
+      {
+        $("#register-manifest-collapse").prop('disabled',true);  
+      }
+      else{
+          $("#register-manifest-collapse").prop('disabled',false); 
+      }
     }
 
     function loadManifests() {
@@ -213,7 +230,14 @@
           $('#manifest-version-select').append(new Option(manifest.version, manifest.id));          
           $('#manifest-version-select').val(manifest.id);
         });
-      });     
+      });
+      if($('#manifest-version-select').val() == null || $('#manifest-version-select').val().length == 0) 
+      {
+        $("#create-image-collapse").prop('disabled',true);  
+      }
+      else{
+          $("#create-image-collapse").prop('disabled',false); 
+      }
     }
 
     function loadImages() {
@@ -222,12 +246,22 @@
           $('#image-version-select').append(new Option(image.version, image.id));          
         });
       });
+      if($('#image-version-select').val() == null || $('#image-version-select').val().length == 0) 
+      {
+        $("#create-service-collapse").prop('disabled',true);  
+      }
+      else{
+          $("#create-service-collapse").prop('disabled',false); 
+      }
     }
 
     function loadServices(onReady) {
       $('#services>tbody').empty();
+
       $.get('/operationalization/services').done(function(services) {
+        var display = false
         $.each(services, function(id, service) {
+            display = true;
           console.log(service);
           $('#services>tbody').append('<tr><td>' + service.id 
             + '</td><td>' + service.state 
@@ -251,11 +285,21 @@
         if (onReady) {
           onReady();
         }
+        
+        if(!display)
+        {
+            $("#consume-service-collapse").prop('disabled',true);
+        }
+        else{
+            $("#consume-service-collapse").prop('disabled',false);
+        }
       });
+
     }
 
     $('#register-model').click(function() {
       var element = this;
+      $("#register-model-status").css('visibility', 'visible');
       $(element).prop('disabled', true);
       $.post('/operationalization/registerModel').done(function(model) {
         console.log(model);
@@ -263,12 +307,14 @@
         $('#model-version-select').val(model.id);
         $('#headingTwo button').click();
         $(element).prop('disabled', false);
+        $("#register-model-status").css('visibility', 'hidden');
       });
     });
 
     $('#register-manifest').click(function() {
       var element = this;
-      $(element).prop('disabled', true);      
+      $(element).prop('disabled', true);
+      $("#register-manifest-status").css('visibility', 'visible');
       $.ajax({
         type: "POST",
         url: '/operationalization/registerManifest',
@@ -282,6 +328,7 @@
           $('#manifest-version-select').val(manifest.id);
           $('#headingThree button').click();
           $(element).prop('disabled', false);
+          $("#register-manifest-status").css('visibility', 'hidden');
       });
     });
 
@@ -303,7 +350,8 @@
 
     $('#create-image').click(function() {
       var element = this;
-      $(element).prop('disabled', true);      
+      $(element).prop('disabled', true);
+      $("#create-image-status").css('visibility', 'visible');
       $.ajax({
         type: "POST",
         url: '/operationalization/createImage',
@@ -319,6 +367,7 @@
             $('#image-version-select').val(image.id);
             $('#headingFour button').click();
             $(element).prop('disabled', false);
+            $("#create-image-status").css('visibility', 'hidden');
           });
         });
       });
@@ -326,7 +375,8 @@
     
     $('#create-service').click(function() {
       var element = this;
-      $(element).prop('disabled', true);      
+      $(element).prop('disabled', true);
+      $("#create-service-status").css('visibility', 'visible');
       $.ajax({
         type: "POST",
         url: '/operationalization/createService',
@@ -338,6 +388,7 @@
           loadServices(function() {
             $('#headingFive button').click();
             $(element).prop('disabled', false);
+            $("#create-service-status").css('visibility', 'hidden');
         });
       });
     });
