@@ -3,12 +3,15 @@
   <div class="row">
     <div class="col-sm-3">
       <p>
-        <i>Speed setting: </i> <span id="desired-speed"></span> RPM
+        <i>Speed: </i> <span id="desired-speed"></span> RPM
       </p>
-      <p>
-        <input id="desired-speed-range" type="range" min="60" max="1500">
-      </p>
-    </div>  
+      <form class="form-inline">
+        <div class="form-group">
+          <label for="desired-speed-range"><i>Set speed</i>: </label>
+            <input id="desired-speed-range" type="range" min="60" max="1500">
+          </div>
+        </div>
+      </form>
   </div>
   <div class="row">
     <div class="col-lg-11 col-md-11 col-sm-12">
