@@ -329,14 +329,7 @@
         $('#model-version-select').append(new Option(model.version + ' (New)', model.id));
         $('#model-version-select').val(model.id);
         $('#headingTwo button').click();
-        if($('#manifest-version-select').val() == null || $('#manifest-version-select').val().length == 0) 
-        {
-          $("#register-manifest-collapse").prop('disabled',true);  
-        }
-        else
-        {
-          $("#register-manifest-collapse").prop('disabled',false); 
-        }
+        $("#register-manifest-collapse").prop('disabled',false); 
         }).fail(function (jqXHR, textStatus, errorThrown) {
             $("#register-model-error").text('Failure Reason : ' + jqXHR.responseText);
         }).always(function(jqXHR, textStatus, errorThrown) {
@@ -364,14 +357,7 @@
           $('#manifest-version-select').append(new Option(manifest.version + ' (New)', manifest.id));
           $('#manifest-version-select').val(manifest.id);
           $('#headingThree button').click();
-          if($('#manifest-version-select').val() == null || $('#manifest-version-select').val().length == 0) 
-          {
-            $("#create-image-collapse").prop('disabled',true);  
-          }
-          else
-          {
-            $("#create-image-collapse").prop('disabled',false); 
-          }
+          $("#create-image-collapse").prop('disabled',false);
         }).fail(function (jqXHR, textStatus, errorThrown) {            
             $("#register-manifest-error").text('Failure Reason : ' + jqXHR.responseText)
         }).always(function(jqXHR, textStatus, errorThrown) {
@@ -419,14 +405,7 @@
             $('#headingFour button').click();
           });
         });
-        if($('#image-version-select').val() == null || $('#image-version-select').val().length == 0) 
-        {
-            $("#create-service-collapse").prop('disabled',true);  
-        }
-        else
-        {
-            $("#create-service-collapse").prop('disabled',false); 
-        }
+        $("#create-service-collapse").prop('disabled',false); 
       }).fail(function (jqXHR, textStatus, errorThrown) {         
           $("#create-image-error").text('Failure Reason : ' + jqXHR.responseText)
       }).always(function(jqXHR, textStatus, errorThrown) {
@@ -452,15 +431,8 @@
           $("#create-servicee-error").text('Created Service successfully ');
           loadServices(function() {
             $('#headingFive button').click();
-            if(!display)
-            {
-              $("#consume-service-collapse").prop('disabled',true);
-            }
-            else
-            {
-              $("#consume-service-collapse").prop('disabled',false);
-            }
         });
+        $("#consume-service-collapse").prop('disabled',false);
       }).fail(function (jqXHR, textStatus, errorThrown) {         
           $("#create-service-error").text('Failure Reason : ' + jqXHR.responseText)
       }).always(function(jqXHR, textStatus, errorThrown) {
