@@ -4,6 +4,10 @@
     <ImageUrl>{PatternAssetBaseUrl}/thank_you.jpg</ImageUrl>
     <Description>Your equipment will thank you.</Description>
     <EstimatedTime>20 Minutes</EstimatedTime>
+    <Owners>
+        <Owner displayname="Andrew Ivanov" email="anivan@microsoft.com"/>
+        <Owner displayname="Bolun Huang" email="bohuan@microsoft.com"/>
+    </Owners>
     <ProvisioningSteps>
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
         <ArmDeployment source="arm/azureBatch.json" title="Creating Azure Batch account" />
