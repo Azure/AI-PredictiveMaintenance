@@ -12,19 +12,12 @@ import datetime
 import time
 import json
 
-# STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
-# STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
+STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
+STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 
-# IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
-# IOT_HUB_OWNER_KEY = os.environ['IOT_HUB_OWNER_KEY']
-# IOT_HUB_DEVICE_KEY = os.environ['IOT_HUB_DEVICE_KEY']
-
-STORAGE_ACCOUNT_NAME = 'stgd3fcsizbq4vj6'
-STORAGE_ACCOUNT_KEY = '3yqJD70UAdNqeMhWveluzmMWpcHi1SV6RcpFoUqZbL57ppmSdDCMFfqlzHmHuatQksHUGwyh4YC1t7C4+oDLQA=='
-
-IOT_HUB_NAME = 'iothub-d3fcsizbq4vj6'
-IOT_HUB_OWNER_KEY = '9e+8Dj8OWJrI7DZy3dKtxnRaV4RDp77L8SXnVe6w1ok='
-IOT_HUB_DEVICE_KEY = 'c6YH5pD5oybHu8ZtZb8/9rx3Oq9JjqgzfCaOYMZEZ4I='
+IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
+IOT_HUB_OWNER_KEY = os.environ['IOT_HUB_OWNER_KEY']
+IOT_HUB_DEVICE_KEY = os.environ['IOT_HUB_DEVICE_KEY']
 
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
