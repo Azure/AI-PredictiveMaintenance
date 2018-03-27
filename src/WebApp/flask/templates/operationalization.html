@@ -17,11 +17,14 @@
         <div>
           <button type="submit" id="register-model" class="btn btn-primary btn-sm">Register</button>
           <button type="submit" id="skip-and-continue-1" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">Skip and continue</button>
-          <code style = "visibility:hidden" id= "register-model-status"><h5 class="fa fa-spinner fa-spin" id="smallspinner"></h5>
+          <strong style = "visibility:hidden" id= "register-model-status"><h5 class="fa fa-spinner fa-spin" id="smallspinner"></h5>
           Registering Model
-          </code>
+          </strong>
         </div>
         <div>
+          <small style = "visibility:hidden" id= "register-model-error">
+          </small>
+        </div>
     </div>
   </div>
   <div class="card" id ="register-manifest-div">
@@ -68,8 +71,13 @@
         <div>
           <button type="submit" id="register-manifest" class="btn btn-primary btn-sm">Register</button>
           <button type="submit" id="skip-and-continue-2" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">Skip and continue</button>
-          <code style = "visibility:hidden" id = "register-manifest-status"><h5 class="fa fa-spinner fa-spin" id="smallspinner"></h5>
-          Registering Manifest</code>
+          <strong style = "visibility:hidden" id = "register-manifest-status"><h5 class="fa fa-spinner fa-spin" id="smallspinner"></h5>
+          Registering Manifest
+          </strong>
+        </div>
+        <div>
+          <small style = "visibility:hidden" id= "register-manifest-error">
+          </small>              
         </div>
       </div>
     </div>
@@ -118,8 +126,13 @@
         <div>
           <button type="submit" id="create-image" class="btn btn-primary btn-sm">Create</button>
           <button type="submit" id="skip-and-continue-3" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">Skip and continue</button>
-          <code style = "visibility:hidden" id = "create-image-status"><h5 class="fa fa-spinner fa-spin" id="smallspinner"></h5>
-          Creating Image</code>
+          <strong style = "visibility:hidden" id = "create-image-status"><h5 class="fa fa-spinner fa-spin" id="smallspinner"></h5>
+          Creating Image
+          </strong>
+        </div>
+        <div>
+          <small style = "visibility:hidden" id= "create-image-error">
+          </small>
         </div>
       </div>
     </div>
@@ -174,8 +187,13 @@
         <div>
           <button type="submit" id="create-service" class="btn btn-primary btn-sm">Create</button>
           <button type="submit" id="skip-and-continue-4" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive">Skip and continue</button>
-          <code style = "visibility:hidden" id = "create-service-status"><h5 class="fa fa-spinner fa-spin" id="smallspinner"></h5>
-          Creating Service</code>       
+          <strong style = "visibility:hidden" id = "create-service-status"><h5 class="fa fa-spinner fa-spin" id="smallspinner"></h5>
+          Creating Service
+          </strong>       
+        </div>
+        <div>
+          <small style = "visibility:hidden" id= "create-service-error">
+          </small>
         </div>
       </div>
     </div>
@@ -213,14 +231,15 @@
           $('#model-version-select').append(new Option(model.version, model.id));          
           $('#model-version-select').val(model.id);
         });
-      });
-      if($('#model-version-select').val() == null || $('#model-version-select').val().length == 0) 
-      {
-        $("#register-manifest-collapse").prop('disabled',true);  
-      }
-      else{
+        if($('#model-version-select').val() == null || $('#model-version-select').val().length == 0) 
+        {
+          $("#register-manifest-collapse").prop('disabled',true);  
+        }
+        else
+        {
           $("#register-manifest-collapse").prop('disabled',false); 
-      }
+        }
+      });
     }
 
     function loadManifests() {
@@ -230,14 +249,15 @@
           $('#manifest-version-select').append(new Option(manifest.version, manifest.id));          
           $('#manifest-version-select').val(manifest.id);
         });
-      });
-      if($('#manifest-version-select').val() == null || $('#manifest-version-select').val().length == 0) 
-      {
-        $("#create-image-collapse").prop('disabled',true);  
-      }
-      else{
+        if($('#manifest-version-select').val() == null || $('#manifest-version-select').val().length == 0) 
+        {
+          $("#create-image-collapse").prop('disabled',true);  
+        }
+        else
+        {
           $("#create-image-collapse").prop('disabled',false); 
-      }
+        }
+      });
     }
 
     function loadImages() {
@@ -245,14 +265,15 @@
         $.each(images, function(id, image) {          
           $('#image-version-select').append(new Option(image.version, image.id));          
         });
-      });
-      if($('#image-version-select').val() == null || $('#image-version-select').val().length == 0) 
-      {
-        $("#create-service-collapse").prop('disabled',true);  
-      }
-      else{
+        if($('#image-version-select').val() == null || $('#image-version-select').val().length == 0) 
+        {
+          $("#create-service-collapse").prop('disabled',true);  
+        }
+        else
+        {
           $("#create-service-collapse").prop('disabled',false); 
-      }
+        }
+      });
     }
 
     function loadServices(onReady) {
@@ -267,8 +288,15 @@
             + '</td><td>' + service.state 
             + '</td><td>' + '<button type="button" class="btn btn-link">Consume</button>' 
             + '</td></tr>');       
-        });
-
+        });        
+        if(!display)
+        {
+          $("#consume-service-collapse").prop('disabled',true);
+        }
+        else
+        {
+          $("#consume-service-collapse").prop('disabled',false);
+        }         
         $('#services button').click(function() {
           var serviceId = $(this).parent().parent().find('td').first().text();
           $.ajax({
@@ -285,14 +313,6 @@
         if (onReady) {
           onReady();
         }
-        
-        if(!display)
-        {
-            $("#consume-service-collapse").prop('disabled',true);
-        }
-        else{
-            $("#consume-service-collapse").prop('disabled',false);
-        }
       });
 
     }
@@ -300,20 +320,35 @@
     $('#register-model').click(function() {
       var element = this;
       $("#register-model-status").css('visibility', 'visible');
+      $("#register-model-error").css('visibility', 'hidden');
       $(element).prop('disabled', true);
       $.post('/operationalization/registerModel').done(function(model) {
+        $("#register-model-error").text('Registered Model successfully ');
         console.log(model);
         $('#model-version-select').append(new Option(model.version + ' (New)', model.id));
         $('#model-version-select').val(model.id);
         $('#headingTwo button').click();
-        $(element).prop('disabled', false);
-        $("#register-model-status").css('visibility', 'hidden');
-      });
+        if($('#manifest-version-select').val() == null || $('#manifest-version-select').val().length == 0) 
+        {
+          $("#register-manifest-collapse").prop('disabled',true);  
+        }
+        else
+        {
+          $("#register-manifest-collapse").prop('disabled',false); 
+        }
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            $("#register-model-error").text('Failure Reason : ' + jqXHR.responseText);
+        }).always(function(jqXHR, textStatus, errorThrown) {
+            $("#register-model-status").css('visibility', 'hidden');
+            $("#register-model-error").css('visibility', 'visible');
+            $(element).prop('disabled', false);
+        });
     });
 
     $('#register-manifest').click(function() {
       var element = this;
       $(element).prop('disabled', true);
+      $("#register-manifest-error").css('visibility', 'hidden');
       $("#register-manifest-status").css('visibility', 'visible');
       $.ajax({
         type: "POST",
@@ -322,15 +357,28 @@
           modelId: $('#model-version-select').val()
         },
         dataType: 'json'
-      }).done(function(manifest) {        
+      }).done(function(manifest) {
+          $("#register-manifest-error").text('Registered Manifest successfully ');
           console.log(manifest);
           $('#manifest-version-select').append(new Option(manifest.version + ' (New)', manifest.id));
           $('#manifest-version-select').val(manifest.id);
           $('#headingThree button').click();
-          $(element).prop('disabled', false);
-          $("#register-manifest-status").css('visibility', 'hidden');
+          if($('#manifest-version-select').val() == null || $('#manifest-version-select').val().length == 0) 
+          {
+            $("#create-image-collapse").prop('disabled',true);  
+          }
+          else
+          {
+            $("#create-image-collapse").prop('disabled',false); 
+          }
+        }).fail(function (jqXHR, textStatus, errorThrown) {            
+            $("#register-manifest-error").text('Failure Reason : ' + jqXHR.responseText)
+        }).always(function(jqXHR, textStatus, errorThrown) {
+            $("#register-manifest-status").css('visibility', 'hidden');
+            $("#register-manifest-error").css('visibility', 'visible');
+            $(element).prop('disabled', false);
+        });
       });
-    });
 
     function pollOperation(operationId, onSuccess, onFailure) {
       $.get('operationalization/operations/' + operationId).done(function(operationStatus) {
@@ -351,6 +399,7 @@
     $('#create-image').click(function() {
       var element = this;
       $(element).prop('disabled', true);
+      $("#create-image-error").css('visibility', 'hidden');
       $("#create-image-status").css('visibility', 'visible');
       $.ajax({
         type: "POST",
@@ -359,6 +408,7 @@
           manifestId: $('#manifest-version-select').val()
         }
       }).done(function(data, textStatus, xhr) {
+        $("#create-image-error").text('Created Image successfully ');
         var operationId = getResourceIdFromUrl(xhr.getResponseHeader('Operation-Location'));
         pollOperation(operationId, function(operationStatus) {  
           var resourceId = getResourceIdFromUrl(operationStatus.resourceLocation);        
@@ -366,15 +416,28 @@
             $('#image-version-select').prepend(new Option(image.version + ' (New)', image.id));
             $('#image-version-select').val(image.id);
             $('#headingFour button').click();
-            $(element).prop('disabled', false);
-            $("#create-image-status").css('visibility', 'hidden');
           });
         });
+        if($('#image-version-select').val() == null || $('#image-version-select').val().length == 0) 
+        {
+            $("#create-service-collapse").prop('disabled',true);  
+        }
+        else
+        {
+            $("#create-service-collapse").prop('disabled',false); 
+        }
+      }).fail(function (jqXHR, textStatus, errorThrown) {         
+          $("#create-image-error").text('Failure Reason : ' + jqXHR.responseText)
+      }).always(function(jqXHR, textStatus, errorThrown) {
+          $(element).prop('disabled', false);
+          $("#create-image-status").css('visibility', 'hidden');
+          $("#create-image-error").css('visibility', 'visible');
       });
     });
     
     $('#create-service').click(function() {
       var element = this;
+      $("#create-service-error").css('visibility', 'hidden');
       $(element).prop('disabled', true);
       $("#create-service-status").css('visibility', 'visible');
       $.ajax({
@@ -385,11 +448,24 @@
           name: $('#service-name').val()
         }
       }).done(function(data, textStatus, xhr) {
+          $("#create-servicee-error").text('Created Service successfully ');
           loadServices(function() {
             $('#headingFive button').click();
-            $(element).prop('disabled', false);
-            $("#create-service-status").css('visibility', 'hidden');
+            if(!display)
+            {
+              $("#consume-service-collapse").prop('disabled',true);
+            }
+            else
+            {
+              $("#consume-service-collapse").prop('disabled',false);
+            }
         });
+      }).fail(function (jqXHR, textStatus, errorThrown) {         
+          $("#create-service-error").text('Failure Reason : ' + jqXHR.responseText)
+      }).always(function(jqXHR, textStatus, errorThrown) {
+          $(element).prop('disabled', false);
+          $("#create-service-status").css('visibility', 'hidden');
+          $("#create-service-error").css('visibility', 'visible');
       });
     });
 
