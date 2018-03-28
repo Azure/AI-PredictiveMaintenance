@@ -224,7 +224,6 @@
 {% block script %}
 <script>
   $(document).ready(function() {
-
     function loadModels() {
       $.get('/operationalization/models').done(function(models) {
         $.each(models, function(id, model) {
@@ -242,7 +241,6 @@
         }
       });
     }
-
     function loadManifests() {
       $.get('/operationalization/manifests').done(function(manifests) {
         $.each(manifests, function(id, manifest) {
@@ -260,7 +258,6 @@
         }
       });
     }
-
     function loadImages() {
       $.get('/operationalization/images').done(function(images) {
         $.each(images, function(id, image) {          
@@ -276,10 +273,8 @@
         }
       });
     }
-
     function loadServices(onReady) {
       $('#services>tbody').empty();
-
       $.get('/operationalization/services').done(function(services) {
         var display = false
         $.each(services, function(id, service) {
@@ -316,9 +311,7 @@
           onReady();
         }
       });
-
     }
-
     $('#register-model').click(function() {
       var element = this;
       $("#register-model-status").css('visibility', 'visible');
@@ -352,7 +345,6 @@
             $(element).prop('disabled', false);
         });
     });
-
     $('#register-manifest').click(function() {
       var element = this;
       $(element).prop('disabled', true);
@@ -393,7 +385,6 @@
             $(element).prop('disabled', false);
         });
       });
-
     function pollOperation(operationId, onSuccess, onFailure) {
       $.get('operationalization/operations/' + operationId).done(function(operationStatus) {
         if (operationStatus.state === 'Running') {
@@ -405,11 +396,9 @@
         }
       });
     }
-
     function getResourceIdFromUrl(url) {
       return url.replace(/.+\/([^\/])/, "$1");
     }
-
     $('#create-image').click(function() {
       var element = this;
       $(element).prop('disabled', true);
@@ -428,6 +417,7 @@
           $.get('/operationalization/images/' + resourceId).done(function(image) {            
             $('#image-version-select').prepend(new Option(image.version + ' (New)', image.id));
             $('#image-version-select').val(image.id);
+            $("#create-image-status").css('visibility', 'hidden');
             $("#create-image-error").text('Created Image successfully ');
             $("#create-service-collapse").prop('disabled',false); 
             $('#headingFour button').click();
@@ -450,7 +440,6 @@
             $("#create-image-error").text('Failure Reason : ' + errormsg)
       }).always(function(jqXHR, textStatus, errorThrown) {
           $(element).prop('disabled', false);
-          $("#create-image-status").css('visibility', 'hidden');
           $("#create-image-error").css('visibility', 'visible');
       });
     });
@@ -494,7 +483,6 @@
           $("#create-service-error").css('visibility', 'visible');
       });
     });
-
     loadModels();
     loadManifests();
     loadImages();
