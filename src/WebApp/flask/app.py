@@ -238,68 +238,76 @@ def operationalization_post_operation(operation):
 
     operation = operation.lower()
     if operation == 'registermodel':
-        model_blob_url = create_snapshot('notebooks', None, 'model.tar.gz', 'o16n')
-        payload = {
-    		"name": "failure-prediction-model",
-    		"tags": ["pdms"],
-    		"url": model_blob_url,
-    		"mimeType": "application/json",
-    		"description": "Testing",
-    		"unpack": True
-    	}
+        try:
+            model_blob_url = create_snapshot('notebooks', None, 'model.tar.gz', 'o16n')
+            payload = {
+    		    "name": "failure-prediction-model",
+    		    "tags": ["pdms"],
+    		    "url": model_blob_url,
+    		    "mimeType": "application/json",
+    		    "description": "Testing",
+    		    "unpack": True
+    	    }
 
-        mm_response = model_management.post('models', payload)
-        resp = Response(mm_response.text)
-        resp.headers['Content-type'] = 'application/json'
-        return resp
+            mm_response = model_management.post('models', payload)
+            resp = Response(mm_response.text, status = mm_response.status_code)
+            resp.headers['Content-type'] = 'application/json'
+            return resp
+        except Exception as e:
+            resp = Response(str(e), status = 400)
+            return resp
     elif operation == 'registermanifest':
-        model_id = request.form["modelId"]
+        try:
+            model_id = request.form["modelId"]
         
-        # take a snapshots of driver.py, score.py, requirements.txt and conda_dependencies.yml
-        correlation_guid = str(uuid.uuid4())
-        driver_url = create_snapshot('notebooks', None, 'driver.py', 'o16n', correlation_guid)
-        score_url = create_snapshot('notebooks', None, 'score.py', 'o16n', correlation_guid)
-        schema_url = create_snapshot('notebooks', None, 'service_schema.json', 'o16n', correlation_guid)
-        requirements_url = create_snapshot('notebooks', 'aml_config', 'requirements.txt', 'o16n', correlation_guid)
-        conda_dependencies_url = create_snapshot('notebooks', 'aml_config', 'conda_dependencies.yml', 'o16n', correlation_guid)
-        payload = {
-                    "modelIds": [model_id],
-                	"name": "failure-prediction-manifest",        	
-                	"description": "Failure prediction manifest",
-                	"driverProgram": "driver",            
-                	"assets": [{
-                		"id": "driver",
-                		"mimeType": "application/x-python",
-                		"url": driver_url,
-                		"unpack": False
-                	},
-                    {
-                		"id": "score",
-                		"mimeType": "application/x-python",
-                		"url": score_url,
-                		"unpack": False
-                	},
-                    {
-                		"id": "schema",
-                		"mimeType": "application/json",
-                		"url": schema_url,
-                		"unpack": False
-                	}],
-                	"targetRuntime": {
-                		"runtimeType": "SparkPython",
-                		"properties": {
-                			"pipRequirements": requirements_url,
-                            "condaEnvFile": conda_dependencies_url
-                		}
-                	},
-                	"webserviceType": "Realtime",
-                    "modelType": "Registered"
-                }
+            # take a snapshots of driver.py, score.py, requirements.txt and conda_dependencies.yml
+            correlation_guid = str(uuid.uuid4())
+            driver_url = create_snapshot('notebooks', None, 'driver.py', 'o16n', correlation_guid)
+            score_url = create_snapshot('notebooks', None, 'score.py', 'o16n', correlation_guid)
+            schema_url = create_snapshot('notebooks', None, 'service_schema.json', 'o16n', correlation_guid)
+            requirements_url = create_snapshot('notebooks', 'aml_config', 'requirements.txt', 'o16n', correlation_guid)
+            conda_dependencies_url = create_snapshot('notebooks', 'aml_config', 'conda_dependencies.yml', 'o16n', correlation_guid)
+            payload = {
+                        "modelIds": [model_id],
+                	    "name": "failure-prediction-manifest",        	
+                	    "description": "Failure prediction manifest",
+                	    "driverProgram": "driver",            
+                	    "assets": [{
+                		    "id": "driver",
+                		    "mimeType": "application/x-python",
+                		    "url": driver_url,
+                		    "unpack": False
+                	    },
+                        {
+                		    "id": "score",
+                		    "mimeType": "application/x-python",
+                		    "url": score_url,
+                		    "unpack": False
+                	    },
+                        {
+                		    "id": "schema",
+                		    "mimeType": "application/json",
+                		    "url": schema_url,
+                		    "unpack": False
+                	    }],
+                	    "targetRuntime": {
+                		    "runtimeType": "SparkPython",
+                		    "properties": {
+                			    "pipRequirements": requirements_url,
+                                "condaEnvFile": conda_dependencies_url
+                		    }
+                	    },
+                	    "webserviceType": "Realtime",
+                        "modelType": "Registered"
+                    }
                 
-        mm_response = model_management.post('manifests', payload)
-        resp = Response(mm_response.text)
-        resp.headers['Content-type'] = 'application/json'
-        return resp
+            mm_response = model_management.post('manifests', payload)
+            resp = Response(mm_response.text, status = mm_response.status_code)
+            resp.headers['Content-type'] = 'application/json'
+            return resp
+        except Exception as e:
+            resp = Response(str(e), status = 400)
+            return resp
     elif operation == 'createimage':
         manifest_id = request.form["manifestId"]
         
