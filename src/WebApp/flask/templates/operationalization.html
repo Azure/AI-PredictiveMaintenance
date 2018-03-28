@@ -300,6 +300,7 @@
         }         
         $('#services button').click(function() {
           var serviceId = $(this).parent().parent().find('td').first().text();
+          $(this).parent().parent().find('td').eq(1).text('In Progress');
           $.ajax({
             type: "POST",
             url: '/operationalization/consume',
