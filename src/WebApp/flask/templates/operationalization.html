@@ -394,18 +394,18 @@
         data: {
           manifestId: $('#manifest-version-select').val()
         }
-      }).done(function(data, textStatus, xhr) {
-        $("#create-image-error").text('Created Image successfully ');
+      }).done(function(data, textStatus, xhr) {   
         var operationId = getResourceIdFromUrl(xhr.getResponseHeader('Operation-Location'));
         pollOperation(operationId, function(operationStatus) {  
           var resourceId = getResourceIdFromUrl(operationStatus.resourceLocation);        
           $.get('/operationalization/images/' + resourceId).done(function(image) {            
             $('#image-version-select').prepend(new Option(image.version + ' (New)', image.id));
             $('#image-version-select').val(image.id);
+            $("#create-image-error").text('Created Image successfully ');
+            $("#create-service-collapse").prop('disabled',false); 
             $('#headingFour button').click();
           });
-        });
-        $("#create-service-collapse").prop('disabled',false); 
+        });     
       }).fail(function (jqXHR, textStatus, errorThrown) {         
           $("#create-image-error").text('Failure Reason : ' + jqXHR.responseText)
       }).always(function(jqXHR, textStatus, errorThrown) {
