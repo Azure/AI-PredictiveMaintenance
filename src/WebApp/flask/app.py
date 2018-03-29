@@ -192,10 +192,14 @@ def operationalization_get_operation(operation, id = None):
             mm_response = model_management.get('services')
             mm_response_json = json.loads(mm_response.text)
             config_path = 'D:\home\site\wwwroot\App_Data\scoring.json'
+            consumedId = ''
             
-            with open(config_path, 'r') as f:
-                scoring_config = json.loads(f.read())
-                consumedId = scoring_config['id']
+            if os.path.isfile(config_path):
+                with open(config_path, 'r') as f:
+                    scoring_config = json.loads(f.read())
+                    if 'id' in scoring_config:
+                        consumedId = scoring_config['id']
+                
 
             for i in range(len(mm_response_json['value'])):
                 id = mm_response_json['value'][i]['id']
@@ -211,10 +215,13 @@ def operationalization_get_operation(operation, id = None):
             mm_response = model_management.get('services/{0}'.format(id))
             mm_response_json = json.loads(mm_response.text)
             config_path = 'D:\home\site\wwwroot\App_Data\scoring.json'
+            consumedId = ''
             
-            with open(config_path, 'r') as f:
-                scoring_config = json.loads(f.read())
-                consumedId = scoring_config['id']
+            if os.path.isfile(config_path):
+                with open(config_path, 'r') as f:
+                    scoring_config = json.loads(f.read())
+                    if 'id' in scoring_config:
+                        consumedId = scoring_config['id']
 
             if consumedId == id:
                 mm_response_json['consumingStatus'] = "Consumed" 
