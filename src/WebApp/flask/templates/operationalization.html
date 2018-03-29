@@ -17,9 +17,9 @@
         <div>
           <button type="submit" id="register-model" class="btn btn-primary btn-sm">Register</button>
           <button type="submit" id="skip-and-continue-1" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">Skip and continue</button>
-          <strong style = "visibility:hidden" id= "register-model-status"><h5 class="fa fa-spinner fa-spin" id="smallspinner"></h5>
-          Registering Model
-          </strong>
+          <h5 class="fa fa-spinner fa-spin" id="smallspinnermodel" style = "visibility:hidden"></h5>
+          <font size = "3" style = "visibility:hidden" id= "register-model-status">
+          </font>
         </div>
         <div>
           <small style = "visibility:hidden" id= "register-model-error">
@@ -72,9 +72,9 @@
         <div>
           <button type="submit" id="register-manifest" class="btn btn-primary btn-sm">Register</button>
           <button type="submit" id="skip-and-continue-2" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">Skip and continue</button>
-          <strong style = "visibility:hidden" id = "register-manifest-status"><h5 class="fa fa-spinner fa-spin" id="smallspinner"></h5>
-          Registering Manifest
-          </strong>
+          <h5 class="fa fa-spinner fa-spin" id="smallspinnermanifest" style = "visibility:hidden"></h5>
+          <font size="3" style = "visibility:hidden" id = "register-manifest-status">
+          </font>
         </div>
         <div>
           <small style = "visibility:hidden" id= "register-manifest-error">
@@ -127,9 +127,9 @@
         <div>
           <button type="submit" id="create-image" class="btn btn-primary btn-sm">Create</button>
           <button type="submit" id="skip-and-continue-3" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">Skip and continue</button>
-          <strong style = "visibility:hidden" id = "create-image-status"><h5 class="fa fa-spinner fa-spin" id="smallspinner"></h5>
-          Creating Image
-          </strong>
+          <h5 class="fa fa-spinner fa-spin" id="smallspinnermimage" style = "visibility:hidden"></h5>
+          <font size="3" style = "visibility:hidden" id = "create-image-status">
+          </font>
         </div>
         <div>
           <small style = "visibility:hidden" id= "create-image-error">
@@ -188,9 +188,9 @@
         <div>
           <button type="submit" id="create-service" class="btn btn-primary btn-sm">Create</button>
           <button type="submit" id="skip-and-continue-4" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive">Skip and continue</button>
-          <strong style = "visibility:hidden" id = "create-service-status"><h5 class="fa fa-spinner fa-spin" id="smallspinner"></h5>
-          Creating Service
-          </strong>       
+          <h5 class="fa fa-spinner fa-spin" id="smallspinnerservice" style = "visibility:hidden"></h5>
+          <font size="3" style = "visibility:hidden" id = "create-service-status">
+          </font>       
         </div>
         <div>
           <small style = "visibility:hidden" id= "create-service-error">
@@ -273,17 +273,38 @@
         }
       });
     }
+    function pollService(serviceId, onSuccess, onFailure) {
+      $.get('operationalization/services/' + serviceId).done(function(serviceStatus) {
+        if (serviceStatus.state === 'Running' || serviceStatus.state === 'NotStarted' || serviceStatus.consumingStatus == 'Consuming') {
+          window.setTimeout(function() {pollService(serviceId, onSuccess, onFailure)}, 3000);
+        } else if (serviceStatus.state === 'Succeeded') {
+          if (onSuccess) onSuccess(serviceStatus);
+        } else {
+          if (onFailure) onFailure(serviceStatus);
+        }
+      });
+    }
     function loadServices(onReady) {
+      var element = this;  
       $('#services>tbody').empty();
       $.get('/operationalization/services').done(function(services) {
         var display = false
         $.each(services, function(id, service) {
-            display = true;
+          display = true;
           console.log(service);
           $('#services>tbody').append('<tr><td>' + service.id 
             + '</td><td>' + service.state 
-            + '</td><td>' + '<button type="button" class="btn btn-link">Consume</button>' 
-            + '</td></tr>');       
+            + '</td><td>' + '<button type="button" class="btn btn-link" id = "'+ service.name +'" disabled>Consume</button>' 
+            + '</td></tr>');  
+          pollService(service.id, function(serviceStatus) {
+            $('#' + serviceStatus.name).parent().parent().find('td').find('button').first().text(serviceStatus.consumingStatus);
+            if(serviceStatus.consumingStatus == 'Consume')
+            {  
+              $('#' + serviceStatus.name).parent().parent().find('td').find('button').first().prop('disabled',false);
+            }
+            $('#' + serviceStatus.name).parent().parent().find('td').eq(1).text(serviceStatus.state);
+            
+          });
         });        
         if(!display)
         {
@@ -294,17 +315,19 @@
           $("#consume-service-collapse").prop('disabled',false);
         }         
         $('#services button').click(function() {
+          var element = this;
           var serviceId = $(this).parent().parent().find('td').first().text();
-          $(this).parent().parent().find('td').eq(1).text('In Progress');
+          $(this).parent().parent().find('td').find('button').first().text('Consuming');
+          $(this).parent().parent().find('td').find('button').first().prop('disabled',true);
           $.ajax({
             type: "POST",
             url: '/operationalization/consume',
             data: {
               serviceId: serviceId
             }
-          }).done(function(data, textStatus, xhr) {
-              loadServices(function() {
-              });
+          }).done(function(data, textStatus, xhr) {            
+                loadServices(function() {
+                });
           });
         });
         if (onReady) {
@@ -313,12 +336,14 @@
       });
     }
     $('#register-model').click(function() {
+      $("#smallspinnermodel").css('visibility', 'visible');
+      $("#register-model-status").text('Registering Model');
       var element = this;
       $("#register-model-status").css('visibility', 'visible');
       $("#register-model-error").css('visibility', 'hidden');
       $(element).prop('disabled', true);
       $.post('/operationalization/registerModel').done(function(model) {
-        $("#register-model-error").text('Registered Model successfully ');
+        $("#register-model-status").text('Registered Model successfully ');
         console.log(model);
         $('#model-version-select').append(new Option(model.version + ' (New)', model.id));
         $('#model-version-select').val(model.id);
@@ -326,6 +351,7 @@
         $("#register-manifest-collapse").prop('disabled',false); 
         }).fail(function (jqXHR, textStatus, errorThrown) {
             try{
+                $("#register-model-status").text('Registering Model failed ');
                 var response = jQuery.parseJSON(jqXHR.responseText);
                 var errormsg = response.message;
                 if(!(response.details === undefined))
@@ -340,12 +366,14 @@
             }
             $("#register-model-error").text('Failure Reason : ' + errormsg);
         }).always(function(jqXHR, textStatus, errorThrown) {
-            $("#register-model-status").css('visibility', 'hidden');
+            $("#smallspinnermodel").css('visibility', 'hidden');
             $("#register-model-error").css('visibility', 'visible');
             $(element).prop('disabled', false);
         });
     });
     $('#register-manifest').click(function() {
+      $("#smallspinnermanifest").css('visibility', 'visible');
+      $("#register-manifest-status").text('Registering Manifest');
       var element = this;
       $(element).prop('disabled', true);
       $("#register-manifest-error").css('visibility', 'hidden');
@@ -358,7 +386,7 @@
         },
         dataType: 'json'
       }).done(function(manifest) {
-          $("#register-manifest-error").text('Registered Manifest successfully ');
+          $("#register-manifest-status").text('Registered Manifest successfully ');
           console.log(manifest);
           $('#manifest-version-select').append(new Option(manifest.version + ' (New)', manifest.id));
           $('#manifest-version-select').val(manifest.id);
@@ -366,6 +394,7 @@
           $("#create-image-collapse").prop('disabled',false);
         }).fail(function (jqXHR, textStatus, errorThrown) {
             try{
+                $("#register-manifest-status").text('Registering Manifest failed ');
                 var response = jQuery.parseJSON(jqXHR.responseText);
                 var errormsg = response.message;
                 if(!(response.details === undefined))
@@ -380,7 +409,7 @@
             }
             $("#register-manifest-error").text('Failure Reason : ' + errormsg)
         }).always(function(jqXHR, textStatus, errorThrown) {
-            $("#register-manifest-status").css('visibility', 'hidden');
+            $("#smallspinnermanifest").css('visibility', 'hidden');
             $("#register-manifest-error").css('visibility', 'visible');
             $(element).prop('disabled', false);
         });
@@ -400,6 +429,8 @@
       return url.replace(/.+\/([^\/])/, "$1");
     }
     $('#create-image').click(function() {
+      $("#smallspinnerimage").css('visibility', 'visible');
+      $("#create-image-status").text('Creating Image');
       var element = this;
       $(element).prop('disabled', true);
       $("#create-image-error").css('visibility', 'hidden');
@@ -417,14 +448,14 @@
           $.get('/operationalization/images/' + resourceId).done(function(image) {            
             $('#image-version-select').prepend(new Option(image.version + ' (New)', image.id));
             $('#image-version-select').val(image.id);
-            $("#create-image-status").css('visibility', 'hidden');
-            $("#create-image-error").text('Created Image successfully ');
+            $("#create-image-status").text('Created Image successfully ');
             $("#create-service-collapse").prop('disabled',false); 
             $('#headingFour button').click();
           });
         });     
       }).fail(function (jqXHR, textStatus, errorThrown) {
             try{
+                $("#create-image-status").text('Creating Image failed ');
                 var response = jQuery.parseJSON(jqXHR.responseText);
                 var errormsg = response.message;
                 if(!(response.details === undefined))
@@ -439,12 +470,15 @@
             }          
             $("#create-image-error").text('Failure Reason : ' + errormsg)
       }).always(function(jqXHR, textStatus, errorThrown) {
+          $("#smallspinnerimage").css('visibility', 'hidden');
           $(element).prop('disabled', false);
           $("#create-image-error").css('visibility', 'visible');
       });
     });
     
     $('#create-service').click(function() {
+      $("#smallspinnerservice").css('visibility', 'visible');
+      $("#create-service-status").text('Creating Service');
       var element = this;
       $("#create-service-error").css('visibility', 'hidden');
       $(element).prop('disabled', true);
@@ -457,13 +491,14 @@
           name: $('#service-name').val()
         }
       }).done(function(data, textStatus, xhr) {
-          $("#create-service-error").text('Created Service successfully ');
+          $("#create-service-status").text('Created Service successfully ');
           loadServices(function() {
             $('#headingFive button').click();
         });
         $("#consume-service-collapse").prop('disabled',false);
       }).fail(function (jqXHR, textStatus, errorThrown) {
             try{
+                $("#create-service-status").text('Creating Service failed ');
                 var response = jQuery.parseJSON(jqXHR.responseText);
                 var errormsg = response.message;
                 if(!(response.details === undefined))
@@ -478,8 +513,8 @@
             }
             $("#create-service-error").text('Failure Reason : ' + errormsg)
       }).always(function(jqXHR, textStatus, errorThrown) {
+          $("#smallspinnerservice").css('visibility', 'hidden');
           $(element).prop('disabled', false);
-          $("#create-service-status").css('visibility', 'hidden');
           $("#create-service-error").css('visibility', 'visible');
       });
     });

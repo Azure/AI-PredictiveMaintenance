@@ -188,15 +188,25 @@ def operationalization_get_operation(operation, id = None):
             resp.headers['Content-type'] = 'application/json'
             return resp
     elif operation == 'services':
-        if id == None:        
+        if id == None:
+            serviceConsumeDetails = {'PartitionKey': 'Consuming', 'RowKey': 'Consuming', 'ServiceId': ''}
             mm_response = model_management.get('services')
             mm_response_json = json.loads(mm_response.text)    
             resp = Response(json.dumps(mm_response_json['value']))
             resp.headers['Content-type'] = 'application/json'
             return resp
         else:
-            mm_response = model_management.get('services/{0}'.format(id))                
-            resp = Response(mm_response.text)
+            mm_response = model_management.get('services/{0}'.format(id))
+            mm_response_json = json.loads(mm_response.text)
+            consuming = table_service.get_entity('serviceConsumed', 'Consuming', 'Consuming')
+            consumed =  table_service.get_entity('serviceConsumed', 'Consumed', 'Consumed')
+            if consuming.ServiceId == id:
+                mm_response_json['consumingStatus'] = "Consuming" 
+            elif consumed.ServiceId == id:
+                mm_response_json['consumingStatus'] = "Consumed"
+            else:
+                mm_response_json['consumingStatus'] = "Consume"                        
+            resp = Response(json.dumps(mm_response_json))
             resp.headers['Content-type'] = 'application/json'
             return resp            
     elif operation == 'operations':
@@ -352,7 +362,10 @@ def operationalization_post_operation(operation):
             resp.headers['Operation-Location'] = operation_location
         return resp
     elif operation == 'consume':
-        service_id = request.form["serviceId"]               
+        
+        service_id = request.form["serviceId"]
+        serviceConsumeDetails = {'PartitionKey': 'Consuming', 'RowKey': 'Consuming', 'ServiceId': service_id}
+        table_service.insert_or_merge_entity('serviceConsumed', serviceConsumeDetails)                   
         mm_response_service = model_management.get('services/{0}'.format(service_id))
         mm_response_service_keys = model_management.get('services/{0}/keys'.format(service_id))
         
@@ -369,7 +382,11 @@ def operationalization_post_operation(operation):
 
         with open(config_path, 'w') as f:
             f.write(scoring_config)
-        
+            
+        serviceConsumeDetails = {'PartitionKey': 'Consuming', 'RowKey': 'Consuming', 'ServiceId': ''}
+        table_service.insert_or_merge_entity('serviceConsumed', serviceConsumeDetails)
+        serviceConsumeDetails = {'PartitionKey': 'Consumed', 'RowKey': 'Consumed', 'ServiceId': service_id}
+        table_service.insert_or_merge_entity('serviceConsumed', serviceConsumeDetails)
         resp = Response(scoring_config)
         resp.headers['Content-type'] = 'application/json'
         return resp
