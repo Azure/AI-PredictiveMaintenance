@@ -299,7 +299,7 @@
           }
           $('#services>tbody').append('<tr><td>' + service.id 
             + '</td><td>' + service.state 
-            + '</td><td>' + '<button type="button" class="btn btn-link" id = "'+ service.name +'" '+ disabled + '>'+ service.consumingStatus +'</button>' 
+            + '</td><td>' + '<button type="button" class="btn btn-primary btn-sm" id = "'+ service.name +'" '+ disabled + '>'+ service.consumingStatus +'</button>' 
             + '</td></tr>');  
           pollService(service.id, function(serviceStatus) {
             $('#' + serviceStatus.name).parent().parent().find('td').find('button').first().text(serviceStatus.consumingStatus);
