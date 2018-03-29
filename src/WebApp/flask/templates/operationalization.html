@@ -22,7 +22,7 @@
           </font>
         </div>
         <div>
-          <small style = "visibility:hidden" id= "register-model-error">
+          <small style = "visibility:hidden" id= "register-model-error" class="text-danger">
           </small>
         </div>
       </div>
@@ -77,7 +77,7 @@
           </font>
         </div>
         <div>
-          <small style = "visibility:hidden" id= "register-manifest-error">
+          <small style = "visibility:hidden" id= "register-manifest-error" class="text-danger">
           </small>              
         </div>
       </div>
@@ -132,7 +132,7 @@
           </font>
         </div>
         <div>
-          <small style = "visibility:hidden" id= "create-image-error">
+          <small style = "visibility:hidden" id= "create-image-error" class="text-danger">
           </small>
         </div>
       </div>
@@ -193,7 +193,7 @@
           </font>       
         </div>
         <div>
-          <small style = "visibility:hidden" id= "create-service-error">
+          <small style = "visibility:hidden" id= "create-service-error" class="text-danger" >
           </small>
         </div>
       </div>
@@ -369,7 +369,7 @@
             catch(err){
                 var errormsg = jqXHR.responseText; 
             }
-            $("#register-model-error").text('Failure Reason : ' + errormsg);
+            $("#register-model-error").text(errormsg);
             $("#register-model-error").css('visibility', 'visible');
         }).always(function(jqXHR, textStatus, errorThrown) {
             $("#smallspinnermodel").css('visibility', 'hidden');
@@ -412,7 +412,7 @@
             catch(err){
                 var errormsg = jqXHR.responseText; 
             }
-            $("#register-manifest-error").text('Failure Reason : ' + errormsg)
+            $("#register-manifest-error").text(errormsg)
             $("#register-manifest-error").css('visibility', 'visible');
         }).always(function(jqXHR, textStatus, errorThrown) {
             $("#smallspinnermanifest").css('visibility', 'hidden');
@@ -473,7 +473,7 @@
             catch(err){
                 var errormsg = jqXHR.responseText; 
             }          
-            $("#create-image-error").text('Failure Reason : ' + errormsg)
+            $("#create-image-error").text(errormsg)
             $("#create-image-error").css('visibility', 'visible');
       }).always(function(jqXHR, textStatus, errorThrown) {
           $("#smallspinnerimage").css('visibility', 'hidden');
@@ -516,7 +516,7 @@
             catch(err){
                 var errormsg = jqXHR.responseText; 
             }
-            $("#create-service-error").text('Failure Reason : ' + errormsg)
+            $("#create-service-error").text(errormsg)
             $("#create-service-error").css('visibility', 'visible');
       }).always(function(jqXHR, textStatus, errorThrown) {
           $("#smallspinnerservice").css('visibility', 'hidden');
