@@ -12,7 +12,7 @@ class AztkCluster:
 
 
     def __init__(self, vm_count = 0, sku_type = 'standard_d2_v2', username = 'admin', password = 'admin'):
-        self.vm_count = vm_count
+        self.vm_count = int(vm_count)
         self.sku_type = sku_type
         self.username = username
         self.password = password
