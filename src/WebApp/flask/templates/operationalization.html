@@ -127,7 +127,7 @@
         <div>
           <button type="submit" id="create-image" class="btn btn-primary btn-sm">Create</button>
           <button type="submit" id="skip-and-continue-3" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">Skip and continue</button>
-          <h5 class="fa fa-spinner fa-spin" id="smallspinnermimage" style = "visibility:hidden"></h5>
+          <h5 class="fa fa-spinner fa-spin" id="smallspinnerimage" style = "visibility:hidden"></h5>
           <font size="3" style = "visibility:hidden" id = "create-image-status">
           </font>
         </div>
@@ -293,7 +293,7 @@
           display = true;
           console.log(service);
           var disabled = 'disabled';
-          if(service.consumingStatus == 'Consume')
+          if(service.consumingStatus === 'Consume' && service.state === 'Succeeded')
           {
               disabled = '';  
           }
@@ -453,6 +453,7 @@
           $.get('/operationalization/images/' + resourceId).done(function(image) {            
             $('#image-version-select').prepend(new Option(image.version + ' (New)', image.id));
             $('#image-version-select').val(image.id);
+            $("#smallspinnerimage").css('visibility', 'hidden');
             $("#create-image-status").text('Created Image successfully ');
             $("#create-service-collapse").prop('disabled',false); 
             $('#headingFour button').click();
@@ -476,7 +477,6 @@
             $("#create-image-error").text(errormsg)
             $("#create-image-error").css('visibility', 'visible');
       }).always(function(jqXHR, textStatus, errorThrown) {
-          $("#smallspinnerimage").css('visibility', 'hidden');
           $(element).prop('disabled', false);
       });
     });
