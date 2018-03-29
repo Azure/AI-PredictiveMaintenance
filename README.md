@@ -2,6 +2,9 @@
 
 [![Deploy to Azure](https://raw.githubusercontent.com/Azure/Azure-CortanaIntelligence-SolutionAuthoringWorkspace/master/docs/images/DeployToAzure.PNG)](https://quickstart.azure.ai/Deployments/new/ai-predictivemaintenance)
 
+## <span style="color:red"> PRIVATE PREVIEW
+#### Please send your questions, feedback, comments to ciqsoncall@microsoft.com 
+
 ## Summary
 This solution template provides a proof-of-concept (POC) implementation for a Predictive Maintenance scenario - namely, _predicting failure of sensor-monitored devices_. You can deploy this template into your Azure subscription in short time to demo or view its operation based on data generated in the template.
 
@@ -11,8 +14,8 @@ Documentation provided with the template explains the scenario, the data science
 
 | If you are ... | start with |
 |:-----------|:----------------|
-| a business decision maker (BDM) looking for ways to reduce the downtime and improve utilization of critical equipment  | [Business case for PdM](#Business-Case-for-PdM)|
-| a technical decision maker (TDM) evaluating PdM technologies, to understand how the requirements and processing for predictive analytics are different than traditional query-based analytics |[Data Science for PdM](#Data-Science-for-PdM) |
+| a business decision maker (BDM) looking to reduce the downtime and improve utilization of critical equipment  | [Business case for PdM](#Business-Case-for-PdM)|
+| a technical decision maker (TDM) evaluating PdM technologies, with the need to understand how the requirements and processing for predictive maintenance are different than traditional techniques |[Data Science for PdM](#Data-Science-for-PdM) |
 |a sofware architect looking to quickly stand up a POC | [Architecture for PdM](#Architecture-for-PdM)|
 |a developer eager to directly get started with the deployment | [Deployment](#Deployment) |
 |all of the above, seeking to understand the data science and architecture behind the solution in-depth |[Advanced Topics](#Advanced-Topics)|
@@ -37,19 +40,19 @@ PdM solutions can help businesses that want to reduce  operational risk due to u
 | Identify the predominant causes of failure of an equipment |
 | Identify what maintenance actions need to be done when on an equipment |
 
-The use case for this solution template is _predicting the failure of the equipment, and the _type of failure_, over the next N days_. For guidance on other business problems, and to learn about the benefits of applying PdM  techniques to these problems, see [Business perspective on PdM](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/User%20Guide/Business%20Guide.md).
+The use case for this solution template is _predicting the failure of the equipment, and the _type of failure_, over the next N days_. Other business scenarios are discussed in [Advanced Topics](#Advanced-Topics).
 
 <span style="color:gray">NOTE: Solution Templates for other PdM business problems</span>
 - <span style="color:gray">For Public Preview, we will add the remaining useful lifetime scenario.</span>
 - <span style="color:gray">For GA, we will add the remaining two scenarios.</span>
-
+#### Please send your questions, feedback, comments to ciqsoncall@microsoft.com
 ## Data Science for PdM
 
 ### Prerequisites
 There are three prerequisites for a business problem to be solved by PdM  techniques:
 - The problem has to be predictive in nature; that is, there should be a identifiable target or outcome to predict.
 - The business should have a recorded history of past behavior of the equipment with both good and bad outcomes, along with the set of actions taken to mitigate bad outcomes.
-- Finally, _sufficient_ enough data that is _relevant_ to the problem must be available. See [Data Preparation Guide](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Data%20Science%20Guides/Data%20Preparation.md) for details.
+- Finally, _sufficient_ enough data that is _relevant_ to the problem must be available. For more details, see [Advanced Topics](#Advanced-Topics).
 
 ### Data requirements
 The common _data elements_ for PdM problems can be summarized as follows:
@@ -80,9 +83,9 @@ Data preparation for PdM will require strong domain expertise and data wrangling
 - Industrial automation is a mature domain, but the world of IoTs and open device data management is still in its infancy. There are no data standards or best practice hueristics for collecting, formatting and managing data. This makes data selection a custom activity. 
 - Even within a specific industrial segment, say [industial chillers](https://www.achrnews.com/articles/106508-chiller-market-grows-diversifies), there are no formal standard set of attributes or informal hueristics on the the data preparation required for these attributes.
 
-The good news is that [Azure ML's Data Wrangling](https://www.youtube.com/watch?v=9KG0Sc2B2KI) capability makes the mechanics of data preparation automated or semi-automated as possible. The data preparation steps for the _failure prediction problem_ described in this template is discussed in [Failure Prediction - Data Preparation](#Failure-Prediction-Data-Preparation).
+[Azure ML's Data Wrangling](https://www.youtube.com/watch?v=9KG0Sc2B2KI) capability makes the mechanics of data preparation automated or semi-automated to a great extent. The data preparation steps for the _failure prediction problem_ described in this template is discussed in [Failure Prediction - Data Preparation](#Failure-Prediction-Data-Preparation).
 
-**NOTE**: The content above was adapted from [here](https://docs.aws.amazon.com/machine-learning/latest/dg/data-transformations-reference.html) and [here](https://machinelearningmastery.com/how-to-prepare-data-for-machine-learning/) (**TBD** - We need equivalent Microsoft documentation in the introduction to Azure ML Data Wrangling, even if this content is repetitive and available in textbooks).
+**NOTE**: The content above was adapted from [here](https://docs.aws.amazon.com/machine-learning/latest/dg/data-transformations-reference.html) and [here](https://machinelearningmastery.com/how-to-prepare-data-for-machine-learning/) (**TBD** - We need equivalent Microsoft documentation in the introduction to Azure ML Data Wrangling with references, even if this content is available in several textbooks).
 
 ### AI Techniques
 
@@ -96,7 +99,9 @@ The PdM business problems listed above can be mapped to specific AI techniques a
 |4| Predominant Causes of failure | AI Technique TBD | Algorithm TBD |
 |5| Maintenance actions to be done | AI Technique TBD | Algorithm TBD |
 
-The AI technique and algorithm for the _failure prediction problem_ described in this template is discussed in [Failure Prediction - Algorithm](#Failure-Prediction-Algorithm). For a general discussion on AI Techniques and algorithms for PdM, see the [Data Science Guide for PdM](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Data%20Science%20Guides/Data%20Science%20Guide.md).
+The AI technique and algorithm for the _failure prediction problem_ described in this template is discussed in [Advanced Topics](Advanced-Topics), along with a general discussion on AI Techniques and algorithms for PdM.
+
+#### Please send your questions, feedback, comments to ciqsoncall@microsoft.com
 
 ## Architecture for PdM
 
@@ -155,6 +160,8 @@ The socring engine is the same PySpark code that was used for TEST in the traini
 
 Finally, the grayed out section of the architecture shows a placeholder for batch scoring, which will also be supported for public preview.
 
+#### Please send your questions, feedback, comments to ciqsoncall@microsoft.com
+
 ## Deployment
 
 **Note:** If you have already deployed this solution, click [here](https://start.cortanaintelligence.com/Deployments) to view your deployment.
@@ -163,8 +170,11 @@ Finally, the grayed out section of the architecture shows a placeholder for batc
 You will need an [Azure subscription](https://azure.microsoft.com/en-us/pricing/purchase-options/) and [sufficient quota](https://blogs.msdn.microsoft.com/skeeler/2017/01/subscription-usage-and-quotas-in-the-azure-portal/)  for the service listed in the section [Resource Consumption](#Resource-Consumption).
 
 ### What does this solution template offer
-From a software design perspective, this template shows how to construct a complete PdM solution by surrounding an _inner AI loop_ with an _outer processing loop_, and the use of appropriate Azure services and products at each stage of the end to end processing pipeline. All the code is made available at [this GitHub])(https://github.com/Azure/AI-PredictiveMaintenance) along with extensive documentation that provides guidance on how to scale out this POC for production deployments
-The inner machine learning loop for this solution template is based on  the  [_Advanced Predictive Maintenance Machine Learning Sample_]( https://github.com/Azure/MachineLearningSamples-PredictiveMaintenance/blob/master/Code/1_data_ingestion.ipynb). Extending and integrating this sample into an outer processing loop consisting of services like IoT Hub, Azure Blob, Azure ML, Azure Batch and Azure Kubernetes, and delivering a complete solution is the key contribution of this solution template.
+Large scale production AI applications with CICD (continuous integration continous deployment) are composed of two parts in general, operating in a virtous cycle:
+- an _inner AI loop_ that involves data preparation, iterative model training and testing, and model deployment for scoring new data; and
+- and an _outer processing loop_ that plays the equally important role of enabling data ingestion, staging on the input, and enabling post-scoring analytics, publishing, and presentation of results - at scale, with the enterprise requirements of  availability, security, manageability etc.
+
+From a software design standpoint, this template demonstrates how to build an end to end POC solution composed of these two parts. All the code is made available [in GitHub](https://github.com/Azure/AI-PredictiveMaintenance) along with extensive documentation that provides guidance on how to scale out this POC for production deployments. The inner machine learning loop for this solution template is an improved version of [_Advanced Predictive Maintenance Machine Learning Sample_](https://github.com/Azure/MachineLearningSamples-PredictiveMaintenance/blob/master/Code/1_data_ingestion.ipynb). The key value prop of this solution template is in extending this sample with an outer processing loop consisting of a configurable data generator, scalable services like IoT Hub, Azure Blob, Azure ML, Azure Batch and Azure Kubernetes, to form a complete solution.
 
 From a problem solving perspective, this solution template shows how to _train_ a _classification_ model, based on a _training dataset_ from device sensor readings, maintenance and error logs, _test_ the model for its accuracy using a _test dataset_, and _score_ newly arriving device data using the model, and getting a _prediction_ on whether a device will fail in the next N days (N=7 in this example), and if yes, with the type of failure, along with the probability of failure.
 
@@ -282,27 +292,34 @@ Provide a service name here, and then click on Create. This quickly creates a se
 
 ![Deploy_18](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/deploy_18.png)
 
+#### Please send your questions, feedback, comments to ciqsoncall@microsoft.com
+
 ## Resource Consumption
 
-**Estimated Daily Cost:** $150.00 **(TBD)**
+**Estimated Daily Cost:** $20 per day
 
-**TBD** - Provide the list of resources from the resource group.
+List of Azure services in this solution template deployment:
 
-## Advanced Topic - Data Science behind the Failure Prediction solution
+![Resources](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Resources.png)
 
-## Problem Statement
+## Advanced Topics
+
+### Data Science behind the Failure Prediction solution
+
+### Problem Statement
 The problem here is to predict the failure of a device, indicating the type of failure, along with the probability (chance) of its occurrence, over the next N days, given a set of _predictor variables_ such as temperature, pressure, etc over time.
 
 Stated in modeling terms, this is a _multi-class classification_ problem that _classifies_ the target variable _failure_ to one of the different failure types, called _classes_. From the [recommended set of algorithms](https://docs.microsoft.com/en-us/azure/machine-learning/studio/algorithm-cheat-sheet), we choose the one that affords accuracy and speed of model creation, namely, _multi-class decision forest_.
 
-## Data Preparation
+### Data Preparation
 
-## Model Creation
+### Model Creation
 
 ### Model Testing
 
 ### Model Validation
 
+### Architecture of the Failure Prediction solution
 
-## Advanced Topic - Architecture of the Failure Prediction solution
-
+## Related Work
+There is rich content on predictive maintenance in both Microsoft and external websites. But most of them are experiments or tutorials to prove just one small aspect of the end to end solution, which can frustrate or confuse a user or solution architect trying to quickly bootstrap a Microsoft solution on proven, state of the art products. This template will be extended to provide a means for these contributor to upgrade and roll in their solutions into this template, and retire their old templates.
