@@ -292,9 +292,14 @@
         $.each(services, function(id, service) {
           display = true;
           console.log(service);
+          var disabled = 'disabled';
+          if(service.consumingStatus == 'Consume')
+          {
+              disabled = '';  
+          }
           $('#services>tbody').append('<tr><td>' + service.id 
             + '</td><td>' + service.state 
-            + '</td><td>' + '<button type="button" class="btn btn-link" id = "'+ service.name +'" disabled>Consume</button>' 
+            + '</td><td>' + '<button type="button" class="btn btn-link" id = "'+ service.name +'" '+ disabled + '>'+ service.consumingStatus +'</button>' 
             + '</td></tr>');  
           pollService(service.id, function(serviceStatus) {
             $('#' + serviceStatus.name).parent().parent().find('td').find('button').first().text(serviceStatus.consumingStatus);
@@ -365,9 +370,9 @@
                 var errormsg = jqXHR.responseText; 
             }
             $("#register-model-error").text('Failure Reason : ' + errormsg);
+            $("#register-model-error").css('visibility', 'visible');
         }).always(function(jqXHR, textStatus, errorThrown) {
             $("#smallspinnermodel").css('visibility', 'hidden');
-            $("#register-model-error").css('visibility', 'visible');
             $(element).prop('disabled', false);
         });
     });
@@ -408,9 +413,9 @@
                 var errormsg = jqXHR.responseText; 
             }
             $("#register-manifest-error").text('Failure Reason : ' + errormsg)
+            $("#register-manifest-error").css('visibility', 'visible');
         }).always(function(jqXHR, textStatus, errorThrown) {
             $("#smallspinnermanifest").css('visibility', 'hidden');
-            $("#register-manifest-error").css('visibility', 'visible');
             $(element).prop('disabled', false);
         });
       });
@@ -469,10 +474,10 @@
                 var errormsg = jqXHR.responseText; 
             }          
             $("#create-image-error").text('Failure Reason : ' + errormsg)
+            $("#create-image-error").css('visibility', 'visible');
       }).always(function(jqXHR, textStatus, errorThrown) {
           $("#smallspinnerimage").css('visibility', 'hidden');
           $(element).prop('disabled', false);
-          $("#create-image-error").css('visibility', 'visible');
       });
     });
     
@@ -512,10 +517,10 @@
                 var errormsg = jqXHR.responseText; 
             }
             $("#create-service-error").text('Failure Reason : ' + errormsg)
+            $("#create-service-error").css('visibility', 'visible');
       }).always(function(jqXHR, textStatus, errorThrown) {
           $("#smallspinnerservice").css('visibility', 'hidden');
           $(element).prop('disabled', false);
-          $("#create-service-error").css('visibility', 'visible');
       });
     });
     loadModels();

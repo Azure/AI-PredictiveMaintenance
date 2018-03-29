@@ -189,9 +189,18 @@ def operationalization_get_operation(operation, id = None):
             return resp
     elif operation == 'services':
         if id == None:
-            serviceConsumeDetails = {'PartitionKey': 'Consuming', 'RowKey': 'Consuming', 'ServiceId': ''}
+            consuming = table_service.get_entity('serviceConsumed', 'Consuming', 'Consuming')
+            consumed =  table_service.get_entity('serviceConsumed', 'Consumed', 'Consumed')
             mm_response = model_management.get('services')
-            mm_response_json = json.loads(mm_response.text)    
+            mm_response_json = json.loads(mm_response.text)
+            for i in range(len(mm_response_json['value'])):
+                id = mm_response_json['value'][i]['id']
+                if consuming.ServiceId == id:
+                    mm_response_json['value'][i]['consumingStatus'] = "Consuming" 
+                elif consumed.ServiceId == id:
+                    mm_response_json['value'][i]['consumingStatus'] = "Consumed"
+                else:
+                    mm_response_json['value'][i]['consumingStatus'] = "Consume" 
             resp = Response(json.dumps(mm_response_json['value']))
             resp.headers['Content-type'] = 'application/json'
             return resp
