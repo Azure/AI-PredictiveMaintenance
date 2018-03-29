@@ -16,10 +16,10 @@ table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STOR
 table_service.create_table('cluster')
 table_service.create_table('serviceConsumed')
 
-serviceConsumeDetails = {'PartitionKey': 'Consumed', 'RowKey': '', 'ServiceId': ''}
+serviceConsumeDetails = {'PartitionKey': 'Consumed', 'RowKey': 'Consumed', 'ServiceId': ''}
 table_service.insert_or_merge_entity('serviceConsumed', serviceConsumeDetails)
 
-serviceConsumeDetails = {'PartitionKey': 'Consuming', 'RowKey': '', 'ServiceId': ''}
+serviceConsumeDetails = {'PartitionKey': 'Consuming', 'RowKey': 'Consuming', 'ServiceId': ''}
 table_service.insert_or_merge_entity('serviceConsumed', serviceConsumeDetails)
 
 asset = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Not Created'}
