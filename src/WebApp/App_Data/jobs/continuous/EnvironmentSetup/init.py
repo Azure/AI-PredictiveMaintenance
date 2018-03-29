@@ -14,13 +14,6 @@ STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
 table_service.create_table('cluster')
-table_service.create_table('serviceConsumed')
-
-serviceConsumeDetails = {'PartitionKey': 'Consumed', 'RowKey': 'Consumed', 'ServiceId': ''}
-table_service.insert_or_merge_entity('serviceConsumed', serviceConsumeDetails)
-
-serviceConsumeDetails = {'PartitionKey': 'Consuming', 'RowKey': 'Consuming', 'ServiceId': ''}
-table_service.insert_or_merge_entity('serviceConsumed', serviceConsumeDetails)
 
 asset = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Not Created'}
 table_service.insert_or_merge_entity('cluster', asset)
