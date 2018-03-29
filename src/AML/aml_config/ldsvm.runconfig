@@ -1,0 +1,11 @@
+ArgumentVector:
+- $file
+CondaDependenciesFile: aml_config/conda_dependencies.yml
+EnvironmentVariables:
+    "STORAGE_ACCOUNT_NAME": "stgb47ert5drqsss"
+Framework: PySpark
+PrepareEnvironment: false
+SparkDependenciesFile: aml_config/spark_dependencies.yml
+Target: ldsvm
+TrackedRun: true
+UseSampling: true
