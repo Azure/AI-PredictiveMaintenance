@@ -26,7 +26,6 @@ if  [ "$IS_MASTER" = "1" ]; then
 
     # get master ip
     MASTER_IP=$(hostname -i)
-    Spark_Home = $
 
     # remove existing kernels
     rm -rf $JUPYTER_KERNELS/*
