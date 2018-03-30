@@ -26,6 +26,7 @@ if  [ "$IS_MASTER" = "1" ]; then
 
     # get master ip
     MASTER_IP=$(hostname -i)
+    Spark_Home = $
 
     # remove existing kernels
     rm -rf $JUPYTER_KERNELS/*
@@ -53,7 +54,7 @@ if  [ "$IS_MASTER" = "1" ]; then
 EOF
 
 
-    cat << EOF > /home/spark-current/conf/hive-site.xml
+    cat << EOF > $SPARK_HOME/conf/hive-site.xml
 <configuration>
     <property>
         <name>javax.jdo.option.ConnectionURL</name>
@@ -76,7 +77,7 @@ EOF
 EOF
 
  apt-get -y install postgresql postgresql-contrib
-    cat << EOF > /etc/postgresql/9.5/main/pg_hba.conf
+    cat << EOF > /etc/postgresql/$(ls /etc/postgresql)/main/pg_hba.conf
 local    postgres     postgres     trust
 
 # TYPE  DATABASE        USER            ADDRESS                 METHOD
