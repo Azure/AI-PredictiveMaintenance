@@ -255,7 +255,7 @@ def create_snapshot(file_share, directory_name, file_name, container_name, corre
     try:
         blob_service.copy_blob(container_name, blob_name, file_url)
     except Exception as e:
-        return None
+        raise ValueError('Missing file ' + file_name)
     
     blob_sas_token = blob_service.generate_blob_shared_access_signature(
         container_name,
