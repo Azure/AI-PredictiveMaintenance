@@ -275,7 +275,7 @@
     }
     function pollService(serviceId, onSuccess, onFailure) {
       $.get('operationalization/services/' + serviceId).done(function(serviceStatus) {
-        if (serviceStatus.state === 'Running' || serviceStatus.state === 'NotStarted' || serviceStatus.consumingStatus == 'Consuming') {
+        if (serviceStatus.state === 'Running' || serviceStatus.state === 'NotStarted') {
           window.setTimeout(function() {pollService(serviceId, onSuccess, onFailure)}, 3000);
         } else if (serviceStatus.state === 'Succeeded') {
           if (onSuccess) onSuccess(serviceStatus);
@@ -293,23 +293,26 @@
           display = true;
           console.log(service);
           var disabled = 'disabled';
-          if(service.consumingStatus === 'Consume' && service.state === 'Succeeded')
+          var consumingStatus = 'Consumed'
+          if(service.consumed === 'No')
           {
-              disabled = '';  
+              disabled = '';
+              consumingStatus = 'Consume';
           }
+          if(!(service.state === 'Succeeded'))
+          {
+                disabled = 'disabled';  
+                pollService(service.id, function(serviceStatus) {
+                    $('#' + serviceStatus.name).parent().parent().find('td').find('button').first().prop('disabled',false);
+                    $('#' + serviceStatus.name).parent().parent().find('td').find('button').first().text('Consume');
+                    $('#' + serviceStatus.name).parent().parent().find('td').eq(1).text(serviceStatus.state);
+                });              
+          }
+          
           $('#services>tbody').append('<tr><td>' + service.id 
             + '</td><td>' + service.state 
-            + '</td><td>' + '<button type="button" class="btn btn-primary btn-sm" id = "'+ service.name +'" '+ disabled + '>'+ service.consumingStatus +'</button>' 
+            + '</td><td>' + '<button type="button" class="btn btn-primary btn-sm" id = "'+ service.name +'" '+ disabled + '>'+ consumingStatus +'</button>' 
             + '</td></tr>');  
-          pollService(service.id, function(serviceStatus) {
-            $('#' + serviceStatus.name).parent().parent().find('td').find('button').first().text(serviceStatus.consumingStatus);
-            if(serviceStatus.consumingStatus == 'Consume')
-            {  
-              $('#' + serviceStatus.name).parent().parent().find('td').find('button').first().prop('disabled',false);
-            }
-            $('#' + serviceStatus.name).parent().parent().find('td').eq(1).text(serviceStatus.state);
-            
-          });
         });        
         if(!display)
         {
@@ -362,7 +365,7 @@
                 if(!(response.details === undefined))
                 {
                     for (i = 0; i < response.details.length; i++) { 
-                        errormsg += "." + response.details[i].message + ".";
+                        errormsg += ". " + response.details[i].message + ". ";
                     }
                 }
             }
@@ -405,7 +408,7 @@
                 if(!(response.details === undefined))
                 {
                     for (i = 0; i < response.details.length; i++) { 
-                        errormsg += "." + response.details[i].message + ".";
+                        errormsg += ". " + response.details[i].message + ". ";
                     }
                 }
             }
@@ -467,7 +470,7 @@
                 if(!(response.details === undefined))
                 {
                     for (i = 0; i < response.details.length; i++) { 
-                        errormsg += "." + response.details[i].message + ".";
+                        errormsg += ". " + response.details[i].message + ". ";
                     }
                 }
             }
@@ -509,7 +512,7 @@
                 if(!(response.details === undefined))
                 {
                     for (i = 0; i < response.details.length; i++) { 
-                        errormsg += "." + response.details[i].message + ".";
+                        errormsg += ". " + response.details[i].message + ". ";
                     }
                 }
             }

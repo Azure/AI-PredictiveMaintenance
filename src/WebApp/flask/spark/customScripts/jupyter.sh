@@ -52,6 +52,55 @@ if  [ "$IS_MASTER" = "1" ]; then
 }
 EOF
 
+
+    cat << EOF > $SPARK_HOME/conf/hive-site.xml
+<configuration>
+    <property>
+        <name>javax.jdo.option.ConnectionURL</name>
+        <value>jdbc:postgresql://localhost:5432/hive_metastore</value>
+    </property>
+    <property>
+        <name>javax.jdo.option.ConnectionDriverName</name>
+        <value>org.postgresql.Driver</value>
+    </property>
+    <property>
+        <name>javax.jdo.option.ConnectionUserName</name>
+        <value>hive</value>
+    </property>
+    <property>
+        <name>javax.jdo.option.ConnectionPassword</name>
+        <value>mypassword</value>
+    </property>
+</configuration>
+
+EOF
+
+ apt-get -y install postgresql postgresql-contrib
+    cat << EOF > /etc/postgresql/$(ls /etc/postgresql)/main/pg_hba.conf
+local    postgres     postgres     trust
+
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# "local" is for Unix domain socket connections only
+local   all             all                                     md5
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            md5
+# IPv6 local connections:
+host    all             all             ::1/128                 md5
+# Allow replication connections from localhost, by a user with the
+# replication privilege.
+#local   replication     postgres                                peer
+#host    replication     postgres        127.0.0.1/32            md5
+#host    replication     postgres        ::1/128                 md5
+
+EOF
+
+    service postgresql restart
+
+    psql -U 'postgres' -c "CREATE USER hive;ALTER ROLE hive WITH PASSWORD 'mypassword';"
+    psql -U 'postgres' -c "CREATE DATABASE hive_metastore;"
+    psql -U 'postgres' -c "GRANT ALL PRIVILEGES ON DATABASE hive_metastore TO hive";
+
     # start jupyter notebook from /mnt - this is where we recommend you put your azure files mount point as well
     cd /mnt/notebooks
     (PYSPARK_DRIVER_PYTHON=$PYSPARK_DRIVER_PYTHON PYSPARK_DRIVER_PYTHON_OPTS="notebook --no-browser --port=8888 --allow-root" pyspark &)

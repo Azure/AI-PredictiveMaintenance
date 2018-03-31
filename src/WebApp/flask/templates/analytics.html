@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block body %}
-    {% if clusterDetails.Status == "Not Created" %}
+    {% if clusterDetails.Status == "Not Created" ||  clusterDetails.Status == "Failed" || clusterDetails.Status == "Deleted" %}
     <form action = "/createCluster" method = "POST">
         <div class="form-group has-feedback">
             <label for="skuType">Sku Type</label>
@@ -37,6 +37,13 @@
         <div>           
             <button type="submit" id="create-project-button" class="btn btn-primary">Create Cluster</button>
         </div>
+        <div>
+            {% if clusterDetails.Status == "Failed" %}           
+            <small class="text-danger">
+                Cluster Creation Failed : {{clusterDetails.Message}}
+            </small>
+            {% endif %}
+        </div>
     </form>
     {% endif %}
     {% if clusterDetails.Status == "Provisioning" %}
@@ -59,7 +66,7 @@
         </div>
     </div>
     {% endif %}
-    {% if clusterDetails.Status == "Provisioned" %}
+    {% if clusterDetails.Status == "Provisioned" || clusterDetails.Status == "DeletionFailed"%}
     <div>
         <h3>Cluster Information</h3>
         <p>
@@ -86,6 +93,13 @@
     <form action = "/deleteCluster" method = "POST">
         <div>           
             <button type="submit" id="create-project-button" class="btn btn-primary" onclick="return confirm('Are you sure you want to delete the cluster?')">Delete Cluster</button>
+        </div>
+        <div>
+            {% if clusterDetails.Status == "DeletionFailed" %}           
+            <small class="text-danger">
+                Cluster Creation Failed : {{clusterDetails.Message}}
+            </small>
+            {% endif %}
         </div>
     </form>
     {% endif %}

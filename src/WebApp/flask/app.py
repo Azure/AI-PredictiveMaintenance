@@ -191,7 +191,7 @@ def operationalization_get_operation(operation, id = None):
         if id == None:
             mm_response = model_management.get('services')
             mm_response_json = json.loads(mm_response.text)
-            config_path = 'D:\home\site\wwwroot\App_Data\scoring.json'
+            config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/scoring.json'))
             consumedId = ''
             
             if os.path.isfile(config_path):
@@ -204,9 +204,9 @@ def operationalization_get_operation(operation, id = None):
             for i in range(len(mm_response_json['value'])):
                 id = mm_response_json['value'][i]['id']
                 if consumedId == id:
-                    mm_response_json['value'][i]['consumingStatus'] = "Consumed" 
+                    mm_response_json['value'][i]['consumed'] = "Yes" 
                 else:
-                    mm_response_json['value'][i]['consumingStatus'] = "Consume"
+                    mm_response_json['value'][i]['consumed'] = "No"
             
             resp = Response(json.dumps(mm_response_json['value']))
             resp.headers['Content-type'] = 'application/json'
@@ -214,7 +214,7 @@ def operationalization_get_operation(operation, id = None):
         else:
             mm_response = model_management.get('services/{0}'.format(id))
             mm_response_json = json.loads(mm_response.text)
-            config_path = 'D:\home\site\wwwroot\App_Data\scoring.json'
+            config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/scoring.json'))
             consumedId = ''
             
             if os.path.isfile(config_path):
@@ -224,9 +224,9 @@ def operationalization_get_operation(operation, id = None):
                         consumedId = scoring_config['id']
 
             if consumedId == id:
-                mm_response_json['consumingStatus'] = "Consumed" 
+                mm_response_json['consumed'] = "Yes" 
             else:
-                mm_response_json['consumingStatus'] = "Consume"
+                mm_response_json['consumed'] = "No"
 
             resp = Response(json.dumps(mm_response_json))
             resp.headers['Content-type'] = 'application/json'
@@ -255,9 +255,7 @@ def create_snapshot(file_share, directory_name, file_name, container_name, corre
     try:
         blob_service.copy_blob(container_name, blob_name, file_url)
     except Exception as e:
-        if file_name == 'model.tar.gz' or file_name == 'score.py':
-            return None
-        raise
+        return None
     
     blob_sas_token = blob_service.generate_blob_shared_access_signature(
         container_name,
@@ -277,7 +275,7 @@ def operationalization_post_operation(operation):
     if operation == 'registermodel':
         model_blob_url = create_snapshot('notebooks', None, 'model.tar.gz', 'o16n')
         if model_blob_url is None:
-            resp = Response("Please train your model first before proceeding with this step. Instructions to train the model is available in the Analytics tab.", status = 400)
+            resp = Response("No serialized model found. Please train your model first before proceeding with this step. Instructions to train the model is available in the Analytics tab.", status = 400)
             return resp
 
         payload = {
@@ -304,8 +302,8 @@ def operationalization_post_operation(operation):
         requirements_url = create_snapshot('notebooks', 'aml_config', 'requirements.txt', 'o16n', correlation_guid)
         conda_dependencies_url = create_snapshot('notebooks', 'aml_config', 'conda_dependencies.yml', 'o16n', correlation_guid)
 
-        if score_url is None:
-            resp = Response("Please run the operationalization notebook before proceeding with this step. Instructions to operationalize the model is available in the Analytics tab.", status = 400)
+        if score_url is None or driver_url is None or schema_url is None:
+            resp = Response("One of the driver.py, score.py, service_schema.json is missing. Please run the operationalization notebook before proceeding with this step. Instructions to operationalize the model is available in the Analytics tab.", status = 400)
             return resp            
 
         payload = {

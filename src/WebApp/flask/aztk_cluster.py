@@ -74,12 +74,16 @@ class AztkCluster:
             jars=jars
         )
 
+        clusterDetails = self.table_service.get_entity('cluster', 'predictivemaintenance', 'predictivemaintenance')
+        cluster_number = int(clusterDetails.ClusterNumber) + 1
+        cluster_id = clusterDetails.PartitionKey + str(cluster_number)
+
         modelCustomScript = aztk.models.CustomScript("jupyter", "D:/home/site/wwwroot/flask/spark/customScripts/jupyter.sh","all-nodes")
         modelFileShare = aztk.models.FileShare(self.STORAGE_ACCOUNT_NAME, self.STORAGE_ACCOUNT_KEY, 'notebooks', '/mnt/notebooks')
         # configure my cluster
         cluster_config = aztk.spark.models.ClusterConfiguration(
             docker_repo='aztk/python:spark2.2.0-python3.6.2-base',
-            cluster_id="predictive-maintenance", # Warning: this name must be a valid Azure Blob Storage container name
+            cluster_id= cluster_id, # Warning: this name must be a valid Azure Blob Storage container name
             vm_count=self.vm_count,
             # vm_low_pri_count=2, #this and vm_count are mutually exclusive
             vm_size=self.sku_type,
@@ -91,44 +95,54 @@ class AztkCluster:
             password=self.password,
         )
         )
-
-        cluster = client.create_cluster(cluster_config)
+        try:
+            cluster = client.create_cluster(cluster_config)
+        except Exception as e:
+            clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Failed', 'UserName': self.username,'ClusterNumber': cluster_number,'Message': str(e)}
+            self.table_service.insert_or_merge_entity('cluster', clusterDetails)
+            return
         
-        clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Provisioning', 'UserName': self.username}
+        clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Provisioning', 'UserName': self.username,'ClusterNumber': cluster_number}
         self.table_service.insert_or_merge_entity('cluster', clusterDetails)
 
     def getCluster(self):
         # create a client
         client = aztk.spark.Client(self.secrets_confg)
         clusterDetails = self.table_service.get_entity('cluster', 'predictivemaintenance', 'predictivemaintenance')
+        cluster_id = clusterDetails.PartitionKey + str(clusterDetails.ClusterNumber)
+        if clusterDetails.Status == 'Deleted' or clusterDetails.Status == 'NotCreated':
+            return clusterDetails
         try:
-            cluster = client.get_cluster(cluster_id="predictive-maintenance")
-            if clusterDetails.Status == 'Deleting':
-                return clusterDetails
+            cluster = client.get_cluster(cluster_id=cluster_id)
             for node in cluster.nodes:
                     remote_login_settings = client.get_remote_login_settings(cluster.id, node.id)
                     if node.id == cluster.master_node_id:
                         master_ipaddress = remote_login_settings.ip_address
                         master_Port = remote_login_settings.port
-                        clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Provisioned', 'Master_Ip_Address': master_ipaddress, 'Master_Port': master_Port, 'UserName': clusterDetails.UserName}
+                        clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Provisioned', 'Master_Ip_Address': master_ipaddress, 'Master_Port': master_Port, 'UserName': clusterDetails.UserName, 'ClusterNumber': clusterDetails.ClusterNumber}
                         self.table_service.insert_or_merge_entity('cluster', clusterDetails)
         
-        except (AztkError, BatchErrorException):
-                    if clusterDetails.Status == 'Deleting':
-                        clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Not Created'}
-                        self.table_service.insert_or_merge_entity('cluster', clusterDetails)               
-    
-        clusterDetails = self.table_service.get_entity('cluster', 'predictivemaintenance', 'predictivemaintenance')
+        except (AztkError, BatchErrorException):            
+            clusterDetails = self.table_service.get_entity('cluster', 'predictivemaintenance', 'predictivemaintenance')
 
         return clusterDetails
 
     def deleteCluster(self):
-
-        clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Deleting'}
-        self.table_service.insert_or_merge_entity('cluster', clusterDetails)
+      
+        
         # create a client
         client = aztk.spark.Client(self.secrets_confg)
-        client.delete_cluster(cluster_id = "predictive-maintenance")
+        clusterDetails = self.table_service.get_entity('cluster', 'predictivemaintenance', 'predictivemaintenance')
+        cluster_id = clusterDetails.PartitionKey + str(clusterDetails.ClusterNumber)
+        try:
+            client.delete_cluster(cluster_id = cluster_id)
+        except Exception as e:
+            clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'DeletionFailed', 'UserName': self.username, 'ClusterNumber': clusterDetails.ClusterNumber,'Message': str(e)}
+            self.table_service.insert_or_merge_entity('cluster', clusterDetails)
+            return
+
+        clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Deleted', 'Deleted': clusterDetails.ClusterNumber}
+        self.table_service.insert_or_merge_entity('cluster', clusterDetails)
         
 if __name__ == '__main__':
     pass
