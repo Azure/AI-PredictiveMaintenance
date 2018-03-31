@@ -204,9 +204,9 @@ def operationalization_get_operation(operation, id = None):
             for i in range(len(mm_response_json['value'])):
                 id = mm_response_json['value'][i]['id']
                 if consumedId == id:
-                    mm_response_json['value'][i]['consumed'] = "Yes" 
+                    mm_response_json['value'][i]['consumed'] = True
                 else:
-                    mm_response_json['value'][i]['consumed'] = "No"
+                    mm_response_json['value'][i]['consumed'] = False
             
             resp = Response(json.dumps(mm_response_json['value']))
             resp.headers['Content-type'] = 'application/json'
@@ -224,9 +224,9 @@ def operationalization_get_operation(operation, id = None):
                         consumedId = scoring_config['id']
 
             if consumedId == id:
-                mm_response_json['consumed'] = "Yes" 
+                mm_response_json['consumed'] = True 
             else:
-                mm_response_json['consumed'] = "No"
+                mm_response_json['consumed'] = False
 
             resp = Response(json.dumps(mm_response_json))
             resp.headers['Content-type'] = 'application/json'
@@ -273,9 +273,10 @@ def operationalization_post_operation(operation):
 
     operation = operation.lower()
     if operation == 'registermodel':
-        model_blob_url = create_snapshot('notebooks', None, 'model.tar.gz', 'o16n')
-        if model_blob_url is None:
-            resp = Response("No serialized model found. Please train your model first before proceeding with this step. Instructions to train the model is available in the Analytics tab.", status = 400)
+        try:
+            model_blob_url = create_snapshot('notebooks', None, 'model.tar.gz', 'o16n')
+        except Exception as e:
+            resp = Response("No serialized model found. " + str(e), status = 400)
             return resp
 
         payload = {
@@ -295,17 +296,17 @@ def operationalization_post_operation(operation):
         
         model_id = request.form["modelId"]
         # take a snapshots of driver.py, score.py, requirements.txt and conda_dependencies.yml
-        correlation_guid = str(uuid.uuid4())
-        driver_url = create_snapshot('notebooks', None, 'driver.py', 'o16n', correlation_guid)
-        score_url = create_snapshot('notebooks', None, 'score.py', 'o16n', correlation_guid)
-        schema_url = create_snapshot('notebooks', None, 'service_schema.json', 'o16n', correlation_guid)
-        requirements_url = create_snapshot('notebooks', 'aml_config', 'requirements.txt', 'o16n', correlation_guid)
-        conda_dependencies_url = create_snapshot('notebooks', 'aml_config', 'conda_dependencies.yml', 'o16n', correlation_guid)
-
-        if score_url is None or driver_url is None or schema_url is None:
-            resp = Response("One of the driver.py, score.py, service_schema.json is missing. Please run the operationalization notebook before proceeding with this step. Instructions to operationalize the model is available in the Analytics tab.", status = 400)
-            return resp            
-
+        try:
+            correlation_guid = str(uuid.uuid4())
+            driver_url = create_snapshot('notebooks', None, 'driver.py', 'o16n', correlation_guid)
+            score_url = create_snapshot('notebooks', None, 'score.py', 'o16n', correlation_guid)
+            schema_url = create_snapshot('notebooks', None, 'service_schema.json', 'o16n', correlation_guid)
+            requirements_url = create_snapshot('notebooks', 'aml_config', 'requirements.txt', 'o16n', correlation_guid)
+            conda_dependencies_url = create_snapshot('notebooks', 'aml_config', 'conda_dependencies.yml', 'o16n', correlation_guid)
+        except Exception as e:
+            resp = Response("Model has not been operationalized. " + str(e), status = 400)
+            return resp
+           
         payload = {
                     "modelIds": [model_id],
                 	"name": "failure-prediction-manifest",        	

@@ -294,7 +294,7 @@
           console.log(service);
           var disabled = 'disabled';
           var consumingStatus = 'Consumed'
-          if(service.consumed === 'No')
+          if(!service.consumed)
           {
               disabled = '';
               consumingStatus = 'Consume';

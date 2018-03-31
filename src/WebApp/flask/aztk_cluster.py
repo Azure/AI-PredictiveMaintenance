@@ -8,6 +8,9 @@ from pprint import pprint
 from aztk.error import AztkError
 from azure.storage.table import TableService, Entity, TablePermissions
 
+class ClusterStatus:
+    NotCreated, Provisioning, Provisioned, Deleted, Failed, DeletionFailed = range(6)
+
 class AztkCluster:
 
 
@@ -98,11 +101,11 @@ class AztkCluster:
         try:
             cluster = client.create_cluster(cluster_config)
         except Exception as e:
-            clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Failed', 'UserName': self.username,'ClusterNumber': cluster_number,'Message': str(e)}
+            clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': ClusterStatus.Failed, 'UserName': self.username,'ClusterNumber': cluster_number,'Message': str(e)}
             self.table_service.insert_or_merge_entity('cluster', clusterDetails)
             return
         
-        clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Provisioning', 'UserName': self.username,'ClusterNumber': cluster_number}
+        clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': ClusterStatus.Provisioning, 'UserName': self.username,'ClusterNumber': cluster_number}
         self.table_service.insert_or_merge_entity('cluster', clusterDetails)
 
     def getCluster(self):
@@ -110,7 +113,7 @@ class AztkCluster:
         client = aztk.spark.Client(self.secrets_confg)
         clusterDetails = self.table_service.get_entity('cluster', 'predictivemaintenance', 'predictivemaintenance')
         cluster_id = clusterDetails.PartitionKey + str(clusterDetails.ClusterNumber)
-        if clusterDetails.Status == 'Deleted' or clusterDetails.Status == 'NotCreated':
+        if clusterDetails.Status == ClusterStatus.Deleted or clusterDetails.Status == ClusterStatus.NotCreated:
             return clusterDetails
         try:
             cluster = client.get_cluster(cluster_id=cluster_id)
@@ -119,7 +122,7 @@ class AztkCluster:
                     if node.id == cluster.master_node_id:
                         master_ipaddress = remote_login_settings.ip_address
                         master_Port = remote_login_settings.port
-                        clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Provisioned', 'Master_Ip_Address': master_ipaddress, 'Master_Port': master_Port, 'UserName': clusterDetails.UserName, 'ClusterNumber': clusterDetails.ClusterNumber}
+                        clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': ClusterStatus.Provisioned, 'Master_Ip_Address': master_ipaddress, 'Master_Port': master_Port, 'UserName': clusterDetails.UserName, 'ClusterNumber': clusterDetails.ClusterNumber}
                         self.table_service.insert_or_merge_entity('cluster', clusterDetails)
         
         except (AztkError, BatchErrorException):            
@@ -137,11 +140,11 @@ class AztkCluster:
         try:
             client.delete_cluster(cluster_id = cluster_id)
         except Exception as e:
-            clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'DeletionFailed', 'UserName': self.username, 'ClusterNumber': clusterDetails.ClusterNumber,'Message': str(e)}
+            clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': ClusterStatus.DeletionFailed, 'UserName': self.username, 'ClusterNumber': clusterDetails.ClusterNumber,'Message': str(e)}
             self.table_service.insert_or_merge_entity('cluster', clusterDetails)
             return
 
-        clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 'Deleted', 'Deleted': clusterDetails.ClusterNumber}
+        clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': ClusterStatus.Deleted, 'ClusterNumber': clusterDetails.ClusterNumber}
         self.table_service.insert_or_merge_entity('cluster', clusterDetails)
         
 if __name__ == '__main__':
