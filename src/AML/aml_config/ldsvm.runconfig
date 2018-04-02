@@ -1,0 +1,15 @@
+ArgumentVector:
+- $file
+CondaDependenciesFile: aml_config/conda_dependencies.yml
+EnvironmentVariables:
+    "TELEMETRY_STORAGE_ACCOUNT_NAME": "stgb47ert5drqsss"
+    "TELEMETRY_STORAGE_ACCOUNT_KEY": "gv1YqtFpLUQTXbfrCqApnFxfU39lyYDT7Nhx8DBV/EiVuTleyD6NZefEEfXe833ZS47LfqOn0+v5GhDgYGFQdg=="
+    "TELEMETRY_CONTAINER_NAME": "telemetry"
+    "STAGING_STORAGE_ACCOUNT_NAME": "stgb47ert5drqsss"
+    "STAGING_STORAGE_ACCOUNT_KEY": "gv1YqtFpLUQTXbfrCqApnFxfU39lyYDT7Nhx8DBV/EiVuTleyD6NZefEEfXe833ZS47LfqOn0+v5GhDgYGFQdg=="
+Framework: PySpark
+PrepareEnvironment: false
+SparkDependenciesFile: aml_config/spark_dependencies.yml
+Target: ldsvm
+TrackedRun: true
+UseSampling: true

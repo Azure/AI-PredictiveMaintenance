@@ -238,7 +238,7 @@ def operationalization_post_operation(operation):
 
     operation = operation.lower()
     if operation == 'registermodel':
-        model_blob_url = create_snapshot('notebooks', None, 'model.tar.gz', 'o16n')
+        model_blob_url = create_snapshot('azureml-share', None, 'model.tar.gz', 'o16n')
         payload = {
     		"name": "failure-prediction-model",
     		"tags": ["pdms"],
@@ -257,11 +257,11 @@ def operationalization_post_operation(operation):
         
         # take a snapshots of driver.py, score.py, requirements.txt and conda_dependencies.yml
         correlation_guid = str(uuid.uuid4())
-        driver_url = create_snapshot('notebooks', None, 'driver.py', 'o16n', correlation_guid)
-        score_url = create_snapshot('notebooks', None, 'score.py', 'o16n', correlation_guid)
-        schema_url = create_snapshot('notebooks', None, 'service_schema.json', 'o16n', correlation_guid)
-        requirements_url = create_snapshot('notebooks', 'aml_config', 'requirements.txt', 'o16n', correlation_guid)
-        conda_dependencies_url = create_snapshot('notebooks', 'aml_config', 'conda_dependencies.yml', 'o16n', correlation_guid)
+        driver_url = create_snapshot('azureml-project', None, 'driver.py', 'o16n', correlation_guid)
+        score_url = create_snapshot('azureml-share', None, 'score.py', 'o16n', correlation_guid)
+        schema_url = create_snapshot('azureml-share', None, 'service_schema.json', 'o16n', correlation_guid)
+        requirements_url = create_snapshot('azureml-project', 'aml_config', 'requirements.txt', 'o16n', correlation_guid)
+        conda_dependencies_url = create_snapshot('azureml-project', 'aml_config', 'conda_dependencies.yml', 'o16n', correlation_guid)
         payload = {
                     "modelIds": [model_id],
                 	"name": "failure-prediction-manifest",        	
