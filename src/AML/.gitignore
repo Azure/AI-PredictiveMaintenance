@@ -1,4 +1,4 @@
-.azuremlhistory_git
+.azureml
 .ipynb_checkpoints
 azureml-logs
 *.dprep.user

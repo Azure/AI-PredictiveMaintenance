@@ -9,8 +9,6 @@ from aztk.error import AztkError
 from azure.storage.table import TableService, Entity, TablePermissions
 
 class AztkCluster:
-
-
     def __init__(self, vm_count = 0, sku_type = 'standard_d2_v2', username = 'admin', password = 'admin'):
         self.vm_count = vm_count
         self.sku_type = sku_type
@@ -22,8 +20,6 @@ class AztkCluster:
         STORAGE_ACCOUNT_SUFFIX = 'core.windows.net'
         self.STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
         self.STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
-        TELEMETRY_CONTAINER_NAME = 'telemetry'
-        IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 
         self.secrets_confg = aztk.spark.models.SecretsConfiguration(
             shared_key=aztk.models.SharedKeyConfiguration(
@@ -50,19 +46,8 @@ class AztkCluster:
 
         SPARK_CONFIG_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), 'spark', 'spark', '.config'))
         SPARK_JARS_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), 'spark','spark', 'jars'))
-        SPARK_APPLICATION_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), 'spark','spark', 'application'))
 
         SPARK_CORE_SITE = os.path.join(SPARK_CONFIG_PATH, 'core-site.xml')
-
-        f = open(SPARK_CORE_SITE,'r')
-        message = f.read()
-        message = message.replace('STORAGE_ACCOUNT_NAME', self.STORAGE_ACCOUNT_NAME)
-        message = message.replace('STORAGE_ACCOUNT_KEY', self.STORAGE_ACCOUNT_KEY)
-        f.close()
-
-        f = open(SPARK_CORE_SITE,'w')
-        f.write(message)
-        f.close()
 
         jars = glob.glob(os.path.join(SPARK_JARS_PATH, '*.jar'))
 
@@ -74,8 +59,9 @@ class AztkCluster:
             jars=jars
         )
 
-        modelCustomScript = aztk.models.CustomScript("jupyter", "D:/home/site/wwwroot/flask/spark/customScripts/jupyter.sh","all-nodes")
-        modelFileShare = aztk.models.FileShare(self.STORAGE_ACCOUNT_NAME, self.STORAGE_ACCOUNT_KEY, 'notebooks', '/mnt/notebooks')
+        jupyterCustomScript = aztk.models.CustomScript("jupyter", "D:/home/site/wwwroot/flask/spark/customScripts/jupyter.sh", "all-nodes")        
+        azuremlProjectFileShare = aztk.models.FileShare(self.STORAGE_ACCOUNT_NAME, self.STORAGE_ACCOUNT_KEY, 'azureml-project', '/mnt/azureml-project')
+        azuremlFileShare = aztk.models.FileShare(self.STORAGE_ACCOUNT_NAME, self.STORAGE_ACCOUNT_KEY, 'azureml-share', '/mnt/azureml-share')
         # configure my cluster
         cluster_config = aztk.spark.models.ClusterConfiguration(
             docker_repo='aztk/python:spark2.2.0-python3.6.2-base',
@@ -83,13 +69,13 @@ class AztkCluster:
             vm_count=self.vm_count,
             # vm_low_pri_count=2, #this and vm_count are mutually exclusive
             vm_size=self.sku_type,
-            custom_scripts=[modelCustomScript],
+            custom_scripts=[jupyterCustomScript],
             spark_configuration=spark_conf,
-            file_shares=[modelFileShare],
+            file_shares=[azuremlProjectFileShare, azuremlFileShare],
             user_configuration=UserConfiguration(
-            username=self.username,
-            password=self.password,
-        )
+                username=self.username,
+                password=self.password,
+            )
         )
 
         cluster = client.create_cluster(cluster_config)

@@ -9,8 +9,4 @@
   <name>fs.AbstractFileSystem.wasb.Impl</name>
   <value>org.apache.hadoop.fs.azure.Wasb</value>
 </property>
-<property>
-  <name>fs.azure.account.key.STORAGE_ACCOUNT_NAME.blob.core.windows.net</name>
-  <value>STORAGE_ACCOUNT_KEY</value>
-</property>
 </configuration>
