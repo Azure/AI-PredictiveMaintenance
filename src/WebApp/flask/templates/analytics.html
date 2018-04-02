@@ -98,7 +98,7 @@
 {% block script %}
 <script>
     window.setInterval(function() {
-        if( '{{clusterDetails.Status}}' == 'Provisioning' || '{{clusterDetails.Status}}' == 'Deleting')
+        if( '{{clusterDetails.Status}}' == 1)
         {
             location.reload();
         }
