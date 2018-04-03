@@ -9,7 +9,7 @@ D:\home\python364x64\python.exe init.py
 pushd d:\home\site\
 git clone https://www.github.com/azure/aztk
 cd aztk
-git checkout 85a472c591a46597d4a9fbf1ee6c796184499a3a
+git checkout da61337bfea80703da18d97aa7b617b5a0f2ac2f
 D:\home\python364x64\python.exe -m pip install -e .
 popd
 echo. > %READY_FILE%

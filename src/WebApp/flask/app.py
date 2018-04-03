@@ -188,15 +188,47 @@ def operationalization_get_operation(operation, id = None):
             resp.headers['Content-type'] = 'application/json'
             return resp
     elif operation == 'services':
-        if id == None:        
+        if id == None:
             mm_response = model_management.get('services')
-            mm_response_json = json.loads(mm_response.text)    
+            mm_response_json = json.loads(mm_response.text)
+            config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/scoring.json'))
+            consumedId = ''
+            
+            if os.path.isfile(config_path):
+                with open(config_path, 'r') as f:
+                    scoring_config = json.loads(f.read())
+                    if 'id' in scoring_config:
+                        consumedId = scoring_config['id']
+                
+
+            for service in mm_response_json['value']:
+                id = service['id']
+                if consumedId == id:
+                    service['consumed'] = True
+                else:
+                    service['consumed'] = False
+            
             resp = Response(json.dumps(mm_response_json['value']))
             resp.headers['Content-type'] = 'application/json'
             return resp
         else:
-            mm_response = model_management.get('services/{0}'.format(id))                
-            resp = Response(mm_response.text)
+            mm_response = model_management.get('services/{0}'.format(id))
+            mm_response_json = json.loads(mm_response.text)
+            config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/scoring.json'))
+            consumedId = ''
+            
+            if os.path.isfile(config_path):
+                with open(config_path, 'r') as f:
+                    scoring_config = json.loads(f.read())
+                    if 'id' in scoring_config:
+                        consumedId = scoring_config['id']
+
+            if consumedId == id:
+                mm_response_json['consumed'] = True 
+            else:
+                mm_response_json['consumed'] = False
+
+            resp = Response(json.dumps(mm_response_json))
             resp.headers['Content-type'] = 'application/json'
             return resp            
     elif operation == 'operations':
@@ -216,11 +248,14 @@ def create_snapshot(file_share, directory_name, file_name, container_name, corre
         expiry = datetime.now() + timedelta(minutes = 10))
 
     file_url = file_service.make_file_url(file_share, directory_name, file_name, sas_token = file_sas_token)
-    
+
     blob_name = '{0}/{1}/{2}'.format(correlation_guid, directory_name, file_name)
     blob_service.create_container(container_name)
     
-    blob_service.copy_blob(container_name, blob_name, file_url)
+    try:
+        blob_service.copy_blob(container_name, blob_name, file_url)
+    except Exception as e:
+        raise ValueError('Missing file ' + file_name)
     
     blob_sas_token = blob_service.generate_blob_shared_access_signature(
         container_name,
@@ -238,7 +273,12 @@ def operationalization_post_operation(operation):
 
     operation = operation.lower()
     if operation == 'registermodel':
-        model_blob_url = create_snapshot('azureml-share', None, 'model.tar.gz', 'o16n')
+        try:
+            model_blob_url = create_snapshot('azureml-share', None, 'model.tar.gz', 'o16n')
+        except Exception as e:
+            resp = Response("No serialized model found. " + str(e), status = 400)
+            return resp
+
         payload = {
     		"name": "failure-prediction-model",
     		"tags": ["pdms"],
@@ -249,19 +289,24 @@ def operationalization_post_operation(operation):
     	}
 
         mm_response = model_management.post('models', payload)
-        resp = Response(mm_response.text)
+        resp = Response(mm_response.text, status = mm_response.status_code)
         resp.headers['Content-type'] = 'application/json'
         return resp
     elif operation == 'registermanifest':
-        model_id = request.form["modelId"]
         
+        model_id = request.form["modelId"]
         # take a snapshots of driver.py, score.py, requirements.txt and conda_dependencies.yml
-        correlation_guid = str(uuid.uuid4())
-        driver_url = create_snapshot('azureml-project', None, 'driver.py', 'o16n', correlation_guid)
-        score_url = create_snapshot('azureml-share', None, 'score.py', 'o16n', correlation_guid)
-        schema_url = create_snapshot('azureml-share', None, 'service_schema.json', 'o16n', correlation_guid)
-        requirements_url = create_snapshot('azureml-project', 'aml_config', 'requirements.txt', 'o16n', correlation_guid)
-        conda_dependencies_url = create_snapshot('azureml-project', 'aml_config', 'conda_dependencies.yml', 'o16n', correlation_guid)
+        try:
+            correlation_guid = str(uuid.uuid4())
+            driver_url = create_snapshot('azureml-project', None, 'driver.py', 'o16n', correlation_guid)
+            score_url = create_snapshot('azureml-share', None, 'score.py', 'o16n', correlation_guid)
+            schema_url = create_snapshot('azureml-share', None, 'service_schema.json', 'o16n', correlation_guid)
+            requirements_url = create_snapshot('azureml-project', 'aml_config', 'requirements.txt', 'o16n', correlation_guid)
+            conda_dependencies_url = create_snapshot('azureml-project', 'aml_config', 'conda_dependencies.yml', 'o16n', correlation_guid)
+        except Exception as e:
+            resp = Response("Missing operationalization assets. " + str(e), status = 400)
+            return resp
+
         payload = {
                     "modelIds": [model_id],
                 	"name": "failure-prediction-manifest",        	
@@ -297,9 +342,10 @@ def operationalization_post_operation(operation):
                 }
                 
         mm_response = model_management.post('manifests', payload)
-        resp = Response(mm_response.text)
+        resp = Response(mm_response.text, status = mm_response.status_code)
         resp.headers['Content-type'] = 'application/json'
         return resp
+
     elif operation == 'createimage':
         manifest_id = request.form["manifestId"]
         
@@ -354,7 +400,7 @@ def operationalization_post_operation(operation):
 
         with open(config_path, 'w') as f:
             f.write(scoring_config)
-        
+
         resp = Response(scoring_config)
         resp.headers['Content-type'] = 'application/json'
         return resp
