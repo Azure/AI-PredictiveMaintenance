@@ -2,6 +2,7 @@ import sys, os, time, glob
 import aztk.models
 import aztk.spark
 import json
+import azure.batch.models as batch_models
 from aztk.spark.models import ClusterConfiguration, UserConfiguration
 from azure.batch.models import BatchErrorException
 from pprint import pprint
@@ -19,7 +20,7 @@ class AztkCluster:
         self.sku_type = sku_type
         self.username = username
         self.password = password
-        BATCH_ACCOUNT_NAME = os.environ['BATCH_ACCOUNT_NAME']
+        self.BATCH_ACCOUNT_NAME = os.environ['BATCH_ACCOUNT_NAME']
         BATCH_ACCOUNT_KEY = os.environ['BATCH_ACCOUNT_KEY']
         BATCH_SERVICE_URL = os.environ['BATCH_ACCOUNT_URL']
         STORAGE_ACCOUNT_SUFFIX = 'core.windows.net'
@@ -30,7 +31,7 @@ class AztkCluster:
 
         self.secrets_confg = aztk.spark.models.SecretsConfiguration(
             shared_key=aztk.models.SharedKeyConfiguration(
-            batch_account_name = BATCH_ACCOUNT_NAME,
+            batch_account_name = self.BATCH_ACCOUNT_NAME,
             batch_account_key = BATCH_ACCOUNT_KEY,
             batch_service_url = BATCH_SERVICE_URL,
             storage_account_name = self.STORAGE_ACCOUNT_NAME,
@@ -82,7 +83,7 @@ class AztkCluster:
         cluster_id = clusterDetails.PartitionKey + str(cluster_number)
 
         modelCustomScript = aztk.models.CustomScript("jupyter", "D:/home/site/wwwroot/flask/spark/customScripts/jupyter.sh","all-nodes")
-        modelFileShare = aztk.models.FileShare(self.STORAGE_ACCOUNT_NAME, self.STORAGE_ACCOUNT_KEY, 'notebooks', '/mnt/notebooks')
+        modelFileShare = aztk.models.FileShare(self.STORAGE_ACCOUNT_NAME, self.STORAGE_ACCOUNT_KEY, 'notebook', '/mnt/notebook')
         # configure my cluster
         cluster_config = aztk.spark.models.ClusterConfiguration(
             docker_repo='aztk/python:spark2.2.0-python3.6.2-base',
@@ -119,13 +120,20 @@ class AztkCluster:
             cluster = client.get_cluster(cluster_id=cluster_id)
             for node in cluster.nodes:
                     remote_login_settings = client.get_remote_login_settings(cluster.id, node.id)
+                    if node.state in [batch_models.ComputeNodeState.unknown, batch_models.ComputeNodeState.unusable, batch_models.ComputeNodeState.start_task_failed]:
+                        errorMsg = "An error occured while starting the Nodes in the batch account " + self.BATCH_ACCOUNT_NAME + ". Details: "
+                        if node.start_task_info.failure_info != None:
+                            errorMsg += node.start_task_info.failure_info.message
+                        clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': ClusterStatus.Failed, 'UserName': self.username,'ClusterNumber': clusterDetails.ClusterNumber,'Message': errorMsg}
+                        self.table_service.insert_or_merge_entity('cluster', clusterDetails)
+                        return clusterDetails
+                                
                     if node.id == cluster.master_node_id:
                         master_ipaddress = remote_login_settings.ip_address
                         master_Port = remote_login_settings.port
                         clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': ClusterStatus.Provisioned, 'Master_Ip_Address': master_ipaddress, 'Master_Port': master_Port, 'UserName': clusterDetails.UserName, 'ClusterNumber': clusterDetails.ClusterNumber}
-                        self.table_service.insert_or_merge_entity('cluster', clusterDetails)
-        
-        except (AztkError, BatchErrorException):            
+                        self.table_service.insert_or_merge_entity('cluster', clusterDetails)            
+        except (AztkError, BatchErrorException):
             clusterDetails = self.table_service.get_entity('cluster', 'predictivemaintenance', 'predictivemaintenance')
 
         return clusterDetails
