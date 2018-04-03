@@ -13,8 +13,6 @@ class ClusterStatus:
     NotCreated, Provisioning, Provisioned, Deleted, Failed, DeletionFailed = range(6)
 
 class AztkCluster:
-
-
     def __init__(self, vm_count = 0, sku_type = 'standard_d2_v2', username = 'admin', password = 'admin'):
         self.vm_count = int(vm_count)
         self.sku_type = sku_type
@@ -26,8 +24,6 @@ class AztkCluster:
         STORAGE_ACCOUNT_SUFFIX = 'core.windows.net'
         self.STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
         self.STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
-        TELEMETRY_CONTAINER_NAME = 'telemetry'
-        IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 
         self.secrets_confg = aztk.spark.models.SecretsConfiguration(
             shared_key=aztk.models.SharedKeyConfiguration(
@@ -54,19 +50,8 @@ class AztkCluster:
 
         SPARK_CONFIG_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), 'spark', 'spark', '.config'))
         SPARK_JARS_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), 'spark','spark', 'jars'))
-        SPARK_APPLICATION_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), 'spark','spark', 'application'))
 
         SPARK_CORE_SITE = os.path.join(SPARK_CONFIG_PATH, 'core-site.xml')
-
-        f = open(SPARK_CORE_SITE,'r')
-        message = f.read()
-        message = message.replace('STORAGE_ACCOUNT_NAME', self.STORAGE_ACCOUNT_NAME)
-        message = message.replace('STORAGE_ACCOUNT_KEY', self.STORAGE_ACCOUNT_KEY)
-        f.close()
-
-        f = open(SPARK_CORE_SITE,'w')
-        f.write(message)
-        f.close()
 
         jars = glob.glob(os.path.join(SPARK_JARS_PATH, '*.jar'))
 
@@ -82,8 +67,9 @@ class AztkCluster:
         cluster_number = int(clusterDetails.ClusterNumber) + 1
         cluster_id = clusterDetails.PartitionKey + str(cluster_number)
 
-        modelCustomScript = aztk.models.CustomScript("jupyter", "D:/home/site/wwwroot/flask/spark/customScripts/jupyter.sh","all-nodes")
-        modelFileShare = aztk.models.FileShare(self.STORAGE_ACCOUNT_NAME, self.STORAGE_ACCOUNT_KEY, 'notebooks', '/mnt/notebooks')
+        jupyterCustomScript = aztk.models.CustomScript("jupyter", "D:/home/site/wwwroot/flask/spark/customScripts/jupyter.sh", "all-nodes")        
+        azuremlProjectFileShare = aztk.models.FileShare(self.STORAGE_ACCOUNT_NAME, self.STORAGE_ACCOUNT_KEY, 'azureml-project', '/mnt/azureml-project')
+        azuremlFileShare = aztk.models.FileShare(self.STORAGE_ACCOUNT_NAME, self.STORAGE_ACCOUNT_KEY, 'azureml-share', '/mnt/azureml-share')
         # configure my cluster
         cluster_config = aztk.spark.models.ClusterConfiguration(
             docker_repo='aztk/python:spark2.2.0-python3.6.2-base',
@@ -91,13 +77,13 @@ class AztkCluster:
             vm_count=self.vm_count,
             # vm_low_pri_count=2, #this and vm_count are mutually exclusive
             vm_size=self.sku_type,
-            custom_scripts=[modelCustomScript],
+            custom_scripts=[jupyterCustomScript],
             spark_configuration=spark_conf,
-            file_shares=[modelFileShare],
+            file_shares=[azuremlProjectFileShare, azuremlFileShare],
             user_configuration=UserConfiguration(
-            username=self.username,
-            password=self.password,
-        )
+                username=self.username,
+                password=self.password,
+            )
         )
         try:
             cluster = client.create_cluster(cluster_config)
@@ -112,7 +98,13 @@ class AztkCluster:
     def getCluster(self):
         # create a client
         client = aztk.spark.Client(self.secrets_confg)
-        clusterDetails = self.table_service.get_entity('cluster', 'predictivemaintenance', 'predictivemaintenance')
+        try:
+            clusterDetails = self.table_service.get_entity('cluster', 'predictivemaintenance', 'predictivemaintenance')
+        except Exception as e:
+            clusterDetails = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': ClusterStatus.NotCreated , 'ClusterNumber': '0'}
+            self.table_service.insert_or_merge_entity('cluster', clusterDetails)
+            return clusterDetails
+        
         cluster_id = clusterDetails.PartitionKey + str(clusterDetails.ClusterNumber)
         if clusterDetails.Status == ClusterStatus.Deleted or clusterDetails.Status == ClusterStatus.NotCreated:
             return clusterDetails

@@ -15,27 +15,25 @@ table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STOR
 
 table_service.create_table('cluster')
 
-asset = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': 0 , 'ClusterNumber': '0'}
-table_service.insert_or_merge_entity('cluster', asset)
-
 file_service = FileService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
-file_service.create_share(share_name='notebooks', quota=1)
+file_service.create_share(share_name='azureml-project', quota=1)
+file_service.create_share(share_name='azureml-share', quota=1)
 
 source=os.environ['AML_ASSETS_URL']
-dest='aml_assets.zip'
+dest='azureml_project.zip'
 
 urllib.request.urlretrieve(source, dest)
 
 with zipfile.ZipFile(dest,"r") as zip_ref:
-    zip_ref.extractall("notebooks")
+    zip_ref.extractall("azureml-project")
 
-for root, dirs, files in os.walk('notebooks', topdown=True):
-    directory = os.path.relpath(root, 'notebooks')
+for root, dirs, files in os.walk('azureml-project', topdown=True):
+    directory = os.path.relpath(root, 'azureml-project')
     if directory != '.':
-        file_service.create_directory('notebooks', directory)
+        file_service.create_directory('azureml-project', directory)
     for f in files:
         file_service.create_file_from_path(
-            'notebooks',
+            'azureml-project',
             directory,
             f,
             os.path.join(root, f))

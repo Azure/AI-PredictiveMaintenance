@@ -100,8 +100,14 @@ EOF
     psql -U 'postgres' -c "CREATE USER hive;ALTER ROLE hive WITH PASSWORD 'mypassword';"
     psql -U 'postgres' -c "CREATE DATABASE hive_metastore;"
     psql -U 'postgres' -c "GRANT ALL PRIVILEGES ON DATABASE hive_metastore TO hive";
+    export AZUREML_NATIVE_SHARE_DIRECTORY='/mnt/azureml-share'
+    export TELEMETRY_STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT_NAME
+    export TELEMETRY_STORAGE_ACCOUNT_KEY=$STORAGE_ACCOUNT_KEY
+    export STAGING_STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT_NAME
+    export STAGING_STORAGE_ACCOUNT_KEY=$STORAGE_ACCOUNT_KEY
+    export TELEMETRY_CONTAINER_NAME='telemetry'
 
     # start jupyter notebook from /mnt - this is where we recommend you put your azure files mount point as well
-    cd /mnt/notebooks
+    cd /mnt/azureml-project/Notebooks
     (PYSPARK_DRIVER_PYTHON=$PYSPARK_DRIVER_PYTHON PYSPARK_DRIVER_PYTHON_OPTS="notebook --no-browser --port=8888 --allow-root" pyspark &)
 fi

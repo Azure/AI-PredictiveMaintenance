@@ -201,12 +201,12 @@ def operationalization_get_operation(operation, id = None):
                         consumedId = scoring_config['id']
                 
 
-            for i in range(len(mm_response_json['value'])):
-                id = mm_response_json['value'][i]['id']
+            for service in mm_response_json['value']:
+                id = service['id']
                 if consumedId == id:
-                    mm_response_json['value'][i]['consumed'] = True
+                    service['consumed'] = True
                 else:
-                    mm_response_json['value'][i]['consumed'] = False
+                    service['consumed'] = False
             
             resp = Response(json.dumps(mm_response_json['value']))
             resp.headers['Content-type'] = 'application/json'
@@ -274,7 +274,7 @@ def operationalization_post_operation(operation):
     operation = operation.lower()
     if operation == 'registermodel':
         try:
-            model_blob_url = create_snapshot('notebooks', None, 'model.tar.gz', 'o16n')
+            model_blob_url = create_snapshot('azureml-share', None, 'model.tar.gz', 'o16n')
         except Exception as e:
             resp = Response("No serialized model found. " + str(e), status = 400)
             return resp
@@ -298,15 +298,15 @@ def operationalization_post_operation(operation):
         # take a snapshots of driver.py, score.py, requirements.txt and conda_dependencies.yml
         try:
             correlation_guid = str(uuid.uuid4())
-            driver_url = create_snapshot('notebooks', None, 'driver.py', 'o16n', correlation_guid)
-            score_url = create_snapshot('notebooks', None, 'score.py', 'o16n', correlation_guid)
-            schema_url = create_snapshot('notebooks', None, 'service_schema.json', 'o16n', correlation_guid)
-            requirements_url = create_snapshot('notebooks', 'aml_config', 'requirements.txt', 'o16n', correlation_guid)
-            conda_dependencies_url = create_snapshot('notebooks', 'aml_config', 'conda_dependencies.yml', 'o16n', correlation_guid)
+            driver_url = create_snapshot('azureml-project', None, 'driver.py', 'o16n', correlation_guid)
+            score_url = create_snapshot('azureml-share', None, 'score.py', 'o16n', correlation_guid)
+            schema_url = create_snapshot('azureml-share', None, 'service_schema.json', 'o16n', correlation_guid)
+            requirements_url = create_snapshot('azureml-project', 'aml_config', 'requirements.txt', 'o16n', correlation_guid)
+            conda_dependencies_url = create_snapshot('azureml-project', 'aml_config', 'conda_dependencies.yml', 'o16n', correlation_guid)
         except Exception as e:
             resp = Response("Model has not been operationalized. " + str(e), status = 400)
             return resp
-           
+
         payload = {
                     "modelIds": [model_id],
                 	"name": "failure-prediction-manifest",        	
