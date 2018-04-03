@@ -304,7 +304,7 @@ def operationalization_post_operation(operation):
             requirements_url = create_snapshot('azureml-project', 'aml_config', 'requirements.txt', 'o16n', correlation_guid)
             conda_dependencies_url = create_snapshot('azureml-project', 'aml_config', 'conda_dependencies.yml', 'o16n', correlation_guid)
         except Exception as e:
-            resp = Response("Model has not been operationalized. " + str(e), status = 400)
+            resp = Response("Missing operationalization assets. " + str(e), status = 400)
             return resp
 
         payload = {
