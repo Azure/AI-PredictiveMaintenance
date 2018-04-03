@@ -52,29 +52,6 @@ if  [ "$IS_MASTER" = "1" ]; then
 }
 EOF
 
-
-    cat << EOF > $SPARK_HOME/conf/hive-site.xml
-<configuration>
-    <property>
-        <name>javax.jdo.option.ConnectionURL</name>
-        <value>jdbc:postgresql://localhost:5432/hive_metastore</value>
-    </property>
-    <property>
-        <name>javax.jdo.option.ConnectionDriverName</name>
-        <value>org.postgresql.Driver</value>
-    </property>
-    <property>
-        <name>javax.jdo.option.ConnectionUserName</name>
-        <value>hive</value>
-    </property>
-    <property>
-        <name>javax.jdo.option.ConnectionPassword</name>
-        <value>mypassword</value>
-    </property>
-</configuration>
-
-EOF
-
     export AZUREML_NATIVE_SHARE_DIRECTORY='/mnt/azureml-share'
     export TELEMETRY_STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT_NAME
     export TELEMETRY_STORAGE_ACCOUNT_KEY=$STORAGE_ACCOUNT_KEY
