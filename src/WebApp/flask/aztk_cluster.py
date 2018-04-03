@@ -83,7 +83,7 @@ class AztkCluster:
         cluster_id = clusterDetails.PartitionKey + str(cluster_number)
 
         modelCustomScript = aztk.models.CustomScript("jupyter", "D:/home/site/wwwroot/flask/spark/customScripts/jupyter.sh","all-nodes")
-        modelFileShare = aztk.models.FileShare(self.STORAGE_ACCOUNT_NAME, self.STORAGE_ACCOUNT_KEY, 'notebook', '/mnt/notebook')
+        modelFileShare = aztk.models.FileShare(self.STORAGE_ACCOUNT_NAME, self.STORAGE_ACCOUNT_KEY, 'notebooks', '/mnt/notebooks')
         # configure my cluster
         cluster_config = aztk.spark.models.ClusterConfiguration(
             docker_repo='aztk/python:spark2.2.0-python3.6.2-base',
