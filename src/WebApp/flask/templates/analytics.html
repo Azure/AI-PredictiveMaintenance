@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block body %}
-    {% if clusterDetails.Status == "Not Created" %}
+    {% if clusterDetails.Status == 0 or  clusterDetails.Status == 4 or clusterDetails.Status == 3 %}
     <form action = "/createCluster" method = "POST">
         <div class="form-group has-feedback">
             <label for="skuType">Sku Type</label>
@@ -37,9 +37,16 @@
         <div>           
             <button type="submit" id="create-project-button" class="btn btn-primary">Create Cluster</button>
         </div>
+        <div>
+            {% if clusterDetails.Status == 4 %}           
+            <small class="text-danger">
+                Cluster Creation Failed : {{clusterDetails.Message}}
+            </small>
+            {% endif %}
+        </div>
     </form>
     {% endif %}
-    {% if clusterDetails.Status == "Provisioning" %}
+    {% if clusterDetails.Status == 1 %}
     <div class="container">
         <div class="row">
             <div class="col-lg-12 text-center">
@@ -49,17 +56,7 @@
         </div>
     </div>
     {% endif %}
-    {% if clusterDetails.Status == "Deleting" %}
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12 text-center">
-                <h1 class="mt-5">Cluster Deletion in progress</h1>
-                <span class="fa fa-spinner fa-spin" id="spinner"></span>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-    {% if clusterDetails.Status == "Provisioned" %}
+    {% if clusterDetails.Status == 2 or clusterDetails.Status == 5%}
     <div>
         <h3>Cluster Information</h3>
         <p>
@@ -87,6 +84,13 @@
         <div>           
             <button type="submit" id="create-project-button" class="btn btn-primary" onclick="return confirm('Are you sure you want to delete the cluster?')">Delete Cluster</button>
         </div>
+        <div>
+            {% if clusterDetails.Status == 5 %}           
+            <small class="text-danger">
+                Cluster creation failed : {{clusterDetails.Message}}
+            </small>
+            {% endif %}
+        </div>
     </form>
     {% endif %}
 {% endblock %}
@@ -94,7 +98,7 @@
 {% block script %}
 <script>
     window.setInterval(function() {
-        if( '{{clusterDetails.Status}}' == 'Provisioning' || '{{clusterDetails.Status}}' == 'Deleting')
+        if( '{{clusterDetails.Status}}' == 1)
         {
             location.reload();
         }
