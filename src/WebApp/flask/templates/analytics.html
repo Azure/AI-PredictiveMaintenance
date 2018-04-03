@@ -38,7 +38,7 @@
             <button type="submit" id="create-project-button" class="btn btn-primary">Create Cluster</button>
         </div>
         <div>
-            {% if clusterDetails.Status == "Failed" %}           
+            {% if clusterDetails.Status == 4 %}           
             <small class="text-danger">
                 Cluster Creation Failed : {{clusterDetails.Message}}
             </small>
