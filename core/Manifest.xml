@@ -10,6 +10,7 @@
     </Owners>
     <ProvisioningSteps>
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
+        <ArmDeployment source="arm/operationalization.json" title="Creating Machine Learning Compute resources" autoResolveParameters="true" />
         <ArmDeployment source="arm/azureBatch.json" title="Creating Azure Batch account" />
         <ActiveDirectoryApplication displayName="PdM" replyUrls="https://{Outputs.webSiteName}.azurewebsites.net/.auth/login/aad/callback" title="Creating Azure Active Directory application">
             <ResourceAccess>
@@ -53,8 +54,7 @@
                 <Parameter name="serviceBusPrimaryConnectionString" defaultValue="{Outputs.serviceBusPrimaryConnectionString}" hidden="true" />
                 <Parameter name="serviceBusQueueName" defaultValue="{Outputs.serviceBusQueueName}" hidden="true" />
             </Parameters>
-        </ArmDeployment>
-        <ArmDeployment source="arm/operationalization.json" title="Creating Machine Learning Compute resources" autoResolveParameters="true" />
+        </ArmDeployment>        
         <Manual title="Done">
           <Instructions src="markdown/Instructions.md" format="markdown" />
         </Manual>
