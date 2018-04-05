@@ -58,35 +58,56 @@
 {% endblock %}
 {% block script %}
 <script>  
+  var yAxisTitleFont = {
+    family: 'Arial, sans-serif',
+    size: 18
+  };
+
+  var xAxisTickFont = {
+    size: 10    
+  };
+  
+  var yAxisTickFont = {
+    size: 8
+  };
+
+
   var layout = {
     title: 'Real-time sensor data',
     autosize: true,    
-    height: 800,    
+    height: 800,
+    showlegend: false, 
     xaxis: {
       type: 'date',
-      fixedrange: true      
+      fixedrange: true,
+      tickfont: xAxisTickFont      
     },
     yaxis: {
+      title: 'Speed (RPM)',
+      titlefont: yAxisTitleFont,
       domain: [0, 0.30],
-      side: 'right',
-      zeroline: false
+      side: 'left',
+      zeroline: false,
+      tickfont: yAxisTickFont
     },
     legend: {
       traceorder: 'reversed'
     },
     yaxis2: {
+      title: 'Temperature (°C)',
+      titlefont: yAxisTitleFont,
       domain: [0.35, 0.65],
-      side: 'right',
+      side: 'left',
       zeroline: false,
-      tickfont: {
-        color: '#A00'
-      }
-
+      tickfont: yAxisTickFont
     },
     yaxis3: {
+      title: 'Pressure (kPa)',
+      titlefont: yAxisTitleFont,
       domain: [0.70, 1],
-      side: 'right',
-      zeroline: false
+      side: 'left',
+      zeroline: false,
+      tickfont: yAxisTickFont
     },
     legend: {
       "orientation": "h", 
@@ -107,7 +128,7 @@
   };
 
   var trace1 = {
-    name: 'Speed (RPM)',
+    name: 'Speed (RPM)',    
     x: [],
     y: [],
     mode: 'lines'

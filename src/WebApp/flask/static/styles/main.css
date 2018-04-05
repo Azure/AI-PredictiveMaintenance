@@ -455,10 +455,6 @@ footer.sticky-footer {
      vertical-align: middle;
 }
 
-#sensor-stream {
-  margin-left: -60px;
-}
-
 #desired-speed-range {
   margin-left: 5px;
   padding-top: 2px;
