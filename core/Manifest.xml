@@ -61,7 +61,7 @@
         </ArmDeployment>
         <ArmDeployment source="arm/operationalization.json" title="Creating Machine Learning Compute resources" autoResolveParameters="true" retriable= "false">
             <Parameters>
-                <VmSku name="agentNodeSize" hidden="true" instanceCount="1" minCores="4">
+                <VmSku name="agentNodeSize" hidden="true" instanceCount="2" minCores="4">
                     <DefaultValue>Standard_D3_v2</DefaultValue>
                 </VmSku>
                 <VmSku name="masterNodeSize" hidden="true" instanceCount="1" usedFor="masterNode" minCores="4">
