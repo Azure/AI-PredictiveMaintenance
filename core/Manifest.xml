@@ -7,7 +7,12 @@
     <Owners>
         <Owner displayname="Andrew Ivanov" email="anivan@microsoft.com"/>
         <Owner displayname="Bolun Huang" email="bohuan@microsoft.com"/>
-    </Owners>
+    </Owners>   
+    <RegisterResourceProviders>
+                <ResourceProvider name = "Microsoft.MachineLearningCompute" resource/>                    
+                <ResourceProvider name = "Microsoft.ContainerRegistry"/>  
+                <ResourceProvider name = "Microsoft.ContainerService"/>  
+    </RegisterResourceProviders>
     <ProvisioningSteps>
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
         <ArmDeployment source="arm/azureBatch.json" title="Creating Azure Batch account" />
@@ -54,7 +59,16 @@
                 <Parameter name="serviceBusQueueName" defaultValue="{Outputs.serviceBusQueueName}" hidden="true" />
             </Parameters>
         </ArmDeployment>
-        <ArmDeployment source="arm/operationalization.json" title="Creating Machine Learning Compute resources" autoResolveParameters="true" />
+        <ArmDeployment source="arm/operationalization.json" title="Creating Machine Learning Compute resources" autoResolveParameters="true" retriable= "false">
+            <Parameters>
+                <VmSku name="agentNodeSize" hidden="true" instanceCount="1" minCores="4">
+                    <DefaultValue>Standard_D3_v2</DefaultValue>
+                </VmSku>
+                <VmSku name="masterNodeSize" hidden="true" instanceCount="1" usedFor="masterNode" minCores="4">
+                    <DefaultValue>Standard_D2_v2</DefaultValue>
+                </VmSku>
+            </Parameters>
+        </ArmDeployment>
         <Manual title="Done">
           <Instructions src="markdown/Instructions.md" format="markdown" />
         </Manual>

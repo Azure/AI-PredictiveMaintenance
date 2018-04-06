@@ -7,6 +7,9 @@
             "metadata": {
                 "description": "AML operationalization cluster name"
             }
+        },
+        "agentNodeSize": {
+            "type": "string"
         }
     },
     "variables": {
@@ -23,7 +26,7 @@
             "containerService": {
                 "masterCount": 1,
                 "agentCount": 2,
-                "agentVmSize": "Standard_D3_v2",
+                "agentVmSize": "[parameters('agentNodeSize')]",
                 "orchestratorType": "Kubernetes"
             }
         }
