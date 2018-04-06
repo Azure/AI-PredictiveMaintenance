@@ -9,7 +9,7 @@
         <Owner displayname="Bolun Huang" email="bohuan@microsoft.com"/>
     </Owners>   
     <RegisterResourceProviders>
-                <ResourceProvider name = "Microsoft.MachineLearningCompute" resource/>                    
+                <ResourceProvider name = "Microsoft.MachineLearningCompute"/>                    
                 <ResourceProvider name = "Microsoft.ContainerRegistry"/>  
                 <ResourceProvider name = "Microsoft.ContainerService"/>  
     </RegisterResourceProviders>
