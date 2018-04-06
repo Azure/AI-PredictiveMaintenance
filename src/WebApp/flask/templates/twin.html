@@ -1,75 +1,134 @@
 {% extends "layout.html" %}
 {% block body %}
   <div class="row">
-    <div class="col-sm-3">
-      <p>
-        <i>Speed: </i> <span id="desired-speed"></span> RPM
-      </p>
-      <form class="form-inline">
-        <div class="form-group">
-          <label for="desired-speed-range"><i>Set speed</i>: </label>
-            <input id="desired-speed-range" type="range" min="60" max="1500">
+    <div class="col-sm-12">
+      <div class="card-group">            
+        <div class="card">
+          <div class="card-body">
+            <div class="btn-group btn-group-toggle pull-right" data-toggle="buttons">
+              <label class="btn btn-light btn-sm active">
+                <input type="radio" name="options" id="autopilot-mode" autocomplete="off" checked> Autopilot
+              </label>        
+              <label class="btn btn-light btn-sm">
+                <input type="radio" name="options" id="manual-mode" autocomplete="off"> Manual
+              </label>
+            </div>            
+            <h6 class="card-title">Speed</h6>
+            <div>
+              <p>
+                <span id="desired-speed"></span> RPM
+              </p>
+            </div>
+            <form class="form-inline">
+              <div class="form-group">
+                <label for="desired-speed-range"><i>Set speed</i>: </label>
+                  <input id="desired-speed-range" type="range" min="60" max="1500">                
+              </div>
+            </form>          
           </div>
         </div>
-      </form>
+        <div class="card">
+          <div class="card-body">
+            <h6 class="card-title">Ambient temperature</h6>
+            <div>
+              <p>
+                <span id="ambient-temperature"></span> °C
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <h6 class="card-title">Ambient pressure</h6>
+            <div>
+              <p>
+                <span id="ambient-pressure"></span> kPa
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>     
+    </div>
   </div>
   <div class="row">
-    <div class="col-lg-11 col-md-11 col-sm-12">
+    <div class="col-lg-8 col-md-12 col-sm-12">
       <div id="sensor-stream"></div>
     </div>
   </div>
-  <div class="row">
-  <div class="col-lg-7">
-    <div id="ambient-sensor-readings">
-      <p>
-        <i>Ambient temperature</i>: <span id="ambient-temperature"></span> °C
-      </p>
-      <p>
-        <i>Ambient pressure</i>: <span id="ambient-pressure"></span> kPa
-      </p>
-    </div>
-  </div>
-  </div>
 {% endblock %}
 {% block script %}
-<script>
+<script>  
+  var yAxisTitleFont = {
+    family: 'Arial, sans-serif',
+    size: 18
+  };
+
+  var xAxisTickFont = {
+    size: 10    
+  };
   
+  var yAxisTickFont = {
+    size: 8
+  };
+
+
   var layout = {
-    title: 'Real-time sensor data',    
+    title: 'Real-time sensor data',
+    autosize: true,    
+    height: 800,
+    showlegend: false, 
     xaxis: {
       type: 'date',
-      fixedrange: true      
+      fixedrange: true,
+      tickfont: xAxisTickFont      
     },
     yaxis: {
-      domain: [0, 0.45],
-      side: 'right',
-      zeroline: false
+      title: 'Speed (RPM)',
+      titlefont: yAxisTitleFont,
+      domain: [0, 0.30],
+      side: 'left',
+      zeroline: false,
+      tickfont: yAxisTickFont
     },
     legend: {
       traceorder: 'reversed'
     },
     yaxis2: {
-      domain: [0.45, 0.75],
-      side: 'right',
+      title: 'Temperature (°C)',
+      titlefont: yAxisTitleFont,
+      domain: [0.35, 0.65],
+      side: 'left',
       zeroline: false,
-      tickfont: {
-        color: '#A00'
-      }
-
+      tickfont: yAxisTickFont
     },
     yaxis3: {
-      domain: [0.75, 1],
-      side: 'right',
-      zeroline: false
+      title: 'Pressure (kPa)',
+      titlefont: yAxisTitleFont,
+      domain: [0.70, 1],
+      side: 'left',
+      zeroline: false,
+      tickfont: yAxisTickFont
     },
     legend: {
       "orientation": "h", 
       y: 100
-    }
+    },
+    xaxis2: {
+      anchor: 'y2',
+      type: 'date',
+      fixedrange: true,
+      showticklabels: false      
+    },
+    xaxis3: {
+      anchor: 'y3',
+      type: 'date',
+      fixedrange: true,
+      showticklabels: false
+    },
   };
 
   var trace1 = {
-    name: 'Speed (RPM)',
+    name: 'Speed (RPM)',    
     x: [],
     y: [],
     mode: 'lines'
@@ -78,7 +137,8 @@
   var trace2 = {
     name: 'Temperature (°C)',
     x: [],
-    y: [],    
+    y: [],
+    xaxis: 'x2',    
     yaxis: 'y2',
     mode: 'lines'
   };
@@ -87,13 +147,14 @@
     name: 'Pressure (kPa)',
     x: [],
     y: [],
+    xaxis: 'x3',
     yaxis: 'y3',
     mode: 'lines'
   };
 
   var data = [trace1, trace2, trace3];
 
-  Plotly.newPlot('sensor-stream', data, layout);
+  Plotly.newPlot('sensor-stream', data, layout, {displayModeBar: false});
 
   function pollLatestData() {
     $.get('/twin/{{device_id}}').done(function(twin) {
@@ -119,7 +180,7 @@
     
       var rangeMin = new Date(time.getTime() - 30000);
     
-      layout.xaxis.range = [rangeMin, time];
+      layout.xaxis.range = layout.xaxis2.range = layout.xaxis3.range = [rangeMin, time];
       Plotly.relayout('sensor-stream', layout);
       
       Plotly.extendTraces('sensor-stream', update, [0, 1, 2]);
