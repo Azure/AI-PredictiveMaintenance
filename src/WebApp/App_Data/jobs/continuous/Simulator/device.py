@@ -46,6 +46,11 @@ class Device:
             'vibration': self.__vibration_sensor.next_sample(self.speed / 60)
         }
 
+        for key in state:
+            value = state[key]
+            if isinstance(value, (int, float)):
+                state[key] = round(value, 2)
+
         return state
 
 if __name__ == '__main__':
