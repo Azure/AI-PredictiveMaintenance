@@ -37,7 +37,7 @@ class Device:
     def next_state(self):
         self.temperature = self.__g(self.temperature, self.ambient_temperature, self.max_temperature, self.speed / 10, 0.01 * self.speed / 1000)
         self.pressure = self.__g(self.pressure, self.ambient_pressure, np.inf, self.speed * self.pressure_factor, 0.3 * self.speed / 1000)
-        state = {        
+        state = {
             'ambient_temperature': self.ambient_temperature,
             'ambient_pressure': self.ambient_pressure,
             'speed': self.speed,

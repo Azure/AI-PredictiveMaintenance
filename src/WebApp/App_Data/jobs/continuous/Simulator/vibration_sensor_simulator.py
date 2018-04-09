@@ -4,7 +4,7 @@ from scipy.interpolate import interp1d
 class VibrationSensorSimulator:
     CUTOFF = 100
 
-    def __init__(self, interval = 1, sample_rate = 8000, W = None, A = None):
+    def __init__(self, interval = 1, sample_rate = 1024, W = None, A = None):
         self.interval = interval
         self.sample_rate = sample_rate
         self.W = W
@@ -72,5 +72,5 @@ if __name__ == '__main__':
     freqs_hz = rpm / 60
 
     samples = [sensor.next_sample(f) for f in freqs_hz]
-    from scipy.io.wavfile import write
-    write('test.wav', 8000, np.concatenate(np.array(samples, dtype=np.int16)))
+    # from scipy.io.wavfile import write
+    # write('test.wav', 8000, np.concatenate(np.array(samples, dtype=np.int16)))
