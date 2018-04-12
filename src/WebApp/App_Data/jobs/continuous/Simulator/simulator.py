@@ -21,9 +21,12 @@ IOT_HUB_DEVICE_KEY = os.environ['IOT_HUB_DEVICE_KEY']
 
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
-def device_driver(device_id):
+def device_driver():
     global digital_twin
     global target_speed
+
+    iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
+    device_id = iot_hub.acquire_device()
     
     iothub_device = IoTHubDevice(IOT_HUB_NAME, device_id, IOT_HUB_DEVICE_KEY)
     target_speed = 0
@@ -38,10 +41,16 @@ def device_driver(device_id):
             properties_json = properties_json['desired']
             spectral_profile = json.loads(properties_json['spectralProfile'])
             pressure_factor = properties_json['pressureFactor']
-            digital_twin = Device(device_id, make='model1', W = spectral_profile['W'], A = spectral_profile['A'])
+            digital_twin = Device(iothub_device.device_id, make='model1', W = spectral_profile['W'], A = spectral_profile['A'])
             digital_twin.pressure_factor = pressure_factor
         if 'speed' in properties_json:
             target_speed = properties_json['speed']
+
+        print (update_state)
+
+    def send_reported_state_callback(status_code, user_context):
+        pass
+        #print (status_code)
 
     iothub_device.client.set_device_twin_callback(device_twin_callback, 0)
 
@@ -69,7 +78,7 @@ def device_driver(device_id):
             'pressure': state['pressure'],
             'ambientTemperature': state['ambient_temperature'],
             'ambientPressure': state['ambient_pressure']
-            })
+            }, send_reported_state_callback)
 
         time_elapsed = time.time() - interval_start
         # print('Cadence: {0}'.format(time_elapsed))
@@ -119,8 +128,8 @@ if __name__ == '__main__':
             iot_hub.update_twin(device.deviceId, json.dumps(twin_properties))
 
     processes = []
-    for device in devices:        
-        processes.append(Process(target=device_driver, args=(device.deviceId, )))
+    for device in devices:
+        processes.append(Process(target=device_driver))
 
     for process in processes:
         process.daemon = True
