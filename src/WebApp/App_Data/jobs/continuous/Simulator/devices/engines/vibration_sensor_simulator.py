@@ -4,7 +4,7 @@ from scipy.interpolate import interp1d
 class VibrationSensorSimulator:
     CUTOFF = 100
 
-    def __init__(self, interval = 1, sample_rate = 8000, W = None, A = None):
+    def __init__(self, interval = 1, sample_rate = 1024, W = None, A = None):
         self.interval = interval
         self.sample_rate = sample_rate
         self.W = W
@@ -48,7 +48,7 @@ class VibrationSensorSimulator:
 
         if self.add_noise:
             a += np.random.normal(0, 0.1, self.__N)
-        
+
         self.__last_cumsum = fi[-1]
         self.base_frequency = self.target_base_frequency
         self.time += 1
@@ -56,10 +56,7 @@ class VibrationSensorSimulator:
         a[a > self.CUTOFF] = self.CUTOFF
         a[a < -self.CUTOFF] = -self.CUTOFF
 
-        # TODO: looks like this conversion also transforms int16 into int32
-        # which results in 2x the size when pickling
-        # by retaining the 16-bit format, IoT hub throughput can be doubled.
-        return np.int16(a / 100 * 32767).tolist()
+        return np.int16(a / 100 * 32767)
 
 if __name__ == '__main__':
     # test code
@@ -67,10 +64,10 @@ if __name__ == '__main__':
     A = (0, 5, 8, 30, 8, 13, 5, 8)
 
     sensor = VibrationSensorSimulator(W = W, A = A)
-    
+
     rpm = np.array([120, 300, 1200, 1500, 1200, 600, 60])
     freqs_hz = rpm / 60
 
     samples = [sensor.next_sample(f) for f in freqs_hz]
-    from scipy.io.wavfile import write
-    write('test.wav', 8000, np.concatenate(np.array(samples, dtype=np.int16)))
+    # from scipy.io.wavfile import write
+    # write('test.wav', 8000, np.concatenate(np.array(samples, dtype=np.int16)))

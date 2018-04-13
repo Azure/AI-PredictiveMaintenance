@@ -1,15 +1,14 @@
 import numpy as np
 import random
 from datetime import date
-from vibration_sensor_simulator import VibrationSensorSimulator
+from .vibration_sensor_simulator import VibrationSensorSimulator
 
 class Device:
     ambient_temperature = 20 # degrees Celsius
     max_temperature = 120
     ambient_pressure = 101 # kPa
 
-    def __init__(self, device_id, make = 'model1', manufacturing_date = date(2015, 1, 1), W = None, A = None):
-        self.device_id = device_id
+    def __init__(self, W = None, A = None):
         self.speed = 0
         self.temperature = Device.ambient_temperature
         self.pressure = Device.ambient_pressure
@@ -17,10 +16,6 @@ class Device:
         self.A = A
         self.t = 0
         self.pressure_factor = 2
-
-        self.manufacturing_date = manufacturing_date
-        self.make = make
-        
         self.__vibration_sensor = VibrationSensorSimulator(W = self.W, A = self.A)
         self.__vibration_sensor.add_noise = True
 
@@ -37,7 +32,7 @@ class Device:
     def next_state(self):
         self.temperature = self.__g(self.temperature, self.ambient_temperature, self.max_temperature, self.speed / 10, 0.01 * self.speed / 1000)
         self.pressure = self.__g(self.pressure, self.ambient_pressure, np.inf, self.speed * self.pressure_factor, 0.3 * self.speed / 1000)
-        state = {        
+        state = {
             'ambient_temperature': self.ambient_temperature,
             'ambient_pressure': self.ambient_pressure,
             'speed': self.speed,
@@ -45,6 +40,11 @@ class Device:
             'pressure': self.pressure,
             'vibration': self.__vibration_sensor.next_sample(self.speed / 60)
         }
+
+        for key in state:
+            value = state[key]
+            if isinstance(value, (int, float)):
+                state[key] = round(value, 2)
 
         return state
 

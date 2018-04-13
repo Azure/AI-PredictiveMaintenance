@@ -4,6 +4,7 @@ import requests
 import json
 import uuid
 import json
+import random
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import Flask, render_template, Response, request,  redirect, url_for
@@ -57,7 +58,47 @@ def telemetry():
     devices = iot_hub.get_device_list()
     devices.sort(key = lambda x: x.deviceId)
     return render_template('telemetry.html', assets = devices)
+
+@app.route('/createDevices', methods=['POST'])
+@login_required
+def create_devices():
+    iot_hub = IoTHub(os.environ['IOT_HUB_NAME'], os.environ['IOT_HUB_OWNER_KEY'])
+    iot_device_count = 10
+
+    devices = []
+    for i in range(iot_device_count):
+        device_id = 'MACHINE-{0:03d}'.format(i)
+        device = iot_hub.create_device(device_id)
+        devices.append(device)
+
+    rotor_imbalance_device_id = devices[-1].deviceId
+    low_pressure_device_id = devices[-2].deviceId
+
+    def failure_onset(device_id):
+        if device_id == rotor_imbalance_device_id:
+            return 'F01'
+        if device_id == low_pressure_device_id:
+            return 'F02'
+        return None
+
+    for device in devices:
+        twin_properties = {
+            'tags': {
+                'simulated': True,
+                'simulator': 'devices.engines.Engine'
+            },
+            'properties': {
+                'desired': {
+                    'speed': random.randint(600, 1500),
+                    'failureOnset': failure_onset(device.deviceId)
+                }
+            }
+        }
+
+        iot_hub.update_twin(device.deviceId, json.dumps(twin_properties))
     
+    return redirect(url_for('telemetry'))
+
 def view_asset_dlc(*args, **kwargs):
     device_id = request.view_args['device_id']
     return [
