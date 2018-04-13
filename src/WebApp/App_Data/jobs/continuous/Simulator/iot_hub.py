@@ -116,6 +116,12 @@ class IoTHub:
             else:
                 twin_tags = twin_data_json['tags']
 
+            if 'simulated' not in twin_tags or not twin_tags['simulated']:
+                continue
+            
+            if 'simulator' not in twin_tags:
+                continue
+
             current_time = datetime.datetime.now().replace(tzinfo=None)
 
             if '_claim' in twin_tags:

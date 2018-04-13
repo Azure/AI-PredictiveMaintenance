@@ -20,54 +20,6 @@ IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 IOT_HUB_OWNER_KEY = os.environ['IOT_HUB_OWNER_KEY']
 IOT_HUB_DEVICE_KEY = os.environ['IOT_HUB_DEVICE_KEY']
 
-
-"""
-simulator
-
-
-def pr():
-    iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
-
-    devices = iot_hub.get_device_list()
-
-    if len(devices) == 0:
-        devices = []
-        for i in range(iot_device_count):
-            device_id = 'MACHINE-{0:03d}'.format(i)
-            device = iot_hub.create_device(device_id)
-            devices.append(device)
-
-    healthy_spectral_profile = {
-        'W': [1, 2, 3, 4, 5, 12, 15],
-        'A': [5, 8, 2/3, 9, 8, 13, 5]
-    }
-
-    rotor_imbalance_speactral_profile = {
-        'W': [1/2, 1, 2, 3, 5, 7, 12, 18],
-        'A': [1, 5, 80, 2/3, 8, 2, 14, 50]
-    }
-
-    rotor_imbalance_device_id = devices[-1].deviceId
-    low_pressure_device_id = devices[-2].deviceId
-
-    for device in devices:
-        twin_data = iot_hub.get_device_twin(device.deviceId)
-        twin_data_json = json.loads(twin_data)
-        twin_properties = twin_data_json['properties']
-        if 'speed' not in twin_properties['desired']:
-            twin_properties = {
-                'properties': {
-                    'desired': {
-                        'speed': random.randint(600, 1500),
-                        'spectralProfile': json.dumps(healthy_spectral_profile if device.deviceId != rotor_imbalance_device_id else rotor_imbalance_speactral_profile),
-                        'pressureFactor': 2 if device.deviceId != low_pressure_device_id else 1.5
-                    }
-                }
-            }
-
-            iot_hub.update_twin(device.deviceId, json.dumps(twin_properties))
-"""
-
 def device_driver():
     driver_unique_id = str(uuid.uuid4())
 
@@ -85,10 +37,11 @@ def device_driver():
     def send_telemetry(data):
         iothub_device.send_message(data)
 
-    device_simulator = SimulatorFactory.create('devices.engines.Engine', report_state, send_telemetry, device_twin)
+    device_simulator = SimulatorFactory.create('devices.engines.Engine', report_state, send_telemetry)
+    device_simulator.initialize(device_twin_json)
 
     def device_twin_callback(update_state, payload, user_context):
-        device_simulator.on_update(update_state, payload)
+        device_simulator.on_update(update_state, json.loads(payload))
 
     iothub_device.client.set_device_twin_callback(device_twin_callback, 0)
 

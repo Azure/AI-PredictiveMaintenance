@@ -2,13 +2,18 @@ import importlib
 from abc import ABC, abstractmethod
 
 class SimulatedDevice(ABC):
-    def __init__(self, report_state_function, send_telemetry_function, properties):
+    def __init__(self, report_state_function, send_telemetry_function):
         self.__report_state = report_state_function
         self.__send_telemetry = send_telemetry_function
-        self.__properties = properties
 
+    def report_state(self, state):
+        self.__report_state(state)
+
+    def send_telemetry(self, data):
+        self.__send_telemetry(data)
+    
     @abstractmethod
-    def initialize(self):
+    def initialize(self, device_info):
         pass
 
     @abstractmethod
