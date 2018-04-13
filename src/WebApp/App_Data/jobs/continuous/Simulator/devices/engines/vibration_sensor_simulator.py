@@ -48,7 +48,7 @@ class VibrationSensorSimulator:
 
         if self.add_noise:
             a += np.random.normal(0, 0.1, self.__N)
-        
+
         self.__last_cumsum = fi[-1]
         self.base_frequency = self.target_base_frequency
         self.time += 1
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     A = (0, 5, 8, 30, 8, 13, 5, 8)
 
     sensor = VibrationSensorSimulator(W = W, A = A)
-    
+
     rpm = np.array([120, 300, 1200, 1500, 1200, 600, 60])
     freqs_hz = rpm / 60
 

@@ -22,7 +22,7 @@ class IoTHub:
         self.registry_manager = IoTHubRegistryManager(self.owner_connection_string)
         self.device_twin = IoTHubDeviceTwin(self.owner_connection_string)
         self.__device_clients = {}
-    
+
     def create_device(self, device_id, primary_key = '', secondary_key = ''):
         return self.registry_manager.create_device(device_id, primary_key, secondary_key, IoTHubRegistryManagerAuthMethod.SHARED_PRIVATE_KEY)
 
@@ -38,7 +38,7 @@ class IoTHub:
         ttl = time() + expiry
         uri = '{0}/devices/{1}'.format(self.iothub_host, device_id)
         sign_key = "%s\n%d" % ((quote_plus(uri)), int(ttl))
-        
+
         signature = b64encode(HMAC(b64decode(key), sign_key.encode('utf-8'), sha256).digest())
 
         rawtoken = {
@@ -46,7 +46,7 @@ class IoTHub:
             'sig': signature,
             'se' : str(int(ttl))
         }
-        
+
         rawtoken['skn'] = policy
 
         sas = 'SharedAccessSignature ' + urlencode(rawtoken)
@@ -62,7 +62,7 @@ class IoTHub:
 
             SDK equivalent:
             return self.device_twin.update_twin(device_id, payload)
-        """        
+        """
         twin_url = 'https://{0}/twins/{1}?api-version=2017-06-30'.format(self.iothub_host, device_id)
         sas_token = self.__get_sas_token(device_id, self.owner_key, 'iothubowner')
         headers = {
@@ -88,13 +88,13 @@ class IoTHub:
 
         return r.text
 
-    def claim_device(self, client_id):        
+    def claim_device(self, client_id):
         while True:
             claimed_device = self.try_claim_device(client_id)
             if claimed_device:
                 return claimed_device
             sleep(5)
-            
+
     def try_claim_device(self, client_id):
         devices = self.get_device_list()
         random.shuffle(devices)
@@ -118,14 +118,14 @@ class IoTHub:
 
             current_time = datetime.datetime.now().replace(tzinfo=None)
 
-            if '_simulator' in twin_tags:
-                simulator_data = twin_tags['_simulator']
-                if 'lastClaimed' in simulator_data:                
+            if '_claim' in twin_tags:
+                simulator_data = twin_tags['_claim']
+                if 'lastClaimed' in simulator_data:
                     last_claimed = dateutil.parser.parse(simulator_data['lastClaimed']).replace(tzinfo=None)
                     if (current_time - last_claimed).total_seconds() < 30:
                         continue
-            
-            twin_tags['_simulator'] = {
+
+            twin_tags['_claim'] = {
                 'clientId': client_id,
                 'lastClaimed': current_time.isoformat()
             }
@@ -146,7 +146,7 @@ class IoTHubDevice:
         device_connection_string = 'HostName={0}{1};DeviceId={2};SharedAccessKey={3}'.format(
             iothub_name, suffix, device_id, device_key
         )
-        self.client = IoTHubClient(device_connection_string, IoTHubTransportProvider.MQTT) # HTTP, AMQP, MQTT ?         
+        self.client = IoTHubClient(device_connection_string, IoTHubTransportProvider.MQTT) # HTTP, AMQP, MQTT ?
 
     def send_message(self, message):
         m = IoTHubMessage(message) # string or bytearray
@@ -155,9 +155,9 @@ class IoTHubDevice:
     def send_reported_state(self, state, send_reported_state_callback = None, user_context = None):
         if send_reported_state_callback is None:
             send_reported_state_callback = IoTHubDevice.__dummy_send_reported_state_callback
-        state_json = json.dumps(state)        
+        state_json = json.dumps(state)
         self.client.send_reported_state(state_json, len(state_json), send_reported_state_callback, user_context)
-    
+
     @staticmethod
     def __dummy_send_confirmation_callback(message, result, user_context):
         pass
@@ -167,6 +167,6 @@ class IoTHubDevice:
     def __dummy_send_reported_state_callback(status_code, user_context):
         pass
         # print(status_code)
-        
+
 if __name__ == '__main__':
     pass
