@@ -8,17 +8,21 @@ class Engine(SimulatedDevice):
     def initialize(self, device_info):
         properties_desired = device_info['properties']['desired']
 
+        spectral_profile = {
+            'W': [1, 2, 3, 4, 5, 12, 15],
+            'A': [5, 8, 2/3, 9, 8, 13, 5]
+        }
+        pressure_factor = 2
+
         if 'failureOnset' not in properties_desired:
+            pass
+        elif properties_desired['failureOnset'] == 'F01':
             spectral_profile = {
-                'W': [1, 2, 3, 4, 5, 12, 15],
-                'A': [5, 8, 2/3, 9, 8, 13, 5]
+                'W': [1/2, 1, 2, 3, 5, 7, 12, 18],
+                'A': [1, 5, 80, 2/3, 8, 2, 14, 50]
             }
-            pressure_factor = 2
-            
-        # rotor_imbalance_speactral_profile = {
-        #     'W': [1/2, 1, 2, 3, 5, 7, 12, 18],
-        #     'A': [1, 5, 80, 2/3, 8, 2, 14, 50]
-        # }        
+        elif properties_desired['failureOnset'] == 'F02':
+            pressure_factor = 1.5
         
         self.target_speed = properties_desired['speed']
         self.digital_twin = Device(W = spectral_profile['W'], A = spectral_profile['A'])

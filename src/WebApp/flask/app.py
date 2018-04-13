@@ -74,6 +74,13 @@ def create_devices():
     rotor_imbalance_device_id = devices[-1].deviceId
     low_pressure_device_id = devices[-2].deviceId
 
+    def failure_onset(device_id):
+        if device_id == rotor_imbalance_device_id:
+            return 'F01'
+        if device_id == low_pressure_device_id:
+            return 'F02'
+        return None
+
     for device in devices:
         twin_properties = {
             'tags': {
@@ -82,7 +89,8 @@ def create_devices():
             },
             'properties': {
                 'desired': {
-                    'speed': random.randint(600, 1500)
+                    'speed': random.randint(600, 1500),
+                    'failureOnset': failure_onset(device.deviceId)
                 }
             }
         }
