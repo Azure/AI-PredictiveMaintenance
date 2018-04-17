@@ -6,6 +6,7 @@ import re
 import os
 import sys
 import datetime
+import numpy as np
 from azure.servicebus import ServiceBusService, Message, Queue
 from multiprocessing.dummy import Queue, Process
 from azure.storage.table import TableService, Entity, TablePermissions
@@ -23,6 +24,8 @@ def preprocess_telemetry_entity(telemetry_entity):
     for k in telemetry_entity:
         if type(telemetry_entity[k]) is int:
             telemetry_entity[k] = float(telemetry_entity[k])
+        if isinstance(telemetry_entity[k], np.ndarray):
+            telemetry_entity[k] = telemetry_entity[k].tolist()
 
 def poll_service_bus(sb_connection_string, sb_queue_name, queue):
     SERVICE_NAMESPACE, SHARED_ACCESS_KEY_NAME, SHARED_ACCESS_KEY_VALUE = parse_connection_string(sb_connection_string)
@@ -51,7 +54,7 @@ def poll_service_bus(sb_connection_string, sb_queue_name, queue):
 def write_scores(predictions_queue, storage_account_name, storage_account_key):
     table_service = TableService(account_name=storage_account_name, account_key=storage_account_key)
     table_service.create_table('predictions')
-    
+
     aggregate_predictions = {}
 
     while True:
@@ -70,9 +73,9 @@ def write_scores(predictions_queue, storage_account_name, storage_account_key):
             aggregate_predictions[stripped_datetime][device_id][prediction] = 0
 
         aggregate_predictions[stripped_datetime][device_id][prediction] += 1
-        
+
         if len(aggregate_predictions) < 2:
-            continue 
+            continue
 
         timestamps = list(aggregate_predictions.keys())
         timestamps.sort()
@@ -92,7 +95,7 @@ def write_scores(predictions_queue, storage_account_name, storage_account_key):
             # TODO: implement optimistic concurrency and merge to run this truly at scale.
             # For now, simply inserting the record...
             table_service.insert_entity('predictions', entity)
-        
+
         del aggregate_predictions[oldest_timestamp]
 
 def score(telemetry_queue, predictions_queue):
@@ -127,7 +130,7 @@ def score(telemetry_queue, predictions_queue):
         }
 
         response = requests.post(scoring_uri, headers = headers, json = json_payload)
-        
+
         if response.status_code == 200:
             for prediction in zip(timestamps, device_ids, response.json()):
                 predictions_queue.put(prediction)
@@ -158,7 +161,7 @@ if __name__ == '__main__':
     service_bus_queue_name = os.environ['SERVICE_BUS_QUEUE_NAME']
     storage_account_name = os.environ['STORAGE_ACCOUNT_NAME']
     storage_account_key = os.environ['STORAGE_ACCOUNT_KEY']
-    
+
     processes = [
         Process(target=poll_service_bus, args=(service_bus_connection_string, service_bus_queue_name, telemetry_queue)),
         Process(target=score, args=(telemetry_queue, predictions_queue)),
@@ -170,7 +173,7 @@ if __name__ == '__main__':
     for process in processes:
         process.daemon = True
         process.start()
-    
+
     # producer.join()
     # bus_service.receive_queue_message doesn't handle the KeyboardInterrupt well and hangs forever...
     while all(map(lambda c: c.is_alive(), processes)):
