@@ -149,10 +149,7 @@
           "name": "python364x64",          
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [
-            "[variables('web-site-id')]",
-            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/config/appsettings')]",
-            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/config/web')]",
-            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/config/logs')]"
+            "[variables('web-site-id')]"
           ],
           "properties": { }
         },        
@@ -194,7 +191,8 @@
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [ 
             "[variables('web-site-id')]",
-            "[variables('storageResourceId')]"
+            "[variables('storageResourceId')]",
+            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/siteextensions/python364x64')]"
           ],
           "properties": {
             "STORAGE_ACCOUNT_NAME": "[variables('storageAccountName')]",
