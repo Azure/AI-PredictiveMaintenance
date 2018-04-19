@@ -367,7 +367,7 @@ def operationalization_post_operation(operation):
                 		"unpack": False
                 	},
                     {
-                		"id": "featurization_url",
+                		"id": "featurization",
                 		"mimeType": "application/x-python",
                 		"url": featurization_url,
                 		"unpack": False
