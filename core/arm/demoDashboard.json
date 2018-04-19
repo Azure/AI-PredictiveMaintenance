@@ -79,13 +79,22 @@
       "metadata": {
           "description": "Service Bus queue name"
       }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+          "description": "Storage account name"
+      }
+    },
+    "storageAccountKey": {
+      "type": "string",
+      "metadata": {
+          "description": "Storage account key"
+      }
     }
   },
   "variables": {
     "uniqueString": "[uniqueString(resourceGroup().id)]",
-    "storageAccountName": "[concat('stg', variables('uniqueString'))]",
-    "storageResourceId": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
-    "storageVersion": "2017-06-01",
     "web-farm-version": "2016-09-01",
     "web-site-version": "2016-08-01",
     "unique": "[uniqueString(resourceGroup().id)]",
@@ -96,34 +105,6 @@
     "web-site-id": "[resourceId('Microsoft.Web/sites', variables('web-site-name'))]"
   },
   "resources": [
-    {
-      "type": "Microsoft.Storage/storageAccounts",
-      "sku": {
-          "name": "Standard_LRS",
-          "tier": "Standard"
-      },
-      "kind": "Storage",
-      "name": "[variables('storageAccountName')]",
-      "apiVersion": "[variables('storageVersion')]",
-      "location": "[resourceGroup().location]",
-      "tags": {},
-      "scale": null,
-      "properties": {
-          "supportsHttpsTrafficOnly": false,
-          "encryption": {
-              "services": {
-                  "file": {
-                      "enabled": true
-                  },
-                  "blob": {
-                      "enabled": true
-                  }
-              },
-              "keySource": "Microsoft.Storage"
-          }
-      },
-      "dependsOn": []
-    },
     {
       "type": "Microsoft.Web/serverfarms",
       "name": "[variables('web-farm-name')]",
@@ -191,12 +172,11 @@
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [
             "[variables('web-site-id')]",
-            "[variables('storageResourceId')]",
             "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/extensions/MSDeploy')]"
           ],
           "properties": {
-            "STORAGE_ACCOUNT_NAME": "[variables('storageAccountName')]",
-            "STORAGE_ACCOUNT_KEY": "[listKeys(variables('storageResourceId'), variables('storageVersion')).keys[0].value]",
+            "STORAGE_ACCOUNT_NAME": "[parameters('storageAccountName')]",
+            "STORAGE_ACCOUNT_KEY": "[parameters('storageAccountKey')]",
             "IOT_HUB_NAME": "[parameters('iotHubName')]",
             "IOT_HUB_OWNER_KEY": "[parameters('iotHubOwnerKey')]",
             "IOT_HUB_DEVICE_KEY": "[parameters('iotHubDeviceKey')]",
@@ -233,7 +213,7 @@
       "properties": {
           "mode": "Incremental",
           "templateLink": {
-              "uri": "[concat('https://', reference(variables('web-site-name')).hostNames[0], '/setup.js?arm=1')]",
+              "uri": "[concat('https://', reference(variables('web-site-name')).hostNames[0], '/setup.js?sn=', parameters('storageAccountName'), '&sk=', uriComponent(parameters('storageAccountKey')))]",
               "contentVersion": "1.0.0.0"
           },
           "parameters":  {}
@@ -245,14 +225,6 @@
     }
   ],
   "outputs": {
-    "storageAccountName": {
-      "type": "string",
-      "value": "[variables('storageAccountName')]"
-    },
-    "storageAccountKey": {
-      "type": "string",
-      "value": "[listKeys(variables('storageResourceId'), variables('storageVersion')).keys[0].value]"
-    },
     "webfarm": {
       "value": "[reference(variables('web-farm-name'))]",
       "type" : "object"

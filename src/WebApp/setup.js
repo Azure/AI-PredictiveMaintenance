@@ -1,16 +1,23 @@
 var http = require('http')
     fs = require('fs'),
-    path = require('path');
+    path = require('path'),
+    url = require('url');
 
 var initialSetupMarkerFilePath = 'D:\\home\\site\\wwwroot\\.setup';
 var fullSetupMarkerFilePath = 'D:\\home\\site\\wwwroot\\READY';
 var templateProvisioningInProgress = 'D:\\home\\site\\wwwroot\\setup.html';
 
 http.createServer(function (req, res) {
+    var url_parts = url.parse(req.url, true);
+    var query = url_parts.query;
+
+    var storageAccountName = query.sn;
+    var storageAccountKey = query.sk;
+
     function setupInitial(firstAttempt)
     {
         function end() {
-            res.end(fs.readFileSync(path.join(__dirname, 'blankArmTemplate.json')));          
+            res.end(fs.readFileSync(path.join(__dirname, 'blankArmTemplate.json')));
         }
 
         if (!firstAttempt) {
@@ -18,8 +25,8 @@ http.createServer(function (req, res) {
             return;
         }
 
-        var spawn = require("child_process").spawn;  
-        child = spawn("powershell.exe", [path.join(__dirname, 'setup.ps1')]);
+        var spawn = require("child_process").spawn;
+        child = spawn("powershell.exe", [path.join(__dirname, 'setup.ps1'), '-storageAccountName', storageAccountName, '-storageAccountKey', storageAccountKey]);
         child.stdout.on("data",function(data) {
             console.log("Powershell Data: " + data);
         });
@@ -28,20 +35,19 @@ http.createServer(function (req, res) {
         });
         child.on("exit",function() {
             res.writeHead(200, { 'Content-Type': 'text/html' });
-            
+
             fs.writeFile(initialSetupMarkerFilePath, '', function(err) {
-                if (err) {                    
+                if (err) {
                     res.end('ouch!'); // this would result in a deployment failure and should never happen.
-                } else {               
+                } else {
                     end();
                 }
             });
         });
     }
-    
+
     fs.readFile(initialSetupMarkerFilePath, function(err) {
-        if (req.url.indexOf('arm') > -1) {
-            // marker file doesn't exist?
+        if (storageAccountName && storageAccountKey) {
             setupInitial(err);
         } else {
             fs.readFile(fullSetupMarkerFilePath, function(err) {
@@ -53,11 +59,11 @@ http.createServer(function (req, res) {
                     });
                 } else {
                     res.writeHead(302, {
-                        'Location': '/'        
+                        'Location': '/'
                     });
                     res.end();
                 }
-            });            
+            });
         }
-    });    
+    });
 }).listen(process.env.PORT);

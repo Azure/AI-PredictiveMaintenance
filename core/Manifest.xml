@@ -5,16 +5,16 @@
     <Description>Your equipment will thank you.</Description>
     <EstimatedTime>20 Minutes</EstimatedTime>
     <LocationsToExclude>
-        <Location>West Central US</Location> 
+        <Location>West Central US</Location>
     </LocationsToExclude>
     <Owners>
         <Owner displayname="Andrew Ivanov" email="anivan@microsoft.com"/>
         <Owner displayname="Bolun Huang" email="bohuan@microsoft.com"/>
-    </Owners>   
+    </Owners>
     <RegisterResourceProviders>
-                <ResourceProvider name = "Microsoft.MachineLearningCompute"/>                    
-                <ResourceProvider name = "Microsoft.ContainerRegistry"/>  
-                <ResourceProvider name = "Microsoft.ContainerService"/>  
+                <ResourceProvider name = "Microsoft.MachineLearningCompute"/>
+                <ResourceProvider name = "Microsoft.ContainerRegistry"/>
+                <ResourceProvider name = "Microsoft.ContainerService"/>
     </RegisterResourceProviders>
     <ProvisioningSteps>
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
@@ -29,11 +29,11 @@
                 </ResourceApp>
                 <!-- Windows Azure Service Management API -->
                 <ResourceApp id="797f4846-ba00-4fd7-ba43-dac1f8f63013">
-                    <Permissions> 
+                    <Permissions>
                         <Permission id="41094075-9dad-400e-a0bd-54e686782033" type= "Scope"/>
-                    </Permissions> 
-                </ResourceApp> 
-            </ResourceAccess> 
+                    </Permissions>
+                </ResourceApp>
+            </ResourceAccess>
         </ActiveDirectoryApplication>
         <ArmDeployment source="arm/iotHub.json" title="Creating IoT Hub" />
         <ArmDeployment source="arm/modelManagement.json" title="Creating Machine Learning Model Management account" />
@@ -42,7 +42,8 @@
                 <ResourceType>Microsoft.Resources/deployments</ResourceType>
             </LocationProvidedFor>
         </ArmDeployment>
-        <ArmDeployment source="arm/demoDashboard.json" title="Setting up Azure Storage account and Demo Dashboard" autoResolveParameters="true">
+        <ArmDeployment source="arm/storageAccount.json" title="Creating storage account" />
+        <ArmDeployment source="arm/demoDashboard.json" title="Deploying and setting up Demo Dashboard" autoResolveParameters="true">
             <LocationProvidedFor>
                 <ResourceType>Microsoft.Resources/deployments</ResourceType>
             </LocationProvidedFor>
