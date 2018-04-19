@@ -149,7 +149,7 @@
           "name": "python364x64",          
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [
-            "[variables('web-site-id')]",
+            "[variables('web-site-id')]"
           ],
           "properties": { }
         },        
@@ -159,7 +159,7 @@
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [
             "[variables('web-site-id')]",
-            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/siteextensions/python364x64')]"
+            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/config/appsettings')]"
           ],
           "properties": {
             "use32BitWorkerProcess": false,
@@ -172,7 +172,7 @@
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [ 
             "[variables('web-site-id')]",
-            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/siteextensions/python364x64')]"
+            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/config/appsettings')]"
           ],
           "properties": {
             "applicationLogs": {
