@@ -355,36 +355,36 @@ def operationalization_post_operation(operation):
                 	"description": "Failure prediction manifest",
                 	"driverProgram": "driver",
                 	"assets": [{
-                		"id": "driver",
-                		"mimeType": "application/x-python",
-                		"url": driver_url,
-                		"unpack": False
-                	},
+                        "id": "driver",
+                        "mimeType": "application/x-python",
+                        "url": driver_url,
+                        "unpack": False
+                    },
                     {
-                		"id": "score",
-                		"mimeType": "application/x-python",
-                		"url": score_url,
-                		"unpack": False
-                	},
+                        "id": "score",
+                        "mimeType": "application/x-python",
+                        "url": score_url,
+                        "unpack": False
+                    },
                     {
-                		"id": "featurization",
-                		"mimeType": "application/x-python",
-                		"url": featurization_url,
-                		"unpack": False
-                	},
+                        "id": "featurization",
+                        "mimeType": "application/x-python",
+                        "url": featurization_url,
+                        "unpack": False
+                    },
                     {
-                		"id": "schema",
-                		"mimeType": "application/json",
-                		"url": schema_url,
-                		"unpack": False
-                	}],
+                        "id": "schema",
+                        "mimeType": "application/json",
+                        "url": schema_url,
+                        "unpack": False
+                    }],
                 	"targetRuntime": {
-                		"runtimeType": "SparkPython",
-                		"properties": {
-                			"pipRequirements": requirements_url,
+                        "runtimeType": "SparkPython",
+                        "properties": {
+                            "pipRequirements": requirements_url,
                             "condaEnvFile": conda_dependencies_url
-                		}
-                	},
+                        }
+                    },
                 	"webserviceType": "Realtime",
                     "modelType": "Registered"
                 }
