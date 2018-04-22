@@ -54,7 +54,6 @@ def home():
 @login_required
 def telemetry():
     iot_hub = IoTHub(os.environ['IOT_HUB_NAME'], os.environ['IOT_HUB_OWNER_KEY'])
-    assets = table_service.query_entities('equipment')
     devices = iot_hub.get_device_list()
     devices.sort(key = lambda x: x.deviceId)
     return render_template('telemetry.html', assets = devices)
