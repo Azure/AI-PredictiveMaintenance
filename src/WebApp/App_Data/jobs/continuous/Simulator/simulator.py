@@ -41,7 +41,7 @@ def device_driver():
     device_simulator.initialize(device_twin_json)
 
     def device_twin_callback(update_state, payload, user_context):
-        device_simulator.on_update(update_state, json.loads(payload))
+        device_simulator.on_update(str(update_state), json.loads(payload))
 
     iothub_device.client.set_device_twin_callback(device_twin_callback, 0)
 

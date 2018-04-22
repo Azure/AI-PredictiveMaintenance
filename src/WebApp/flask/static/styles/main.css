@@ -459,3 +459,11 @@ footer.sticky-footer {
   margin-left: 5px;
   padding-top: 2px;
 }
+
+#sensor-cards .card-body {
+  padding: 0.25rem;
+}
+
+#set-speed-form {
+  margin-bottom: 0;
+}
