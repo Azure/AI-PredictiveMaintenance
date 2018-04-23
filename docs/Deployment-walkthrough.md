@@ -94,33 +94,3 @@ Provide a service name here, and then click on Create. This quickly creates a se
 ![Deploy_18](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/deploy_18.png)
 
 #### Please send your questions, feedback, comments to ciqsoncall@microsoft.com
-
-## Resource Consumption
-
-**Estimated Daily Cost:** $20 per day
-
-List of Azure services in this solution template deployment:
-
-![Resources](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/Resources.png)
-
-## Advanced Topics
-
-### Data Science behind the Failure Prediction solution
-
-### Problem Statement
-The problem here is to predict the failure of a device, indicating the type of failure, along with the probability (chance) of its occurrence, over the next N days, given a set of _predictor variables_ such as temperature, pressure, etc over time.
-
-Stated in modeling terms, this is a _multi-class classification_ problem that _classifies_ the target variable _failure_ to one of the different failure types, called _classes_. From the [recommended set of algorithms](https://docs.microsoft.com/en-us/azure/machine-learning/studio/algorithm-cheat-sheet), we choose the one that affords accuracy and speed of model creation, namely, _multi-class decision forest_.
-
-### Data Preparation
-
-### Model Creation
-
-### Model Testing
-
-### Model Validation
-
-### Architecture of the Failure Prediction solution
-
-## Related Work
-There is rich content on predictive maintenance in both Microsoft and external websites. But most of them are experiments or tutorials to prove just one small aspect of the end to end solution, which can frustrate or confuse a user or solution architect trying to quickly bootstrap a Microsoft solution on proven, state of the art products. This template will be extended to provide a means for these contributor to upgrade and roll in their solutions into this template, and retire their old templates.
