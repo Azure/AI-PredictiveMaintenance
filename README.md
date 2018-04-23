@@ -33,7 +33,7 @@ The daily cost of running this solution template in its default configuration is
 ## Solution Template
 The rest of the content is organized as follows:
 
-- [Step by Step Deployment Walkthrough](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Deployment-Walkthrough.md)
+- [Step by Step Deployment Walkthrough](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Deployment-walkthrough.md)
 - [Solution Template Architecture](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Architecture.md)
 - [Model creation and operationalization](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Data-Science.md)
 - [Frequently Asked Questions](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/FAQ.md)
