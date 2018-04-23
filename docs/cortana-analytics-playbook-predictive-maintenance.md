@@ -1,23 +1,4 @@
----
-title: Azure Cloud AI Playbook for Predictive maintenance solution templates | Microsoft Docs
-description: A Solution Template with Microsoft Azure ML for Predictive Maintenance in aerospace, utilities, and transportation.
-services: cortana-analytics
-documentationcenter: ''
-author: fboylu
-manager: jhubbard
-editor: cgronlun
-
-ms.assetid: 2e8b66db-91eb-432b-b305-6abccca25620
-ms.service: cortana-analytics
-ms.workload: data-services
-ms.tgt_pltfrm: na
-ms.devlang: na
-ms.topic: article
-ms.date: 03/14/2017
-ms.author: fboylu
-
----
-# Azure Cloud AI Playbook for Predictive Maintenance (PdM)
+# Azure Cloud AI Playbook for Predictive Maintenance (PdM) (Revised)
 _Contributors: [Fidan Boylu Uz, PhD](https://github.com/fboylu), [Gary Ericson](https://github.com/garyericson); [Ramkumar Krishnan](https://github.com/ramkumarkrishnan)_
 
 ## Summary
@@ -113,8 +94,8 @@ This section is organized as follows:
 - [Data requirements for PdM](#Data-requirements-for-PdM)
 - [Data preparation for PdM](#Data-preparation-for-PdM)
 - [Feature Engineering](#Feature-Engineering)
-- [Modeling techniques](#Modeling-Techniques)
-- [Model validation](#Model-Validation)
+- [Modeling techniques](#Modeling-techniques-for-PdM)
+- [Model validation](#Model-Evaluation)
 
 This section provides general guidelines of data science principles and practice for PdM. It begins by listing the data requirements, and walks through data preparation, feature engineering, modeling techniques, model validation, and model operationalization (i.e. scoring new data with the model). It is intended to help a TDM, solution architect or a developer think through the prerequisites and process for building end to end AI applications for PdM. You can read this section side by side while reviewing the demos and proof-of-concept templates listed in the section [Solution Templates for PdM](#Solution-Templates-for-PdM), and use these principles and best practices to implement your PdM solution in Azure.
 
@@ -202,7 +183,7 @@ For static data,
 
 With the above preprocessed data sources in place, the final transformation before _feature engineering_ is to join the above tables based on Asset ID and Time fields. The resulting table would have null values for failure column when machine is in normal operation. These can be imputed by an indicator value for normal operation. This failure column is used to create _labels for the predictive model_.
 
-## Feature engineering
+## Feature Engineering
 Feature engineering is the first step in modeling. The idea of feature generation is to conceptually describe and abstract a machine’s health condition at a given time using historical data that was collected up to that point in time. In this section, we discuss lag features that can be constructed from data sources with timestamps, and features creation from static data sources. Refer to this Microsoft documentation for general information on [Feature Engineering](https://docs.microsoft.com/en-us/azure/machine-learning/team-data-science-process/create-features).
 
 ### Lag features
@@ -212,7 +193,7 @@ Lag features are typically _numerical_ in nature, and are aggregated over specif
 #### *Rolling aggregates*
 For each record of an asset, we pick a rolling window of size "W" as the number of units of time that we would like to compute the aggregates for. We then compute rolling aggregate features using the W periods _before the date_ of that record. In Figure 1, we represent sensor values recorded for an asset for each unit of time with the blue lines and mark the rolling average feature calculation for W=3 for the records at t<sub>1</sub> (in orange) and t<sub>2</sub> (in green). These aggregate windows are typically in the range of minutes or hours. But in certain cases, picking a large W (say 12 or 18 month cycles) can provide the whole history of an asset until the time of the record. 
 
-![Figure 1. Rolling aggregate features](./media/cortana-analytics-playbook-predictive-maintenance/rolling-aggregate-features.png)
+![Figure 1. Rolling aggregate features](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/rolling-aggregate-features.png)
 
 Figure 1. Rolling aggregate features
 
@@ -228,7 +209,7 @@ Another useful technique in PdM is to capture trend changes, spikes and level ch
 #### *Tumbling aggregates*
 For each labeled record of an asset, we pick a window of size "W-<sub>k</sub>" where k is the number or windows of size "W" that we want to create lag features for. "k" can be picked as a large number to capture long-term degradation patterns or a small number to capture short-term effects. We then use k _tumbling windows_ W-<sub>k</sub> , W-<sub>(k-1)</sub>, …, W-<sub>2</sub> , W-<sub>1</sub> to create aggregate features for the periods before the record date and time (see Figure 2).
 
-![Figure 2. Tumbling aggregate features](./media/cortana-analytics-playbook-predictive-maintenance/tumbling-aggregate-features.png)
+![Figure 2. Tumbling aggregate features](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/tumbling-aggregate-features.png)
 
 Figure 2. Tumbling aggregate features
 
@@ -236,7 +217,7 @@ As an example, for wind turbines, W=1 and k=3 months were used to create lag fea
 
 ### Static features
 
-These are technical specifications of the equipment such as manufacture date, model number, location, etc. Static features usually become _categorical_ variables in the models. Examples for the circuit breaker use case included specifications on voltage, current, and power capacities, transformer types, power sources etc. For wheel failures, the type of tire wheels (alloy vs steel)are some examples of static features.
+These are technical specifications of the equipment such as manufacture date, model number, location, etc. Static features usually become _categorical_ variables in the models. Examples for the circuit breaker use case included specifications on voltage, current, and power capacities, transformer types, power sources etc. For wheel failures, the type of tire wheels (alloy vs steel)are some examples of static features
 
 Other feature engineering steps include handling **missing values** and **normalization** of attribute values - an exhaustive discussion is out of the scope of this playbook.
 
@@ -244,7 +225,6 @@ Other feature engineering steps include handling **missing values** and **normal
 > - Pyle, D. Data Preparation for Data Mining (The Morgan Kaufmann Series in Data Management Systems), 1999
 > - Zheng, A., Casari, A. Feature Engineering for Machine Learning: Principles and Techniques for Data Scientists, O'Reilly, 2018.
 > - Dong, G. Liu, H. (Editors), Feature Engineering for Machine Learning and Data Analytics (Chapman & Hall/CRC Data Mining and Knowledge Discovery Series), CRC Press, 2018.
-
 
 At this stage of feature engineering, the training, test, validation and all new data that is provided for scoring should have data organized in the following schema (this example shows a day as the time unit).
 
@@ -273,7 +253,7 @@ To use this technique, we identify two types of training examples - positive (wh
 #### Label construction
 Labeling is done by taking X records prior to the failure of an asset and labeling them as "about to fail" (label = 1) while labeling all other records as "normal" (label =0). (see Figure 3). The goal is to find a model that identifies each new example as likely to fail or operate normally within the next X units of time.
 
-![Figure 3. Labeling for binary classification](./media/cortana-analytics-playbook-predictive-maintenance/labelling-for-binary-classification.png)
+![Figure 3. Labeling for binary classification](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/labelling-for-binary-classification.png)
 
 Figure 3. Labeling for binary classification
 
@@ -288,7 +268,7 @@ The goal for regression models for PdM is to _compute the remaining useful life 
 #### Label construction
 Labels for the regression model are constructed by taking each record prior to the failure and labeling them by calculating how many units of time remain before the next failure. (See Figure 4)
 
-![Figure 4. Labeling for regression](./media/cortana-analytics-playbook-predictive-maintenance/labelling-for-regression.png)
+![Figure 4. Labeling for regression](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/labelling-for-regression.png)
 
 Figure 4. Labeling for regression
 
@@ -304,13 +284,13 @@ Multi-class classification techniques can be used for PdM solutions in multiple 
 #### Label construction
 To address the question _"What is the probability that an asset fails in the next "aZ" units of time where "a" is the number of periods?"_, labeling is done by taking aZ records prior to the failure of an asset and labeling them using buckets of time (3Z, 2Z, Z) as their labels, and labeling all other records as "normal" (label = 0). In this method, the target variable holds categorical values - i.e. the label is categorical (See Figure 5).
 
-![Figure 5. Labeling for multiclass classification for failure time prediction](./media/cortana-analytics-playbook-predictive-maintenance/labelling-for-multiclass-classification-for-failure-time-prediction.png)
+![Figure 5. Labeling for multiclass classification for failure time prediction](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/labelling-for-multiclass-classification-for-failure-time-prediction.png)
 
 Figure 5. Labeling for multiclass classification for failure time prediction
 
 To address the question _"What is the probability that the asset fails in the next X units of time due to root cause/problem "RC<sub>i</sub>?"_ where "i" is the number of possible root causes, labeling is done by taking X records prior to the failure of an asset and labeling them as "about to fail due to problem P<sub>i</sub>" (label = RC<sub>i</sub>), and labeling all other records as "normal" (label = 0). In this method also, labels are categorical (See Figure 6).
 
-![Figure 6. Labeling for multiclass classification for root cause prediction](./media/cortana-analytics-playbook-predictive-maintenance/labelling-for-multiclass-classification-for-root-cause-prediction.png)
+![Figure 6. Labeling for multiclass classification for root cause prediction](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/labelling-for-multiclass-classification-for-root-cause-prediction.png)
 
 Figure 6. Labeling for multiclass classification for root cause prediction
 
@@ -368,7 +348,7 @@ Suppose we have a stream of timestamped events such as measurements from various
 For time-dependent split, we pick a point in time at which we train a model with tuned hyperparameters by using historical data up to that point. To prevent leakage of future labels that are beyond the training cut-off into training data, we choose the latest timeframe to label
 training examples to be X units before the training cut-off date. In Figure 7, each solid circle represents a row in the final feature data set for which the features and labels are computed according to the method described above. The figure shows the records that should go into training and testing sets when implementing time-dependent split for X=2 and W=3:
 
-![Figure 7. Time-dependent split for binary classification](./media/cortana-analytics-playbook-predictive-maintenance/time-dependent-split-for-binary-classification.png)
+![Figure 7. Time-dependent split for binary classification](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/time-dependent-split-for-binary-classification.png)
 
 Figure 7. Time-dependent split for binary classification
 
@@ -386,7 +366,7 @@ As a general method, another important best practice for splitting data for trai
 In classification problems, if there are more examples of one class than of the others, the data is said to be imbalanced. Ideally, we would like to have enough representatives of each class in the training data to be able to differentiate between different classes. If one class is less
 than 10% of the data, we can say that the data is imbalanced and we call the underrepresented dataset minority class. In many PdM problems, we can expect to find imbalanced datasets where one class is severely underrepresented compared to others for example by only constituting only 0.001% of the data points. Class imbalance is not unique to PdM - it is found in other domains including fraud detection, network intrusion where failures are usually rare occurrences in the lifetime of the assets which make up the minority class examples.
 
-With class imbalance in data, performance of most standard learning algorithms is compromised as they aim to minimize the overall error rate. For example, for a data set with 99% negative class examples (i.e. no failures) and 1% positive class examples (i.e. failures), we can get 99% accuracy by simply labeling all instances as negative. However, this misclassifies all positive examples so the algorithm is not a useful one although the accuracy metric is very high. Consequently, conventional evaluation metrics such as _overall accuracy on error rate_, are not sufficient in case of imbalanced learning. Other metrics, such as _precision_, _recall_, _F1 scores_ and _cost adjusted ROC curves_ are used for evaluations in case of imbalanced datasets. These are discussed in the [Evaluation Metrics](#Evaluation-Metrics).
+With class imbalance in data, performance of most standard learning algorithms is compromised as they aim to minimize the overall error rate. For example, for a data set with 99% negative class examples (i.e. no failures) and 1% positive class examples (i.e. failures), we can get 99% accuracy by simply labeling all instances as negative. However, this misclassifies all positive examples so the algorithm is not a useful one although the accuracy metric is very high. Consequently, conventional evaluation metrics such as _overall accuracy on error rate_, are not sufficient in case of imbalanced learning. Other metrics, such as _precision_, _recall_, _F1 scores_ and _cost adjusted ROC curves_ are used for evaluations in case of imbalanced datasets. These are discussed in the [Model Evaluation Metrics](#Model-Evaluation).
 
 However, there are some methods that help remedy class imbalance problem. The two major ones are _sampling techniques_ and _cost sensitive learning_.
 
@@ -443,4 +423,13 @@ The common aspect of all solution templates is that they are all implemented usi
 | [Azure Predictive Maintenance for Aerospace](https://gallery.azure.ai/Solution/Predictive-Maintenance-for-Aerospace-1) | One of the early PdM solution templates based on Azure ML v1.0 for aircraft maintenance. This playbook originated from this project |
 | [Azure IoT Predictive Maintenance](https://github.com/Azure/azure-iot-predictive-maintenance) | Azure IoT Suite PCS - Preconfigured Solution. Aircraft maintenance PdM template with IoT Suite |
 |[Predictive Maintenance Modeling Guide in R](https://gallery.azure.ai/Notebook/Predictive-Maintenance-Modelling-Guide-R-Notebook-1) | PdM modeling guide in Azure ML v1.0 |
-| More ... | |
+
+# Appendix
+
+## PdM Microsoft Documentation links and blog posts
+
+ToDo
+
+## Data Science Training Resources
+
+ToDo
