@@ -9,7 +9,6 @@ class Engine(SimulatedDevice):
     def initialize(self, device_info):
         properties_desired = device_info['properties']['desired']
         properties_reported = device_info['properties']['reported']
-        print(properties_reported)
 
         spectral_profile = {
             'W': [1, 2, 3, 4, 5, 12, 15],
@@ -38,12 +37,15 @@ class Engine(SimulatedDevice):
         if 'speed' in properties_json:
             self.target_speed = properties_json['speed']
         if 'mode' in properties_json:
-            self.auto_pilot = properties_json['mode'] == 'auto'
+            mode = properties_json['mode']
+            self.log(mode, 'MODE_CHANGE')
+            self.auto_pilot = mode == 'auto'
 
     def biased_coin_flip(self, p = 0.5):
         return True if random.random() < p else False
 
     def run(self):
+        self.log('Simulation started.')
         while True:
             interval_start = time.time()
             state = self.digital_twin.next_state()
