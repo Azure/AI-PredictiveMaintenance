@@ -7,8 +7,7 @@ class VibrationSensorSimulator:
     def __init__(self, interval = 1, sample_rate = 1024, W = None, A = None):
         self.interval = interval
         self.sample_rate = sample_rate
-        self.W = W
-        self.A = A
+        self.set_spectral_properties(W, A)
         self.base_frequency = 0 # Hz
         self.target_base_frequency = 0 # Hz
         self.time = 0

@@ -5,6 +5,7 @@ import json
 import uuid
 import json
 import random
+import markdown
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import Flask, render_template, Response, request,  redirect, url_for
@@ -18,6 +19,7 @@ from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 from aztk_cluster import AztkCluster
 from model_management import ModelManagement
 
+# TODO: Fix possible WebJob restarts because of this.
 simulator_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/jobs/continuous/Simulator'))
 sys.path.append(simulator_path)
 from iot_hub import IoTHub
@@ -47,13 +49,18 @@ def login_required(f):
 @register_breadcrumb(app, '.', 'Home')
 @login_required
 def home():
-    return render_template('home.html')
+    readme_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'README.md'))
+    with open(readme_path, 'r') as f:
+        content = f.read()
+    
+    html = markdown.markdown(content)
+    return render_template('home.html', content = html)
 
 @app.route('/telemetry')
 @register_breadcrumb(app, '.telemetry', 'Telemetry')
 @login_required
 def telemetry():
-    iot_hub = IoTHub(os.environ['IOT_HUB_NAME'], os.environ['IOT_HUB_OWNER_KEY'])
+    iot_hub = IoTHub(os.environ['IOT_HUB_NAME'], os.environ['IOT_HUB_OWNER_KEY'])    
     devices = iot_hub.get_device_list()
     devices.sort(key = lambda x: x.deviceId)
     return render_template('telemetry.html', assets = devices)
@@ -89,6 +96,7 @@ def create_devices():
             'properties': {
                 'desired': {
                     'speed': random.randint(600, 1500),
+                    'mode': 'auto',
                     'failureOnset': failure_onset(device.deviceId)
                 }
             }
@@ -121,12 +129,16 @@ def get_device_twin(device_id):
 @app.route('/twin/<device_id>', methods=['POST'])
 @login_required
 def set_desired_properties(device_id):
-    speed = request.form["speed"]
+    desired_props = {}
+    for key in request.form:
+        if key == 'speed':
+            desired_props[key] = int(request.form[key])
+        else:
+            desired_props[key] = request.form[key]
+                
     payload = {
         'properties': {
-            'desired': {
-                'speed': int(speed)
-            }
+            'desired': desired_props 
         }
     }
     payload_json = json.dumps(payload)

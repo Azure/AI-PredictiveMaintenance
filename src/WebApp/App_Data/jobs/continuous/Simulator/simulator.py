@@ -1,4 +1,5 @@
 import os
+import io
 import pickle
 import random
 import uuid
@@ -6,11 +7,13 @@ import datetime
 import time
 import json
 import numpy as np
+import logging
+import csv
 from multiprocessing import Pool, TimeoutError, cpu_count
 from multiprocessing.dummy import Pool as DummyPool
 from multiprocessing import Process
 from iot_hub import IoTHub, IoTHubDevice
-from azure.storage.table import TableService, Entity, TablePermissions
+from azure.storage.blob import AppendBlobService
 from devices import SimulatorFactory
 
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
@@ -30,6 +33,10 @@ def device_driver():
     device_id = device_twin_json['deviceId']
 
     iothub_device = IoTHubDevice(IOT_HUB_NAME, device_id, device.primaryKey)
+    append_blob_service = AppendBlobService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
+    logs_container_name = 'logs'
+    append_blob_service.create_container(logs_container_name, fail_on_exist=False)
+    log_blob_name = '{0}.log'.format(device_id)
 
     def report_state(state):
         iothub_device.send_reported_state(state)
@@ -37,11 +44,24 @@ def device_driver():
     def send_telemetry(data):
         iothub_device.send_message(data)
 
-    device_simulator = SimulatorFactory.create('devices.engines.Engine', report_state, send_telemetry)
+    def log(message, code, level):
+        if not append_blob_service.exists(logs_container_name, log_blob_name):
+            append_blob_service.create_blob(logs_container_name, log_blob_name, if_none_match='*', )
+
+        level_name = logging.getLevelName(level)
+        
+        output = io.StringIO()
+        entry_data = [str(datetime.datetime.utcnow()) + 'Z', level_name, device_id, code, message]
+        writer = csv.writer(output, quoting=csv.QUOTE_MINIMAL)
+        writer.writerow(entry_data)
+        entry_text = output.getvalue()
+        append_blob_service.append_blob_from_text(logs_container_name, log_blob_name, entry_text)
+
+    device_simulator = SimulatorFactory.create('devices.engines.Engine', report_state, send_telemetry, log)
     device_simulator.initialize(device_twin_json)
 
     def device_twin_callback(update_state, payload, user_context):
-        device_simulator.on_update(update_state, json.loads(payload))
+        device_simulator.on_update(str(update_state), json.loads(payload))
 
     iothub_device.client.set_device_twin_callback(device_twin_callback, 0)
 
