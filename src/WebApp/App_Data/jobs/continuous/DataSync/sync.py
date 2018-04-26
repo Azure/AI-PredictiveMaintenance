@@ -16,6 +16,9 @@ block_blob_service = BlockBlobService(
     account_name=STORAGE_ACCOUNT_NAME,
     account_key=STORAGE_ACCOUNT_KEY)
 
+if not append_blob_service.exists(LOGS_CONTAINER_NAME):
+    exit(0)
+
 if not block_blob_service.exists(LOGS_ARCHIVE_CONTAINER_NAME):
     block_blob_service.create_container(LOGS_ARCHIVE_CONTAINER_NAME)
 
