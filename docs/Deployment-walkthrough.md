@@ -63,11 +63,11 @@ Click on section of the code and click on _Run_. This will complete the data pre
 
 **Step 10:** As of this point, the model has been created and tested in the training cluster. The next step is to deploy this model for scoring - i.e. operationalizing the model for new data. This solution template supports online scoring - i.e. for each input record, the scoring engine returns a predicted value. This scoring engine is deployed as a web service in a Docker container which is then deployed on a Azure Kubernetes cluster.
 
-For this, go back to the Predictive Maintenence dashboard (not the Jupyter dashboard) shown in **Step 5**. Click on Operationalization (also termed 'O16n') tab.
+For this, go back to the Predictive Maintenence dashboard (not the Jupyter dashboard) shown in **Step 5**. Click on Operationalization tab.
 
 ![Deploy_13](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/deploy_13.png)
 
-There are five steps in the O16n tab:
+There are five steps in the Operationalization tab:
 - Register model with Azure ML.
 - Register the Manifest.
 
