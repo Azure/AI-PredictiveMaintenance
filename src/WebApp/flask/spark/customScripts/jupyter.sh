@@ -1,4 +1,4 @@
-#!/bin/bash
+A#!/bin/bash
 
 # This custom script only works on images where jupyter is pre-installed on the Docker image
 #
@@ -8,7 +8,7 @@
 #  - aztk/python:spark2.1.0-python3.6.2-base
 #  - aztk/python:spark2.1.0-python3.6.2-gpu
 
-if  [ "$IS_MASTER" = "true" ]; then
+if  [ "$AZTK_IS_MASTER" = "true" ]; then
     pip install jupyter --upgrade
     pip install notebook --upgrade
     pip install azureml
