@@ -1,4 +1,4 @@
-A#!/bin/bash
+#!/bin/bash
 
 # This custom script only works on images where jupyter is pre-installed on the Docker image
 #
