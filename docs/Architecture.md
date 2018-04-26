@@ -6,7 +6,7 @@ PdM solution deployments are observed in three forms:
 - _Cloud based_ - for scenarios where devices are managed from the cloud for infinite scale, with the AI and analytics processing centralized in the cloud based on data delivered via the Internet. The models are managed from a central repository, and model operationalization is also in the cloud.
 - _Edge based_ - This is a variant of the cloud scenario, where modeling is done centrally in the cloud, but the models aredelivered to edge devices that cannot be connected to the cloud.
 
-This solution template implements a _cloud based_ architecture. Large scale production AI applications with CICD (continuous integration continous deployment) are composed of two parts in general, operating in a virtous cycle:
+This solution template implements a _cloud based_ architecture. Large scale production AI applications with CICD (continuous integration continous deployment) are composed of two parts in general, operating in a virtuous cycle:
 - an _inner AI loop_ that involves data preparation, iterative model training and testing, and model deployment for scoring new data; and
 - and an _outer processing loop_ that plays the equally important role of enabling data ingestion, staging on the input, and enabling post-scoring analytics, publishing, and presentation of results - at scale, with the enterprise requirements of  availability, security, manageability etc.
 
