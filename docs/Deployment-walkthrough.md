@@ -51,7 +51,7 @@ Open the Notebooks folder to see FOUR notebooks - one for each main task in the 
 
 ![Deploy_10](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/deploy_10.png)
 
-Click on section of the code and click on _Run_. This will complete the data preparation step of the inner machine learning loop. Once completed, **remember to shutdown the kernel from the Kernel pulldown tab, and close the browser tab**
+Either (a) click on each section of the code and click on _Run_ **in order**, or (b) click cell -> run all.  Stepping through each section provides a more interactive and educational experience, but both options produce the same results. This will complete the data preparation step of the inner machine learning loop. Once completed, **remember to shutdown the kernel from the Kernel pulldown tab, and close the browser tab**
 
 **Step 8:** Go back to the list of notebooks. Confirm that FeatureEngineering.ipynb does not have the status of Running. Then click on ModelTraining.ipynb. Repeat the same steps as **Step 7**.
 
