@@ -23,11 +23,9 @@ IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 IOT_HUB_OWNER_KEY = os.environ['IOT_HUB_OWNER_KEY']
 IOT_HUB_DEVICE_KEY = os.environ['IOT_HUB_DEVICE_KEY']
 
-def device_driver():
-    driver_unique_id = str(uuid.uuid4())
-
+def claim_and_run_device(driver_id):
     iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
-    device, device_twin = iot_hub.claim_device(driver_unique_id)
+    device, device_twin = iot_hub.claim_device(driver_id)
 
     device_twin_json = json.loads(device_twin)
     device_id = device_twin_json['deviceId']
@@ -49,7 +47,7 @@ def device_driver():
             append_blob_service.create_blob(logs_container_name, log_blob_name, if_none_match='*', )
 
         level_name = logging.getLevelName(level)
-        
+
         output = io.StringIO()
         entry_data = [str(datetime.datetime.utcnow()) + 'Z', level_name, device_id, code, message]
         writer = csv.writer(output, quoting=csv.QUOTE_MINIMAL)
@@ -58,7 +56,8 @@ def device_driver():
         append_blob_service.append_blob_from_text(logs_container_name, log_blob_name, entry_text)
 
     device_simulator = SimulatorFactory.create('devices.engines.Engine', report_state, send_telemetry, log)
-    device_simulator.initialize(device_twin_json)
+    if not device_simulator.initialize(device_twin_json):
+        return
 
     def device_twin_callback(update_state, payload, user_context):
         device_simulator.on_update(str(update_state), json.loads(payload))
@@ -66,6 +65,11 @@ def device_driver():
     iothub_device.client.set_device_twin_callback(device_twin_callback, 0)
 
     device_simulator.run()
+
+def device_driver():
+    driver_unique_id = str(uuid.uuid4())
+    while True:
+        claim_and_run_device(driver_unique_id)
 
 if __name__ == '__main__':
     device_driver_count = 20

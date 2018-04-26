@@ -1,6 +1,7 @@
 import time
 import json
 import pickle
+import logging
 import random
 from devices.simulated_device import SimulatedDevice
 from .device import Device
@@ -10,26 +11,31 @@ class Engine(SimulatedDevice):
         properties_desired = device_info['properties']['desired']
         properties_reported = device_info['properties']['reported']
 
+        if 'failure' in properties_reported and properties_reported['failure']:
+            return False
+
         spectral_profile = {
             'W': [1, 2, 3, 4, 5, 12, 15],
             'A': [5, 8, 2/3, 9, 8, 13, 5]
         }
         pressure_factor = 2
 
-        if 'failureOnset' not in properties_desired:
-            pass
-        elif properties_desired['failureOnset'] == 'F01':
+        self.failure_onset = None if 'failureOnset' not in properties_desired else properties_desired['failureOnset']
+
+        if self.failure_onset == 'F01':
             spectral_profile = {
                 'W': [1/2, 1, 2, 3, 5, 7, 12, 18],
                 'A': [1, 5, 80, 2/3, 8, 2, 14, 50]
             }
-        elif properties_desired['failureOnset'] == 'F02':
+        elif self.failure_onset == 'F02':
             pressure_factor = 1.5
-        
+
         self.target_speed = properties_desired['speed']
         self.digital_twin = Device(W = spectral_profile['W'], A = spectral_profile['A'])
         self.digital_twin.pressure_factor = pressure_factor
         self.auto_pilot = False
+        self.version = properties_reported['$version']
+        return True
 
     def on_update(self, update_state, properties_json):
         if update_state == 'COMPLETE':
@@ -55,6 +61,13 @@ class Engine(SimulatedDevice):
                 time.sleep(1)
                 continue
 
+            if self.failure_onset is not None and self.version > 600:
+                self.report_state({
+                    'failure': True
+                })
+                self.log('failure', self.failure_onset, logging.CRITICAL)
+                return
+
             pl = bytearray(pickle.dumps(state))
             self.send_telemetry(pl)
 
@@ -67,6 +80,8 @@ class Engine(SimulatedDevice):
                 'ambientTemperature': state['ambient_temperature'],
                 'ambientPressure': state['ambient_pressure']
                 })
+
+            self.version += 1
 
             if self.auto_pilot and self.biased_coin_flip(p = 0.2):
                 self.target_speed = random.randint(600, 1500)
