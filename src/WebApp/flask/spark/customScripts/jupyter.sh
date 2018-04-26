@@ -8,7 +8,7 @@
 #  - aztk/python:spark2.1.0-python3.6.2-base
 #  - aztk/python:spark2.1.0-python3.6.2-gpu
 
-if  [ "$IS_MASTER" = "1" ]; then
+if  [ "$IS_MASTER" = "true" ]; then
     pip install jupyter --upgrade
     pip install notebook --upgrade
     pip install azureml
