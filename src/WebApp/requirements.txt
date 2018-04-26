@@ -13,4 +13,4 @@ azure_servicebus==0.21.1
 azure-iothub-device-client==1.3.2
 azure-iothub-service-client==1.3.2
 Markdown==2.6.11
-keyring=11.0.0
+keyring==11.0.0
