@@ -14,3 +14,6 @@ rm -rf *
 popd
 
 cp -r ~/AML/Notebooks ~/notebooks
+
+mkdir ~/mnt
+mkdir ~/mnt/azureml-share
