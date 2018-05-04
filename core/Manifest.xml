@@ -63,6 +63,18 @@
                 <Parameter name="serviceBusQueueName" defaultValue="{Outputs.serviceBusQueueName}" hidden="true" />
             </Parameters>
         </ArmDeployment>
+        <Manual title="Configure Linux DSVM">
+            <Parameters>
+                <Credential type="linuxvm" username="adminUsername" password="adminPassword" />
+                <Parameter name="vmSize" allowedValues="{VirtualMachineSkus}" defaultValue="Standard_DS3_v2" />
+                <Parameter name="fileUris" hidden="true" defaultValue="{PatternAssetBaseUrl}/install.sh {PatternAssetBaseUrl}/envsetup.sh" />
+            </Parameters>
+        </Manual>
+        <ArmDeployment source="arm/linuxDsvm.json" title="Provisioning Linux DSVM" autoResolveParameters="true">
+            <Parameters>
+                <Parameter name="commandToExecute" hidden="true" defaultValue="bash install.sh {PatternAssetBaseUrl}/AML.zip {Outputs.storageAccountName} {Outputs.storageAccountKey}" />
+            </Parameters>
+        </ArmDeployment>
         <ArmDeployment source="arm/operationalization.json" title="Creating Machine Learning Compute resources" autoResolveParameters="true" retriable= "false">
             <Parameters>
                 <VmSku name="agentNodeSize" hidden="true" instanceCount="2" minCores="4">
