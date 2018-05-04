@@ -6,6 +6,7 @@ import uuid
 import json
 import random
 import markdown
+import jwt
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import Flask, render_template, Response, request,  redirect, url_for
@@ -45,6 +46,14 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def get_identity():
+    id_token = request.headers['x-ms-token-aad-id-token']
+    return jwt.decode(id_token, verify=False)
+
+@app.context_processor
+def context_processor():
+    return dict(user_name=get_identity()['name'])
+
 @app.route('/')
 @register_breadcrumb(app, '.', 'Home')
 @login_required
@@ -52,7 +61,7 @@ def home():
     readme_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'README.md'))
     with open(readme_path, 'r') as f:
         content = f.read()
-    
+
     html = markdown.markdown(content)
     return render_template('home.html', content = html)
 
@@ -60,7 +69,7 @@ def home():
 @register_breadcrumb(app, '.telemetry', 'Telemetry')
 @login_required
 def telemetry():
-    iot_hub = IoTHub(os.environ['IOT_HUB_NAME'], os.environ['IOT_HUB_OWNER_KEY'])    
+    iot_hub = IoTHub(os.environ['IOT_HUB_NAME'], os.environ['IOT_HUB_OWNER_KEY'])
     devices = iot_hub.get_device_list()
     devices.sort(key = lambda x: x.deviceId)
     return render_template('telemetry.html', assets = devices)
@@ -135,10 +144,10 @@ def set_desired_properties(device_id):
             desired_props[key] = int(request.form[key])
         else:
             desired_props[key] = request.form[key]
-                
+
     payload = {
         'properties': {
-            'desired': desired_props 
+            'desired': desired_props
         }
     }
     payload_json = json.dumps(payload)
@@ -150,16 +159,19 @@ def set_desired_properties(device_id):
     return resp
 
 def get_access_token():
+    refresh_token = request.headers['x-ms-token-aad-refresh-token']
+
     parameters = {
         'grant_type': 'refresh_token',
         'client_id': os.environ['WEBSITE_AUTH_CLIENT_ID'],
         'client_secret': os.environ['WEBSITE_AUTH_CLIENT_SECRET'],
-        'refresh_token': request.headers['x-ms-token-aad-refresh-token'],
+        'refresh_token': refresh_token,
         'resource': 'https://management.core.windows.net/'
     }
 
-    result = requests.post('https://login.microsoftonline.com/microsoft.com/oauth2/token', data = parameters)
+    tid = get_identity()['tid']
 
+    result = requests.post('https://login.microsoftonline.com/{0}/oauth2/token'.format(tid), data = parameters)
     access_token = result.json()['access_token']
     return access_token
 
