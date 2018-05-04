@@ -69,7 +69,6 @@
                 <Parameter name="serviceBusPrimaryConnectionString" defaultValue="{Outputs.serviceBusPrimaryConnectionString}" hidden="true" />
                 <Parameter name="serviceBusQueueName" defaultValue="{Outputs.serviceBusQueueName}" hidden="true" />
             </Parameters>
-        </ArmDeployment>
         <ArmDeployment source="arm/operationalization.json" title="Creating Machine Learning Compute resources" autoResolveParameters="true" retriable= "false">
             <Parameters>
                 <VmSku name="agentNodeSize" hidden="true" instanceCount="2" minCores="4">
@@ -80,7 +79,8 @@
                 </VmSku>
             </Parameters>
         </ArmDeployment>
-        <ArmDeployment source="arm/linuxDsvm.json" title="Provisioning Linux DSVM" autoResolveParameters="true">
+        </ArmDeployment>
+                <ArmDeployment source="arm/linuxDsvm.json" title="Provisioning Linux DSVM" autoResolveParameters="true">
             <Parameters>
                 <Parameter name="commandToExecute" hidden="true" defaultValue="bash install.sh {PatternAssetBaseUrl}/AML.zip {Outputs.storageAccountName} {Outputs.storageAccountKey}" />
             </Parameters>
