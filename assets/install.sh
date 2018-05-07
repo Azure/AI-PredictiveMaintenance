@@ -25,4 +25,4 @@ sudo echo "os.environ['STAGING_STORAGE_ACCOUNT_KEY']=\"$3\"" >> /etc/jupyterhub/
 sudo echo 'os.environ["TELEMETRY_CONTAINER_NAME"]="telemetry"' >> /etc/jupyterhub/jupyterhub_config.py
 sudo echo 'c.Spawner.env_keep.extend(["AZUREML_NATIVE_SHARE_DIRECTORY", "TELEMETRY_STORAGE_ACCOUNT_NAME", "TELEMETRY_STORAGE_ACCOUNT_KEY", "STAGING_STORAGE_ACCOUNT_NAME", "STAGING_STORAGE_ACCOUNT_KEY", "TELEMETRY_CONTAINER_NAME"])' >> /etc/jupyterhub/jupyterhub_config.py
 
-sudo reboot
+sudo systemctl restart jupyterhub
