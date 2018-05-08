@@ -1,5 +1,5 @@
 ---
-title: Azure AI Playbook for Predictive Maintenance (PdM) Solutions | Microsoft Docs
+title: Azure AI Guide for Predictive Maintenance Solutions | Microsoft Docs
 description: A comprehensive description of the data science that powers predictive maintenance solutions in multiple vertical industries.
 services: cortana-analytics
 documentationcenter: ''
@@ -13,25 +13,27 @@ ms.workload: data-services
 ms.tgt_pltfrm: na
 ms.devlang: na
 ms.topic: article
-ms.date: 03/14/2017
+ms.date: 05/05/2018
 ms.author: fboylu
-
 ---
-# Azure AI Playbook for Predictive Maintenance (PdM) Solutions
+# Azure AI Guide for Predictive Maintenance Solutions
 _Contributors: [Fidan Boylu Uz, PhD](https://github.com/fboylu), [Gary Ericson](https://github.com/garyericson); [Ramkumar Krishnan](https://github.com/ramkumarkrishnan)_
 
 ## Summary
 
-Predictive maintenance is a popular application of predictive analytics that can help businesses in several industries achieve high asset utilization and savings in operational costs. This playbook introduces several industry-specific business scenarios for PdM. The playbook explains the process of qualifying these business scenarios for PdM, along with the data requirements and modeling techniques to build PdM solutions. It describes the data science process behind building these models - such as feature engineering, model creation, and model operationalization. To complement the key concepts, this playbook provides pointers to solution templates and reference architectures that can help you quickly build these PdM solutions on Azure. In essence, this playbook brings together the business and analytical guidelines and best practices that can help you successfully develop and deploy PdM solutions using the [Microsoft Azure AI platform](https://azure.microsoft.com/en-us/overview/ai-platform) technology.
+Predictive maintenance (**PdM**) is a popular application of predictive analytics that can help businesses in several industries achieve high asset utilization and savings in operational costs. This guide brings together the business and analytical guidelines and best practices to successfully develop and deploy PdM solutions using the [Microsoft Azure AI platform](https://azure.microsoft.com/en-us/overview/ai-platform) technology.
 
-### Playbook overview and target audience
-The first half of this playbook will benefit business decision makers (BDMs). It describes typical business problems, the benefits of implementing PdM to address these problems, and list some common use cases. In the second half, the data science behind PdM is explained, and pointers to several PdM solution implementations are provided. Technical decision makers (TDMs) will find this content useful. 
+For starts, this guide introduces industry-specific business scenarios and the process of qualifying these scenarios for PdM. The data requirements and modeling techniques to build PdM solutions are provided. The main content of the guide is on the data science process - including the steps of data preparation, feature engineering, model creation, and model operationalization. To complement the key concepts, this guide lists a set of well implemented templates to help accelerate PdM solution development. For the reader interested in learning the AI behind the data science, the guide points to useful training resources.
+
+### Data Science guide overview and target audience
+The first half of this guide describes typical business problems, the benefits of implementing PdM to address these problems, and list some common use cases. Business decision makers (BDMs) will benefit from this content. The second half explains the data science behind PdM, and a list of PdM solutions built using the principles outlined in this guide. Technical decision makers (TDMs) will find this content useful. 
 
 | Start with ... | If you are ... |
 |:---------------|:---------------|
 | [Business case for PdM](#Business-Case-for-PdM) |a business decision maker (BDM) looking to reduce downtime and operational costs, and improving utilization of  equipment | 
 | [Data Science for PdM](#Data-Science-for-PdM) |a technical decision maker (TDM) evaluating PdM technologies to understand the unique data processing and AI requirements for predictive maintenance |
-| [Solution Templates for PdM](#Solution-Templates-for-PdM)|a software architect or AI Developer looking to quickly stand up a demo or proof-of-concept | 
+| [Solution Templates for PdM](#Solution-Templates-for-PdM)|a software architect or AI Developer looking to quickly stand up a demo or proof-of-concept |
+| [Training Resources for PdM](#Training-Resources-for-PdM) | any or all of the above, and want to learn the foundational concepts behind the data science, tools and techniques.
 
 ### Prerequisite knowledge
 The BDM content does not expect the reader to have prior data science knowledge. For the TDM content, basic knowledge of statistics and data science is helpful. Knowledge of Azure Data and AI services, Python, R, PowerShell, XML, and JSON helps. Solution templates are implemented in _.Net_, with a few examples in _Node.js_, and _Java_. The Appendix provides several pointers to training and documentation to help you develop these skills.
@@ -115,11 +117,11 @@ This section is organized as follows:
 
 This section provides general guidelines of data science principles and practice for PdM. It is intended to help a TDM, solution architect, or a developer understand the prerequisites and process for building end-to-end AI applications for PdM. You can read this section side by side with a review of the demos and proof-of-concept templates listed in [Solution Templates for PdM](#Solution-Templates-for-PdM). You can then use these principles and best practices to implement your PdM solution in Azure.
 
-> NOTE: This playbook does NOT teach Data Science. Several sources are provided
+> NOTE: This guide does NOT teach Data Science. Several sources are provided
 > in the [Appendix - Training in Data Science](#Appendix-Data-Science-training). 
-> The > [solution templates listed in this playbook](#Solution-Templates-for-PdM) 
+> The [solution templates listed in this guide](#Solution-Templates-for-PdM) 
 > demonstrate various techniques for a subset of the PdM problems. Newer techniques
-> will be reflected in this playbook based on additions and state of the art.
+> will be reflected in this guide based on additions and state of the art.
 
 ## Data requirements for PdM
 
@@ -133,7 +135,7 @@ First, the data has to be _relevant to the problem_. Consider the _wheel failure
 Two questions are commonly asked with regard to failure history data: (1) "How many failure events are required to train a model?" (2) "How many is considered as "enough"?" There are no definitive answers, but only rules of thumb. For (1), more the number of failure events, better the model. For (2),  and the exact number of failure events depends on the data and the context of the problem being solved. But on the flip side, if a machine fails too often then the business will replace it, which will reduce failure instances. Here again, the guidance from the domain expert matters. However, there are methods to cope with the issue of _rare events_. They are discussed in the section [Handling imbalanced data](#Handling-imbalanced-data).
 
 #### _Quality_ Data
-The quality of the data is critical - each predictor attribute value must be _accurate_ in conjunction with the value of the target variable. Data quality is a well-studied area in statistics and data management, and hence out of scope for this playbook.
+The quality of the data is critical - each predictor attribute value must be _accurate_ in conjunction with the value of the target variable. Data quality is a well-studied area in statistics and data management, and hence out of scope for this guide.
 
 > FURTHER READING: There are several resources and enterprise products to deliver quality data. A sample of references:
 > - Dasu, T, Johnson, T., Exploratory Data Mining and Data Cleaning, Wiley, 2003.
@@ -148,7 +150,7 @@ The quality of the data is critical - each predictor attribute value must be _ac
 The relevant data sources for PdM are:
 - Failure history
 - Maintenance/Repair history
-- Machine conditions through operational telemetry
+- Machine conditions
 - Equipment metadata
 
 #### Failure History
@@ -157,8 +159,8 @@ Failure events are rare in PdM applications. However, when building prediction m
 #### Maintenance/Repair History:
 Maintenance history of an asset contains details about components replaced, repair activities performed etc. These events record degradation patterns. Absence of this crucial information in the training data can lead to wrong model results. Failure history is also be found within maintenance history as special error codes, or order dates for parts. Additional data sources that influence failure patterns should be provided by domain experts.
 
-#### Machine conditions through operational telemetry
-Sensor based (or other) telemetry of the equipment in operation is another data source. A key assumption in PdM is that a machine’s health status degrades over time during its operation. The data is expected to contain time-varying features that capture this aging pattern and any anomalies that leads to degradation. The temporal aspect of the data is required for the algorithm to learn the failure and non-failure patterns. Based on these learnings, the model can  predict how many more units of time a machine can continue to work before it fails.
+#### Machine conditions
+Sensor based (or other) streaming data of the equipment in operation is an important data source. A key assumption in PdM is that a machine’s health status degrades over time during its operation. The data is expected to contain time-varying features that capture this aging pattern and any anomalies that leads to degradation. The temporal aspect of the data is required for the algorithm to learn the failure and non-failure patterns. Based on these learnings, the model can  predict how many more units of time a machine can continue to work before it fails.
 
 #### Static feature data
 Static features are metadata about the equipment such as technical specifications of make, model, manufactured date, date put into service, its location in the overall system, and so on.
@@ -168,7 +170,7 @@ Examples of relevant data for the [use cases](#Sample-PdM-Use-Cases) are tabulat
 | Use Case | Examples of relevant data |
 |:---------|---------------------------|
 |_Flight delay and cancellations_ | Flight route information in the form of flight legs and page logs. Flight leg data includes routing details such as departure/arrival date, time, airports, etc. Page log data includes a series of error and maintenance codes that are recorded by the maintenance personnel. Maintenance records |
-|_Aircraft engine parts failure_ | Telemetry data collected from sensors in the aircraft that provide information on the part's condition. Maintenance records help identify when component failures occurred and when they were replaced.|
+|_Aircraft engine parts failure_ | Data collected from sensors in the aircraft that provide information on the part's condition. Maintenance records help identify when component failures occurred and when they were replaced.|
 |_ATM Failure_ | Sensor readings for each transaction and dispensing of each bill. Information on gap measurement between notes, note thickness, note arrival distance etc. Maintenance records that provide error codes and repair information.|
 |_Wind turbine failure_ | Sensors monitor turbine conditions such as temperature, power, generator speed, and generator winding. Data for this use case will come from multiple wind turbines located in three different farm locations. Typically, each turbine will have 100+ sensor readings relaying measurements in 10-second intervals.|
 |_Circuit breaker failures_ | Maintenance logs that include corrective, preventive, and systematic actions. Operational data that includes automatic and manual commands send to circuit breakers such as for open and close actions. Device metadata such as manufactured date, location, model, etc. Circuit breaker specifications such as voltage levels, geolocation, ambient conditions.|
@@ -187,7 +189,7 @@ Predictor and target variables should be preprocessed/transformed into numerical
 ### Data preprocessing
 As a prerequisite to feature engineering, prepare the data from various streams to compose a schema from which it is easy to build features. Visualize the data as a table of records. Each row in the table represents a  training instance, and the columns represent _predictor_ features (also called independent attributes or variables). The last column(s) will be the  _target_ (dependent variable). For each training instance, assign a _label_ as the value of this column.
 
-For temporal data, divide the duration of telemetry data into time units. Each record will belong to a time unit for an asset, _and will offer distinct information_. Time can be measured in units of seconds, minutes, hours, days, months, cycles. The time unit _does not have to be the same as the frequency of data collection_. If the frequency is high, the data may not show any significant difference from one unit to the other. For example, assume that ambient temperature was collected every 10 seconds. Using that same interval for training data only inflates the number of examples without providing any additional information. A better strategy would be to use average over tens of minutes, or an hour.
+For temporal data, divide the duration of sensor data into time units. Each record will belong to a time unit for an asset, _and will offer distinct information_. Time can be measured in units of seconds, minutes, hours, days, months, cycles. The time unit _does not have to be the same as the frequency of data collection_. If the frequency is high, the data may not show any significant difference from one unit to the other. For example, assume that ambient temperature was collected every 10 seconds. Using that same interval for training data only inflates the number of examples without providing any additional information. A better strategy would be to use average over tens of minutes, or an hour.
 
 For static data, 
 - _Maintenance records_: Raw maintenance data has an asset identifier and timestamp with information on maintenance activities that have been performed at a given time. Transform maintenance activities into _categorical_ columns, where each category descriptor uniquely maps to a maintenance action type. The schema for maintenance records would include asset identifier, time, and maintenance action.
@@ -212,7 +214,7 @@ For each record of an asset, a rolling window of size "W" is chosen as the numbe
 
 Figure 1. Rolling aggregate features
 
-Examples of rolling aggregates over a time window are count, average, CUMESUM measures, min/max values. Variance, standard deviation, and count of outliers beyond N standard deviations are other examples. For some of the [use cases](#Sample-PdM-Use-Cases) in this playbook:
+Examples of rolling aggregates over a time window are count, average, CUMESUM measures, min/max values. Variance, standard deviation, and count of outliers beyond N standard deviations are other examples. For some of the [use cases](#Sample-PdM-Use-Cases) in this guide:
 - _Flight delay prediction_: count of error codes over the past week.
 - _Aircraft engine part failure_: rolling means, standard deviation, and sum over the past week, past three days, and past day.
 - _ATM failures_: rolling means, median, range, standard deviations, count of outliers beyond three standard deviations, upper and lower CUMESUM.
@@ -234,7 +236,7 @@ For the wind turbine use case, lag features could be created with W=1 and k=3 fo
 
 Technical specifications of the equipment such as manufacture date, model number, location, are some examples of static features. They are treated as _categorical_ variables for modeling. For the circuit breaker use case, voltage, current, power capacity, transformer type, power source etc. are some examples. For wheel failures, the type of tire wheels (alloy vs steel) is an example.
 
-Other feature engineering steps include **handling missing values** and **normalization** of attribute values - an exhaustive discussion is out of the scope of this playbook.
+Other feature engineering steps include **handling missing values** and **normalization** of attribute values - an exhaustive discussion is out of the scope of this guide.
 
 > FURTHER READING: A small sample from the many books/papers on feature engineering are listed below:
 > - Pyle, D. Data Preparation for Data Mining (The Morgan Kaufmann Series in Data Management Systems), 1999
@@ -289,7 +291,7 @@ The question here is: "What is the remaining useful life of the equipment?" For 
 
 Figure 4. Labeling for regression
 
-For regression, labeling is done with reference to a failure point. Its calculation is not possible without knowing how long the asset survived before failure. So in contrast to binary classification, assets without any failures in the data cannot be used for modeling. This issue is best addressed by another statistical technique called [Survival Analysis](https://en.wikipedia.org/wiki/Survival_analysis). But potential complications may arise when applying this technique to PdM use cases that involve time-varying data with frequent intervals. So Survival Analysis is not discussed in this playbook.
+For regression, labeling is done with reference to a failure point. Its calculation is not possible without knowing how long the asset survived before failure. So in contrast to binary classification, assets without any failures in the data cannot be used for modeling. This issue is best addressed by another statistical technique called [Survival Analysis](https://en.wikipedia.org/wiki/Survival_analysis). But potential complications may arise when applying this technique to PdM use cases that involve time-varying data with frequent intervals. So Survival Analysis is not discussed in this guide.
 
 ### Multi-class classification for PdM
 Multi-class classification techniques can be used in PdM solutions for two scenarios:
@@ -343,7 +345,7 @@ The recommended way is to split the examples into training and validation set in
 The final model can be generated by training a learning algorithm over entire training data using the best hyperparameter values.
 
 ### Testing for model performance
-Once a model is built, an estimate of its future performance on new data is required. The simplest estimate could be the performance of the model over the training data. But this estimate is overly optimistic, because the model is tailored to the data that is used to estimate performance. A better estimate could be the performance metric of hyperparameter values computed over the validation set, or an average performance metric computed from cross-validation. But for the same reasons as previously stated, these estimations are still overly optimistic. A more realistic approach for measuring model performance is required.
+Once a model is built, an estimate of its future performance on new data is required. The simplest estimate could be the performance of the model over the training data. But this estimate is overly optimistic - the model is tailored to the data that is used to estimate performance. A better estimate could be the performance metric of hyperparameter values computed over the validation set, or an average performance metric computed from cross-validation. But for the same reasons as previously stated, these estimations are still overly optimistic. A more realistic approach for measuring model performance is required.
 
 The recommended way for PdM is to split the examples into training, validation, and test sets in a time-dependent manner. All test examples should be later in time than all the training and validation examples. After the split, generate the model and measure its performance as described earlier.
 
@@ -372,7 +374,7 @@ Regression models used for predicting RUL are more severely affected by the leak
 Another best practice for splitting data for training and testing is to use a split by asset ID. The split should be such that none of the assets used in the training set are used in testing the model performance. Using this approach, a model has a better chance of providing more realistic results with new assets.
 
 ### Handling imbalanced data
-In classification problems, if there are more examples of one class than of the others, the data is said to be imbalanced. Ideally, enough representatives of each class in the training data are preferred to enable distinction between different classes. If one class is less than 10% of the data, the data is deemed to be imbalanced. The underrepresented class is called a _minority class_. Many PdM problems face such imbalanced datasets, where one class is severely underrepresented compared to others. In some situations, the minority class may constitute only 0.001% of the total data points. Class imbalance is not unique to PdM; other domains such as fraud detection and network intrusion, where failures and anomalies are rare occurrences, face this problem. These failures make up the minority class examples.
+In classification problems, if there are more examples of one class than of the others, the data is said to be imbalanced. Ideally, enough representatives of each class in the training data are preferred to enable distinction between different classes. If one class is less than 10% of the data, the data is deemed to be imbalanced. The underrepresented class is called a _minority class_. Many PdM problems face such imbalanced datasets, where one class is severely underrepresented compared to others. In some situations, the minority class may constitute only 0.001% of the total data points. Class imbalance is not unique to PdM. Other domains where failures and anomalies are rare occurrences face the same problem. Examples are fraud detection and network intrusion. These failures make up the minority class examples.
 
 With class imbalance in data, performance of most standard learning algorithms is compromised, since they aim to minimize the overall error rate. For a data set with 99% negative and 1% positive examples, a model can be shown to have 99% accuracy by labeling all instances as negative. But the model will misclassify all positive examples; so even if its accuracy is high, the algorithm is not a useful one. Consequently, conventional evaluation metrics such as _overall accuracy on error rate_ are insufficient for imbalanced learning. When faced with imbalanced datasets, other metrics are used for model evaluation:
 - Precision
@@ -418,25 +420,111 @@ For binary classification,
 
 **T B D**
 
-## **Solution Templates for PdM**
+## **Solution Templates and Samples for PdM**
 
-The final section of this playbook provides a list of PdM solution templates, tutorials, and experiments implemented in Azure. These PdM applications can be deployed into an Azure subscription within minutes to hours. They can be used as proof-of-concept demos, sandboxes to experiment with alternatives, or accelerators for actual production implementations. These templates are located in the [Azure AI Gallery](http://gallery.azure.ai), or at GitHub (https://github.com/Azure).
+The final section of this guide provides a list of PdM solution templates, tutorials, and experiments implemented in Azure. These PdM applications can be deployed into an Azure subscription within minutes to hours. They can be used as proof-of-concept demos, sandboxes to experiment with alternatives, or accelerators for actual production implementations. These templates are located in the [Azure AI Gallery](http://gallery.azure.ai), or at GitHub (https://github.com/Azure).
 
-| Solution Template Title | Description |
-|:------------------------|-------------|
-|[Azure Predictive Maintenance Machine Learning Sample](https://github.com/Azure/MachineLearningSamples-PredictiveMaintenance) |PdM sample that demonstrates use of latest Azure ML on DSVM on sample CSV data. Ideal for beginners to PdM.|
-|[Azure Predictive Maintenance Solution Template](https://github.com/Azure/AI-PredictiveMaintenance) | An end to end, scalable, pr
-|[Azure AI Toolkit for IoT Edge](https://github.com/Azure/ai-toolkit-iot-edge) | AI in the IoT edge using TensorFlow; toolkit packages deep learning models in Azure IoT Edge-compatible Docker containers and expose those models as REST APIs.
-| [Azure Predictive Maintenance for Aerospace](https://gallery.azure.ai/Solution/Predictive-Maintenance-for-Aerospace-1) | One of the first PdM solution templates based on Azure ML v1.0 for aircraft maintenance. This playbook originated from this project |
-| [Azure IoT Predictive Maintenance](https://github.com/Azure/azure-iot-predictive-maintenance) | Azure IoT Suite PCS - Preconfigured Solution. Aircraft maintenance PdM template with IoT Suite |
-|[Predictive Maintenance Modeling Guide in R](https://gallery.azure.ai/Notebook/Predictive-Maintenance-Modelling-Guide-R-Notebook-1) | PdM modeling guide in Azure ML v1.0 |
+| # | Title | Description |
+|--:|:------------------------|-------------------------------|
+| 1 | [Azure Predictive Maintenance Machine Learning Sample](https://github.com/Azure/MachineLearningSamples-PredictiveMaintenance) |PdM sample to predict failure over the next N time units. This sample is written as an Azure ML Workbench project, and is ideal for beginners to PdM.|
+| 2 | [Azure Predictive Maintenance Solution Template](https://github.com/Azure/AI-PredictiveMaintenance) | An end to end framework to demonstrate multiple PdM scenarios. It covers real-time and stationary data, local and cluster-based model training and testing, and both online and batch scoring. This template showcases two scenarios: the first is a new use case of real-time failure condition classification. The second scenario is simply an integration of solution [1] into this solution template. It demonstrates how to reuse the deployed infrastructure to add other new or existing scenarios. |
+| 3 | [Deep Learning for Predictive Maintenance](https://azure.microsoft.com/en-us/blog/deep-learning-for-predictive-maintenance/) | Azure Notebook with a demo solution of using LSTM (Long Short Term Memory) networks (a class of Recurrent Neural Networks) for Predictive Maintenance |
+| 4 | [Predictive Maintenance Modeling Guide in R](https://gallery.azure.ai/Notebook/Predictive-Maintenance-Modelling-Guide-R-Notebook-1) | PdM modeling guide with scripts in R |
+| 5 | [Azure Predictive Maintenance for Aerospace](https://gallery.azure.ai/Solution/Predictive-Maintenance-for-Aerospace-1) | One of the first PdM solution templates based on Azure ML v1.0 for aircraft maintenance. This guide originated from this project |
+| 6 | [Azure AI Toolkit for IoT Edge](https://github.com/Azure/ai-toolkit-iot-edge) | AI in the IoT edge using TensorFlow; toolkit packages deep learning models in Azure IoT Edge-compatible Docker containers and expose those models as REST APIs.
+| 7 | [Azure IoT Predictive Maintenance](https://github.com/Azure/azure-iot-predictive-maintenance) | Azure IoT Suite PCS - Preconfigured Solution. Aircraft maintenance PdM template with IoT Suite |
 
-# Appendix
 
-## PdM Microsoft Documentation links and blog posts
+## **Training Resources for PdM**
 
-ToDo
+For a deeper understanding of the concepts and math behind the data science for Pdm, refer to the [Predictive Maintenance Learning Path](#Azure-AI-Learning-Path-for-Data-Science-in-Predictive-Maintenance). 
 
-## Data Science Training Resources
+**NOTE: This link will point to a separate web page - for now this web page contents are in this .md file itself as a separate chapter below. In the final version, substitute the link with the address of this web page from Learn AI site**
 
-ToDo
+Microsoft Azure offers free content and training on general AI concepts and practice.
+
+| Training resource | Availability |
+|:-------------------|--------------|
+| [AI Developer on Azure](http://azure.microsoft.com/en-us/training/learning-paths/azure-ai-developer) | Public |
+| [Microsoft AI School](http://aischool.microsoft.com/learning-paths) | Public |
+| [Azure AI Learning from GitHub](http://azure.github.io/learnanalytics/public) | Public |
+| [LinkedIn Learning](http://www.linkedin.com/learning) | Public |
+| [Microsoft AI Youtube Webinars](https://www.youtube.com/watch?v=NvrH7_KKzoM&t=4s) | Public |
+| [Microsoft AI Show](http://channel9.msdn.com/Shows/AI-Show) | Public |
+| [LearnAI@MS](http://learnanalytics.microsoft.com) | For Microsoft Partners |
+| [Microsoft Partner Network](http://learningportal.microsoft.com) | For Microsoft Partners |
+
+In addition, free MOOCS (massive open online courses) on AI are offered online by academic  institutions like Stanford and MIT, and other educational companies.
+
+-------------------------------------------
+title: Azure AI Learning Path for Predictive Maintenance | Microsoft Docs
+description: Learning path for foundational concepts behind the data science that powers predictive maintenance solutions.
+services: cortana-analytics
+documentationcenter: ''
+author: animohan
+manager: jhubbard
+editor: cgronlun
+ms.assetid: 2e8b66db-91eb-432b-b305-6abccca25620
+ms.service: cortana-analytics
+ms.workload: data-services
+ms.tgt_pltfrm: na
+ms.devlang: na
+ms.topic: article
+ms.date: 05/05/2018
+ms.author: animohan
+
+# Azure AI Learning Path for Predictive Maintenance
+_Contributors: [Anish Mohan](https://github.com/animohan), [Ramkumar Krishnan](https://github.com/ramkumarkrishnan)_
+
+Predictive maintenance (PdM) is a popular application of predictive analytics that can help businesses in several industries achieve high asset utilization and savings in operational costs.
+
+The data science described in [Azure AI Guide for Predictive Maintenance Solutions](#Azure-AI-Guide-for-Predictive-Maintenance-Solutions) (**NOTE: Substitute the link with the address of the Docs web page when this section becomes a .md file that is posted in the Learn AI site**) is based on foundational concepts from mathematics, statistics, information theory, and cognitive science. The processing to enable this data science is based on distributed compute and storage systems. This document provides a learning path for a reader interested in learning these foundational concepts.
+
+## 'Classical' machine learning techniques for PdM
+
+This section provides the learning path to understand 'classical' supervised learning algorithms for classification and regression.
+
+- Classifiers predict a _categorical_ output which could be binary (Failure=Yes/No) or multi-class (Failure_type=Type01/Type02/Type03)
+- Regression algorithms predict a _numerical_ output. Examples are number of days to failure, temperature/pressure/vibration frequency at which failure could occur, and so on.
+
+The key algorithms in this space are:
+- Basic Decision Trees
+- Classification and Regression Trees ([CART, Leo Breiman et al.](https://www.amazon.com/Classification-Regression-Wadsworth-Statistics-Probability/dp/0412048418))
+- Tree pruning methodologies
+- Accuracy measure for Decision trees
+- Bagged Trees (Bagging)
+- Random Forest
+
+### Learning Path for classical ML techniques
+
+| # | Topic            | Description | Modality | Time |
+|:--|------------------|-------------|----------|------|
+| 1 | [Basic Statistics](https://www.edx.org/course/essential-mathematics-for-artificial-intelligence-dat256x) | This course covers the key mathematical concepts required to understanding and building machine learning models. Key sections required for the PdM learning path are (1) Statistics Fundamentals and (2) Probability | Course | 2 hours |
+| 2 | [Hypothesis Testing and Handling Data](https://www.edx.org/course/data-science-essentials-microsoft-dat203-1x-6) | The next step is to understand concepts of hypothesis testing and basic data manipulation methods. Key sections required for the PdM learning path: (1)	Simulation and Hypothesis Testing (2) Exploring and Visualizing Data (3) Data Cleansing and Manipulation | Course | 5 hours |
+| 3 | [Data preparation and Feature engineering](https://www.edx.org/course/programming-python-data-science-microsoft-dat210x-6) | This next set of modules from Python for Programming course covers the key aspects of working with various kinds of data, data manipulation and managing/building features. Key sections required for this learning path: (1)	Data and Features (2) Data Transformation | Course | 2 hours |
+| 4 | [Machine Learning Algorithms](https://www.edx.org/course/principles-machine-learning-microsoft-dat203-2x-6) | After covering the basic data and feature management, next step is look at two key categories of Machine Learning algorithms. This course also introduces the concept of validating statistical and machine learning models. This course covers the theoretical underpinning of machine learning concepts and explains the key machine learning algorithms. The key sections required for this learning path: (1) Classification problems (2) Regression problems (3) Model management | Course | 4 hours |
+| 5 | [Introduction to PySpark](https://www.datacamp.com/courses/introduction-to-pyspark) | This course introduces PySpark and shows how to build a machine learning pipeline using PySpark | Course | 4 hours |
+| 6 | [Basic Decision Trees](https://docs.microsoft.com/en-us/sql/analysis-services/data-mining/microsoft-decision-trees-algorithm) | The above sections are a good preparation to deep-dive into the easiest to understand, transparent, powerful, and elegant classification algorithms - Decision Trees. This document provides a good overview of Decision trees. | Document | 1 hour |
+| 7 | [Implementing Decision Trees](https://www.edx.org/course/programming-python-data-science-microsoft-dat210x-6) | This course covers the basic concepts related to Decision trees and its variants. This content leads into an introduction to Random Forests. The key sections required for this learning path: Data Modeling-Decision Trees. | Course | 3 hours |
+| 8 | [Building and Deploying a Decision Tree/Random Forest model using PySpark](https://gallery.azure.ai/Tutorial/Predictive-Maintenance-using-PySpark) | This document explains the methodology to implement a Random Forest Model for a Predictive Maintenance scenario using PySpark | Document | 2 hours |
+
+## Deep Learning techniques for PdM
+
+Classical ML techniques require extensive feature engineering to be able to build effective models. In contrast, certain deep learning networks like Long Short Term Memory (LSTM) networks are adept at learning from sequences. Applications like PdM that use time series data can benefit from the algorithm's  ability to look back for longer periods of time to detect failure patterns.For more information, see [Deep Learning for Predictive Maintenance](https://azure.microsoft.com/en-us/blog/deep-learning-for-predictive-maintenance/).
+
+The key concepts and techniques in this space are:
+- Perceptron Model
+- Neural Network
+- Gradient Descent and Optimization Techniques
+- Deep Neural Network
+- Recurrent Neural Network
+- Long-Short Term Memory
+
+### Learning Path for Deep Learning algorithms
+
+| # | Topic            | Description | Modality | Time |
+|:--|------------------|-------------|----------|------|
+| 1, 2, 3  |   First 3 sections | The first three courses listed for classical ML techniques are prequisites here also. | Course | 9 hours |
+| 4 | [Deep Learning Explained](https://www.edx.org/course/deep-learning-explained-microsoft-dat236x-0) | This course provides an introduction to Deep Neural Networks, and demonstrates the implementation of a DNN using Microsoft Cognitive Tool Kit. Key sections required for this learning path are: (1) Overview (2) Multi-class classification (3) Multi-Layer Perceptron (Deep Neural Networks) | Course | 10 hours |
+| 5 | [Deep Learning Explained](https://www.edx.org/course/deep-learning-explained-microsoft-dat236x-0) | This section introduces a new kind of a Deep Neural Network - Recurrent Neural Network; and the LSTM network.| Course | 10 hours |
+| 6 | [LSTM Networks Explained]((https://github.com/Azure/lstms_for_predictive_maintenance/blob/master/Deep-Learning-Basics-for-Predictive-Maintenance.ipynb)) | This [notebook document] explains process to build a LSTM Deep Neural Network for predictive maintenance problems. **NOTE: The notebook needs to be renamed without spaces in the ipynb name** | Document | 2 hours |
