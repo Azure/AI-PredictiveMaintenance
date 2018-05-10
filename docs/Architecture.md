@@ -14,7 +14,7 @@ This template demonstrates how to build an end to end POC solution composed of t
 
 ## How it works - in a Nutshell 
 
-![PdM_Solution_Template](.\img\PdM_Solution_Template.png)
+![PdM_Solution_Template](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/PdM_Solution_Template.png)
 
 Figure 1. PdM solution template architecture
 
