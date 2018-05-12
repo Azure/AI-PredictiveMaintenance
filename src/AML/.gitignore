@@ -3,3 +3,4 @@
 azureml-logs
 *.dprep.user
 .vscode/settings.json
+Notebooks/*.py
