@@ -59,6 +59,7 @@
                 <Parameter name="amlAssetsUrl" defaultValue="{PatternAssetBaseUrl}/AML.zip" hidden="true" />
                 <Parameter name="modelManagementSwaggerUrl" defaultValue="{Outputs.modelManagementSwaggerLocation}" hidden="true" />
                 <Parameter name="computeResourceId" defaultValue="{Outputs.computeResourceId}" hidden="true" />
+                <Parameter name="dsvmName" defaultValue="{Outputs.vmName}" hidden="true" />
             </Parameters>
         </ArmDeployment>
         <ArmDeployment source="arm/authSettings.json" title="Enabling Authentication/Authorization" autoResolveParameters="true" />

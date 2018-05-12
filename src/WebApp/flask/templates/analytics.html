@@ -1,107 +1,11 @@
 {% extends "layout.html" %}
 
 {% block body %}
-    {% if clusterDetails.Status == 0 or  clusterDetails.Status == 4 or clusterDetails.Status == 3 %}
-    <form action = "/createCluster" method = "POST">
-        <div class="form-group has-feedback">
-            <label for="skuType">Sku Type</label>
-            <div>
-                <select style="font-size:10pt;height:30px;width:300px;" class="form-control" id="skutype" name="skutype">
-                    <option value="standard_d1_v2">Standard_d1_v2</option>
-                    <option value="standard_d2_v2">Standard_d2_v2</option>
-                    <option value="standard_d3_v2">Standard_d3_v2</option>
-                    <option value="standard_d4_v2">Standard_d4_v2</option>
-                </select>
-            </div>
-        </div>        
-        <div class="form-group has-feedback">
-            <label for="numofVM">Number of VM's</label>
-            <div>
-                <select style="font-size:10pt;height:30px;width:300px;" class="form-control" id="vmsize" name="vmsize">
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-group has-feedback">
-            <label for="user">Cluster User Name</label>
-            <input style="font-size:10pt;height:30px;width:300px;" type ="text" class="form-control" id="user" name="user" required>
-        </div>
-
-        <div class="form-group has-feedback">
-            <label for="password">Cluster Password</label>
-            <input style="font-size:10pt;height:30px;width:300px;" type ="password" class="form-control" id="password" name="password" required>
-        </div>
-        <div>           
-            <button type="submit" id="create-project-button" class="btn btn-primary">Create Cluster</button>
-        </div>
-        <div>
-            {% if clusterDetails.Status == 4 %}           
-            <small class="text-danger">
-                Cluster Creation Failed : {{clusterDetails.Message}}
-            </small>
-            {% endif %}
-        </div>
-    </form>
-    {% endif %}
-    {% if clusterDetails.Status == 1 %}
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12 text-center">
-                <h1 class="mt-5">Cluster Provisioning</h1>
-                <span class="fa fa-spinner fa-spin" id="spinner"></span>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-    {% if clusterDetails.Status == 2 or clusterDetails.Status == 5%}
     <div>
-        <h3>Cluster Information</h3>
         <p>
-            <i>Master Node IP Address</i>: {{clusterDetails.Master_Ip_Address}}
-        </p>   
-        <p>
-            <i>Master Node Port Number</i>: {{clusterDetails.Master_Port}}
-        </p>  
-        <p>
-            <i>Connect via SSH</i>:
-            <code>
-                ssh {{clusterDetails.UserName}}@{{clusterDetails.Master_Ip_Address}} -p {{clusterDetails.Master_Port}} -L 8888:127.0.0.1:8888
-            </code>
-        </p>
-        <p>
-            Once connected, <i>Jupyter</i> will be available at <a href="http://localhost:8888" target="_blank">http://localhost:8888 </a>
+            <i>Jupyter Notebooks</i> are available at <a href="https://{{dsvmName}}:8000" target="_blank">https://{{dsvmName}}:8000</a>
         </p>  
     </div>
-    <p>
-        <a href="https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/User%20Guides/AZTK%20Instructions.md" target="_blank">
-            Connecting via PuTTY
-        </a> 
-    </p>
-    <form action = "/deleteCluster" method = "POST">
-        <div>           
-            <button type="submit" id="create-project-button" class="btn btn-primary" onclick="return confirm('Are you sure you want to delete the cluster?')">Delete Cluster</button>
-        </div>
-        <div>
-            {% if clusterDetails.Status == 5 %}           
-            <small class="text-danger">
-                Cluster creation failed : {{clusterDetails.Message}}
-            </small>
-            {% endif %}
-        </div>
-    </form>
-    {% endif %}
 {% endblock %}
 
-{% block script %}
-<script>
-    window.setInterval(function() {
-        if( '{{clusterDetails.Status}}' == 1)
-        {
-            location.reload();
-        }
-    }, 10000);
-</script>  
-{% endblock %}
+

@@ -8,6 +8,12 @@
         "description": "Web site name"
     }
     },
+    "dsvmName": {
+      "type": "string",
+      "metadata": {
+        "description": "Web site name"
+    }
+    },
     "webAppUrl": {
         "type": "string",
         "metadata": {
@@ -91,17 +97,10 @@
       "metadata": {
           "description": "Storage account key"
       }
-    },
-    "dsvmName": {
-      "type": "string",
-      "metadata": {
-        "description": "DSVM name"
-      }
     }
   },
   "variables": {
     "uniqueString": "[uniqueString(resourceGroup().id)]",
-    "web-farm-version": "2016-09-01",
     "web-site-version": "2016-08-01",
     "unique": "[uniqueString(resourceGroup().id)]",
     "location": "[resourceGroup().location]",
@@ -112,75 +111,24 @@
   },
   "resources": [
     {
-      "type": "Microsoft.Web/serverfarms",
-      "name": "[variables('web-farm-name')]",
-      "apiVersion": "[variables('web-farm-version')]",
-      "location": "[resourceGroup().location]",
-      "sku": {"name": "S1"},
-      "properties": { }
-    },
-    {
       "type": "Microsoft.Web/sites",
       "name": "[variables('web-site-name')]",
       "apiVersion": "[variables('web-site-version')]",
       "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[variables('web-farm-id')]"
-      ],
+      "dependsOn": [],
       "properties": {
         "serverFarmId": "[variables('web-farm-id')]"
       },
       "resources": [
         {
-          "type": "siteextensions",
-          "name": "python364x64",
-          "apiVersion": "[variables('web-site-version')]",
-          "dependsOn": [
-            "[variables('web-site-id')]"
-          ],
-          "properties": { }
-        },
-        {
-          "type": "config",
-          "name": "web",
-          "apiVersion": "[variables('web-site-version')]",
-          "dependsOn": [
-            "[variables('web-site-id')]",
-            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/config/appsettings')]"
-          ],
-          "properties": {
-            "use32BitWorkerProcess": false,
-            "alwaysOn": true
-          }
-        },
-        {
-          "type": "config",
-          "name": "logs",
-          "apiVersion": "[variables('web-site-version')]",
-          "dependsOn": [
-            "[variables('web-site-id')]",
-            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/config/appsettings')]"
-          ],
-          "properties": {
-            "applicationLogs": {
-              "fileSystem": {
-                "level": "Verbose"
-              },
-              "detailedErrorMessages": {
-                "enabled": true
-              }
-            }
-          }
-        },
-        {
           "type": "config",
           "name": "appsettings",
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [
-            "[variables('web-site-id')]",
-            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/extensions/MSDeploy')]"
+            "[variables('web-site-id')]"
           ],
           "properties": {
+            "DSVM_NAME": "[parameters('dsvmName')]",
             "STORAGE_ACCOUNT_NAME": "[parameters('storageAccountName')]",
             "STORAGE_ACCOUNT_KEY": "[parameters('storageAccountKey')]",
             "IOT_HUB_NAME": "[parameters('iotHubName')]",
@@ -193,53 +141,10 @@
             "MODEL_MANAGEMENT_SWAGGER_URL": "[parameters('modelManagementSwaggerUrl')]",
             "ML_COMPUTE_RESOURCE_ID": "[parameters('computeResourceId')]",
             "SERVICE_BUS_CONNECTION_STRING": "[parameters('serviceBusPrimaryConnectionString')]",
-            "SERVICE_BUS_QUEUE_NAME": "[parameters('serviceBusQueueName')]",
-            "DSVM_NAME": "[parameters('dsvmName')]"
-          }
-        },
-        {
-          "type": "extensions",
-          "name": "MSDeploy",
-          "apiVersion": "[variables('web-site-version')]",
-          "dependsOn": [
-            "[variables('web-site-id')]",
-            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/siteextensions/python364x64')]"
-          ],
-          "properties": {
-            "packageUri": "[parameters('webAppUrl')]",
-            "dbType": "None",
-            "connectionString": ""
+            "SERVICE_BUS_QUEUE_NAME": "[parameters('serviceBusQueueName')]"
           }
         }
       ]
-    },
-    {
-      "name": "setupWebhook",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2016-06-01",
-      "properties": {
-          "mode": "Incremental",
-          "templateLink": {
-              "uri": "[concat('https://', reference(variables('web-site-name')).hostNames[0], '/setup.js?sn=', parameters('storageAccountName'), '&sk=', uriComponent(parameters('storageAccountKey')))]",
-              "contentVersion": "1.0.0.0"
-          },
-          "parameters":  {}
-      },
-      "dependsOn": [
-        "[variables('web-site-id')]",
-        "[resourceId('Microsoft.Web/sites/extensions', variables('web-site-name'), 'MSDeploy')]",
-        "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/siteextensions/python364x64')]"
-      ]
     }
-  ],
-  "outputs": {
-    "webfarm": {
-      "value": "[reference(variables('web-farm-name'))]",
-      "type" : "object"
-    },
-    "siteHostName": {
-      "value": "[reference(variables('web-site-name')).hostNames[0]]",
-      "type": "string"
-    }
-  }
+  ]
 }

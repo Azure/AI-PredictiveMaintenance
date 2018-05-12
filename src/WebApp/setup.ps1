@@ -8,7 +8,27 @@ $fileshareName = "azureml-share"
 $ErrorActionPreference = "Stop"
 $ctx = New-AzureStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $storageAccountKey
 
-New-AzureStorageContainer -Name $containerName -Context $ctx -Permission Off
+
+$success = $false
+$i =0
+while((!$success))
+{
+  try
+  {
+    New-AzureStorageContainer -Name $containerName -Context $ctx -Permission Off
+    Get-AzureStorageContainer -Name $containerName -Context $ctx
+    $success = $true
+  }
+  catch{
+    if($i -gt 4)
+    {
+      throw
+    }
+    $i =$i +1
+    Start-Sleep -s 15
+  }
+}
+
 
 $success = $false
 $i =0
