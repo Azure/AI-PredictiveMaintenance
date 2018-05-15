@@ -25,12 +25,13 @@ sudo mount -t cifs //$2.file.core.windows.net/azureml-share $homedir/mnt/azureml
 sudo -u $username mkdir $homedir/mnt/azureml-share/Pdm_Solution1
 sudo -u $username mkdir $homedir/mnt/azureml-share/Pdm_Solution2
 
-sudo echo "os.environ['AZUREML_NATIVE_SHARE_DIRECTORY']=\"${homedir}/mnt/azureml-share/Pdm_Solution1\"" >> /etc/jupyterhub/jupyterhub_config.py
+sudo echo "os.environ['AZUREML_NATIVE_SHARE_DIRECTORY']=\"${homedir}/mnt/azureml-share/\"" >> /etc/jupyterhub/jupyterhub_config.py
 sudo echo "os.environ['TELEMETRY_STORAGE_ACCOUNT_NAME']=\"$2\"" >> /etc/jupyterhub/jupyterhub_config.py
 sudo echo "os.environ['TELEMETRY_STORAGE_ACCOUNT_KEY']=\"$3\"" >> /etc/jupyterhub/jupyterhub_config.py
 sudo echo "os.environ['STAGING_STORAGE_ACCOUNT_NAME']=\"$2\"" >> /etc/jupyterhub/jupyterhub_config.py
 sudo echo "os.environ['STAGING_STORAGE_ACCOUNT_KEY']=\"$3\"" >> /etc/jupyterhub/jupyterhub_config.py
 sudo echo 'os.environ["TELEMETRY_CONTAINER_NAME"]="telemetry"' >> /etc/jupyterhub/jupyterhub_config.py
 sudo echo 'c.Spawner.env_keep.extend(["AZUREML_NATIVE_SHARE_DIRECTORY", "TELEMETRY_STORAGE_ACCOUNT_NAME", "TELEMETRY_STORAGE_ACCOUNT_KEY", "STAGING_STORAGE_ACCOUNT_NAME", "STAGING_STORAGE_ACCOUNT_KEY", "TELEMETRY_CONTAINER_NAME"])' >> /etc/jupyterhub/jupyterhub_config.py
+sudo echo "c.Spawner.notebook_dir = \"$homedir/notebooks/Notebooks\"" >> /etc/jupyterhub/jupyterhub_config.py
 
 sudo systemctl restart jupyterhub

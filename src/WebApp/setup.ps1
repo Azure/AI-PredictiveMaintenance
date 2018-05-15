@@ -20,8 +20,10 @@ while((!$success))
     $success = $true
   }
   catch{
+    $ErrorActionPreference = "SilentlyContinue"
     $message = 'Creating telemetry container failed : ' + $_.Exception.Message
-    Add-Content -Path "D:\home\site\wwwroot\SetupLog.txt" -Value $message 
+    Add-Content -Path "D:\home\site\wwwroot\SetupLog.txt" -Value $message
+    $ErrorActionPreference = "Stop" 
     if($i -gt 4)
     {
       throw
@@ -43,8 +45,10 @@ while((!$success))
     $success = $true
   }
   catch{
+    $ErrorActionPreference = "SilentlyContinue"
     $message = 'Creating azuremlshare file share failed : ' + $_.Exception.Message
     Add-Content -Path "D:\home\site\wwwroot\SetupLog.txt" -Value $message 
+    $ErrorActionPreference = "Stop"
     if($i -gt 4)
     {
       throw
@@ -66,8 +70,10 @@ while((!$success))
     $success = $true
   }
   catch{
+    $ErrorActionPreference = "SilentlyContinue"
     $message = 'Creating azuremlshare file share failed : ' + $_.Exception.Message
     Add-Content -Path "D:\home\site\wwwroot\SetupLog.txt" -Value $message 
+    $ErrorActionPreference = "Stop"
     if($i -gt 4)
     {
       throw

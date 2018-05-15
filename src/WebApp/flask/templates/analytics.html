@@ -3,7 +3,7 @@
 {% block body %}
     <div>
         <p>
-        <b>AZTK</b>  
+        <i><b>AZTK</b></i>  
         </p>
     </div>
     {% if clusterDetails.Status == 0 or  clusterDetails.Status == 4 or clusterDetails.Status == 3 %}
@@ -63,7 +63,7 @@
     {% endif %}
     {% if clusterDetails.Status == 2 or clusterDetails.Status == 5%}
     <div>
-        <h3>Cluster Information</h3>
+        <b>Cluster Information</b>
         <p>
             <i>Master Node IP Address</i>: {{clusterDetails.Master_Ip_Address}}
         </p>   
@@ -100,7 +100,7 @@
     {% endif %}
     <div>
         <p>
-        <b>DSVM</b> 
+        <b><i>DSVM</i></b> 
         </p>
         <p>
             <i>DSVM Jupyter Notebooks</i> are available at <a href="https://{{clusterDetails.dsvmName}}:8000" target="_blank">https://{{clusterDetails.dsvmName}}:8000</a>

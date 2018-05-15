@@ -52,7 +52,7 @@ if  [ "$AZTK_IS_MASTER" = "true" ]; then
 }
 EOF
 
-    export AZUREML_NATIVE_SHARE_DIRECTORY='/mnt/azureml-share'
+    export AZUREML_NATIVE_SHARE_DIRECTORY='/mnt/azureml-share/'
     export TELEMETRY_STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT_NAME
     export TELEMETRY_STORAGE_ACCOUNT_KEY=$STORAGE_ACCOUNT_KEY
     export STAGING_STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT_NAME
@@ -60,6 +60,6 @@ EOF
     export TELEMETRY_CONTAINER_NAME='telemetry'
 
     # start jupyter notebook from /mnt - this is where we recommend you put your azure files mount point as well
-    cd /mnt/azureml-project/Pdm_Solution1
+    cd /mnt/azureml-project/Notebooks
     (PYSPARK_DRIVER_PYTHON=$PYSPARK_DRIVER_PYTHON PYSPARK_DRIVER_PYTHON_OPTS="notebook --no-browser --port=8888 --allow-root" pyspark &)
 fi
