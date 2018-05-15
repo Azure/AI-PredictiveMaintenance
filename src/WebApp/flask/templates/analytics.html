@@ -1,10 +1,12 @@
 {% extends "layout.html" %}
 
 {% block body %}
-    {% if clusterDetails.Status == 0 or  clusterDetails.Status == 4 or clusterDetails.Status == 3 %}
     <div>
-        <h1>Create Aztk Cluster</h1>  
+        <p>
+        <b>AZTK</b>  
+        </p>
     </div>
+    {% if clusterDetails.Status == 0 or  clusterDetails.Status == 4 or clusterDetails.Status == 3 %}
     <form action = "/createCluster" method = "POST">
         <div class="form-group has-feedback">
             <label for="skuType">Sku Type</label>
@@ -98,6 +100,9 @@
     {% endif %}
     <div>
         <p>
+        <b>DSVM</b> 
+        </p>
+        <p>
             <i>DSVM Jupyter Notebooks</i> are available at <a href="https://{{clusterDetails.dsvmName}}:8000" target="_blank">https://{{clusterDetails.dsvmName}}:8000</a>
         </p>  
     </div>
@@ -113,5 +118,3 @@
     }, 10000);
 </script>  
 {% endblock %}
-
-
