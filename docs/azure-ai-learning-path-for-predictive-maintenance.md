@@ -3,7 +3,7 @@ _Contributors: [Anish Mohan](https://github.com/animohan), [Ramkumar Krishnan](h
 
 Predictive maintenance (PdM) solutions helps businesses make use of their assets effectively, which translates to savings in operational costs.
 
-The data science described in [Azure AI Guide for Predictive Maintenance Solutions](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/cortana-analytics-playbook-predictive-maintenance.md) is based on foundational concepts from mathematics, statistics, information theory, and cognitive science. The processing to enable this data science is based on distributed compute and storage systems. This document provides a learning path for a reader interested in learning these foundational concepts.
+The data science described in [Azure AI Guide for Predictive Maintenance Solutions](https://docs.microsoft.com/en-us/azure/machine-learning/team-data-science-process/cortana-analytics-playbook-predictive-maintenance) is based on foundational concepts from mathematics, statistics, information theory, and cognitive science. The processing to enable this data science is based on distributed compute and storage systems. This document provides a learning path for a reader interested in learning these foundational concepts.
 
 ## 'Classical' machine learning techniques for PdM
 
