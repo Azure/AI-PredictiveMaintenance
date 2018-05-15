@@ -199,7 +199,7 @@ def analytics():
     aztkcluster = AztkCluster()
     clusterDetails = aztkcluster.getCluster()
     dsvmName = os.environ['DSVM_NAME']
-    clusterDetails.dsvmName = dsvmName
+    clusterDetails['dsvmName'] = dsvmName
     return render_template('analytics.html', clusterDetails = clusterDetails)
 
 @app.route('/createCluster', methods=['POST'])
