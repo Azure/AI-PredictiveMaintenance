@@ -8,6 +8,10 @@ source /usr/bin/anaconda/bin/activate py35
 sudo /usr/bin/anaconda/bin/conda install nbformat
 sudo /usr/bin/anaconda/bin/conda env update --file /home/$1/AML/aml_config/conda_dependencies.yml
 
+sudo apt-get install libqt5x11extras5
+
+sudo ln -sf /usr/lib/x86_64-linux-gnu/qt5/plugins/platforms/ /usr/bin/
+
 sudo mkdir /home/$1/mnt
 sudo mkdir /home/$1/mnt/azureml-share
 

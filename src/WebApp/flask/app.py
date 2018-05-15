@@ -18,6 +18,7 @@ from azure.storage.blob.models import BlobPermissions
 from azure.storage.table import TableService, Entity, TablePermissions
 from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 from model_management import ModelManagement
+from aztk_cluster import AztkCluster
 
 # TODO: Fix possible WebJob restarts because of this.
 simulator_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/jobs/continuous/Simulator'))
@@ -195,8 +196,25 @@ def setup():
 @register_breadcrumb(app, '.analytics', 'Analytics')
 @login_required
 def analytics():
+    aztkcluster = AztkCluster()
+    clusterDetails = aztkcluster.getCluster()
     dsvmName = os.environ['DSVM_NAME']
-    return render_template('analytics.html', dsvmName = dsvmName)
+    clusterDetails.dsvmName = dsvmName
+    return render_template('analytics.html', clusterDetails = clusterDetails)
+
+@app.route('/createCluster', methods=['POST'])
+@login_required
+def createCluster():
+    aztkcluster = AztkCluster(request.form['vmsize'], request.form['skutype'], request.form['user'], request.form['password'])
+    aztkcluster.createCluster()
+    return redirect('/analytics')
+
+@app.route('/deleteCluster', methods=['POST'])
+@login_required
+def deleteCluster():
+    aztkcluster = AztkCluster()
+    aztkcluster.deleteCluster()
+    return redirect('/analytics')
 
 @app.route('/operationalization')
 @register_breadcrumb(app, '.operationalization', 'Operationalization')

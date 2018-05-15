@@ -7,7 +7,7 @@ $containerName = "telemetry"
 $fileshareName = "azureml-share"
 $ErrorActionPreference = "Stop"
 $ctx = New-AzureStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $storageAccountKey
-
+New-Item -Path "D:\home\site\wwwroot" -Name "SetupLog.txt" -ItemType "file" 
 
 $success = $false
 $i =0
@@ -20,6 +20,8 @@ while((!$success))
     $success = $true
   }
   catch{
+    $message = 'Creating telemetry container failed : ' + $_.Exception.Message
+    Add-Content -Path 'D:\home\site\wwwroot\SetupLog.txt' -Value $message 
     if($i -gt 4)
     {
       throw
@@ -41,6 +43,8 @@ while((!$success))
     $success = $true
   }
   catch{
+    $message = 'Creating azuremlshare file share failed : ' + $_.Exception.Message
+    Add-Content -Path 'D:\home\site\wwwroot\SetupLog.txt' -Value $message 
     if($i -gt 4)
     {
       throw

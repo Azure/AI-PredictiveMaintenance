@@ -227,8 +227,7 @@
       },
       "dependsOn": [
         "[variables('web-site-id')]",
-        "[resourceId('Microsoft.Web/sites/extensions', variables('web-site-name'), 'MSDeploy')]",
-        "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/siteextensions/python364x64')]"
+        "[resourceId('Microsoft.Web/sites/extensions', variables('web-site-name'), 'MSDeploy')]"
       ]
     }
   ],
