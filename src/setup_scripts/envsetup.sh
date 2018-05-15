@@ -1,16 +1,8 @@
 #!/bin/bash
 
-pushd ~
-wget $1
-unzip AML.zip -d AML
-popd
 
 pushd ~/notebooks
 rm -rf *
-popd
-
-pushd ~
-unzip ~/AML.zip -d ~/notebooks
 popd
 
 source /anaconda/bin/activate py35

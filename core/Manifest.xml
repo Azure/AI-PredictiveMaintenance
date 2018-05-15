@@ -20,8 +20,8 @@
         <Manual title="Configure Linux DSVM">
             <Parameters>
                 <Credential type="linuxvm" username="adminUsername" password="adminPassword" />
-                <Parameter name="vmSize" allowedValues="{VirtualMachineSkus}" defaultValue="Standard_DS3_v2" />
                 <Parameter name="fileUris" hidden="true" defaultValue="{PatternAssetBaseUrl}/install.sh {PatternAssetBaseUrl}/envsetup.sh" />
+                <VmSku name="vmSize" defaultValue="Standard_DS3_v2" description="Size for the Virtual Machine" allowedValues="{VirtualMachineSkus}" />
             </Parameters>
         </Manual>
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
@@ -62,6 +62,12 @@
                 <Parameter name="dsvmName" defaultValue="{Outputs.vmName}" hidden="true" />
             </Parameters>
         </ArmDeployment>
+        <WebJob title="Creating file shares and containers" retriable="true">
+            <Parameters>
+                <Parameter name="appName" defaultValue="{Outputs.webSiteName}" />
+                <Parameter name="jobName" defaultValue="azurestoragesetup" />
+            </Parameters>
+        </WebJob>
         <ArmDeployment source="arm/authSettings.json" title="Enabling Authentication/Authorization" autoResolveParameters="true" />
         <ArmDeployment source="arm/iotHubStorageRoute.json" title="Configuring IoT Hub endpoints and routes (Azure Storage, Service Bus)">
             <Parameters>

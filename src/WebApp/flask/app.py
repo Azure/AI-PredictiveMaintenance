@@ -340,7 +340,7 @@ def operationalization_post_operation(operation):
     operation = operation.lower()
     if operation == 'registermodel':
         try:
-            model_blob_url = create_snapshot('azureml-share', 'Pdm_Solution1', 'model.tar.gz', 'o16n')
+            model_blob_url = create_snapshot('azureml-share', 'Solution1', 'model.tar.gz', 'o16n')
         except Exception as e:
             resp = Response("No serialized model found. " + str(e), status = 400)
             return resp
@@ -365,9 +365,9 @@ def operationalization_post_operation(operation):
         try:
             correlation_guid = str(uuid.uuid4())
             driver_url = create_snapshot('azureml-project', None , 'driver.py', 'o16n', correlation_guid)
-            score_url = create_snapshot('azureml-share', 'Pdm_Solution1', 'score.py', 'o16n', correlation_guid)
-            featurization_url = create_snapshot('azureml-share', 'Pdm_Solution1', 'featurization.py', 'o16n', correlation_guid)
-            schema_url = create_snapshot('azureml-share', 'Pdm_Solution1', 'service_schema.json', 'o16n', correlation_guid)
+            score_url = create_snapshot('azureml-share', 'Solution1', 'score.py', 'o16n', correlation_guid)
+            featurization_url = create_snapshot('azureml-share', 'Solution1', 'featurization.py', 'o16n', correlation_guid)
+            schema_url = create_snapshot('azureml-share', 'Solution1', 'service_schema.json', 'o16n', correlation_guid)
             requirements_url = create_snapshot('azureml-project', 'aml_config', 'requirements.txt', 'o16n', correlation_guid)
             conda_dependencies_url = create_snapshot('azureml-project', 'aml_config', 'conda_dependencies.yml', 'o16n', correlation_guid)
         except Exception as e:

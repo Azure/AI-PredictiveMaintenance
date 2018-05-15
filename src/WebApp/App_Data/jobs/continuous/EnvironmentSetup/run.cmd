@@ -4,8 +4,6 @@ IF EXIST %READY_FILE% EXIT
 
 D:\home\python364x64\python.exe -m pip install --upgrade -r D:\home\site\wwwroot\requirements.txt
 
-D:\home\python364x64\python.exe init.py
-
 pushd d:\home\site\
 git clone https://www.github.com/azure/aztk
 cd aztk
