@@ -2,6 +2,9 @@
 
 {% block body %}
     {% if clusterDetails.Status == 0 or  clusterDetails.Status == 4 or clusterDetails.Status == 3 %}
+    <div>
+        <h1>Create Aztk Cluster</h1>  
+    </div>
     <form action = "/createCluster" method = "POST">
         <div class="form-group has-feedback">
             <label for="skuType">Sku Type</label>
