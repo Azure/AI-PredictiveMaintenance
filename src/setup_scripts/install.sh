@@ -16,6 +16,10 @@ cp $basedir/envsetup.sh $homedir/
 userid=`id -u $username`
 groupid=`id -g $username`
 
+pushd $homedir/notebooks
+rm -rf *
+popd
+
 sudo mount -t cifs //$2.file.core.windows.net/azureml-project $homedir/notebooks -o vers=3.0,username=$2,password=$3,uid=$userid,gid=$groupid,rw,dir_mode=0777,file_mode=0777,serverino
 
 sudo -u $username bash $homedir/envsetup.sh $1 $2 $3
