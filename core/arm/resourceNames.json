@@ -4,7 +4,9 @@
     "variables": {        
         "uniqueString": "[uniqueString(resourceGroup().id)]",        
         "webSiteName": "[concat('pdm-demo-', variables('uniqueString'))]",
-        "computeResourceName": "[concat('aml-o16n-', variables('uniqueString'))]"
+        "computeResourceName": "[concat('aml-o16n-', variables('uniqueString'))]",
+        "location": "[resourceGroup().location]",
+        "vmName": "[toLower(concat('pm', uniqueString(resourceGroup().id), '.', variables('location'), '.cloudapp.azure.com'))]"
     },
     "resources": [],
     "outputs": {
@@ -15,6 +17,10 @@
         "computeResourceName": {
             "type": "string",
             "value": "[variables('computeResourceName')]"
+        },
+        "vmName": {
+            "type": "string",
+            "value": "[variables('vmName')]"
         },
         "computeResourceId": {
             "type": "string",

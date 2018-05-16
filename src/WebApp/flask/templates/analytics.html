@@ -1,6 +1,11 @@
 {% extends "layout.html" %}
 
 {% block body %}
+    <div>
+        <p>
+        <i><b>Spark Cluster</b></i>  
+        </p>
+    </div>
     {% if clusterDetails.Status == 0 or  clusterDetails.Status == 4 or clusterDetails.Status == 3 %}
     <form action = "/createCluster" method = "POST">
         <div class="form-group has-feedback">
@@ -50,15 +55,15 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12 text-center">
-                <h1 class="mt-5">Cluster Provisioning</h1>
-                <span class="fa fa-spinner fa-spin" id="spinner"></span>
+                <h3 class="mt-5">Cluster Provisioning</h3>
+                <span class="fa fa-spinner fa-spin" id="clusterspinner"></span>
             </div>
         </div>
     </div>
     {% endif %}
     {% if clusterDetails.Status == 2 or clusterDetails.Status == 5%}
     <div>
-        <h3>Cluster Information</h3>
+        <b>Cluster Information</b>
         <p>
             <i>Master Node IP Address</i>: {{clusterDetails.Master_Ip_Address}}
         </p>   
@@ -93,6 +98,14 @@
         </div>
     </form>
     {% endif %}
+    <div>
+        <p>
+        <b><i>DSVM</i></b> 
+        </p>
+        <p>
+            <i>DSVM Jupyter Notebooks</i> are available at <a href="https://{{clusterDetails.dsvmName}}:8000" target="_blank">https://{{clusterDetails.dsvmName}}:8000</a>
+        </p>  
+    </div>
 {% endblock %}
 
 {% block script %}

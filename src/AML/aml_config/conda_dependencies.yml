@@ -19,3 +19,5 @@ dependencies:
   
     # Library for collecting data from operationalized models
     - azureml-model-management-sdk==1.0.1b6
+    - sparkmagic==0.11.2
+    - ggplot==0.11.5

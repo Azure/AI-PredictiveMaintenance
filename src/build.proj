@@ -5,6 +5,11 @@
         <ZipDir ZipFileName="..\assets\WebApp.zip" DirectoryName="WebApp" />
         <Delete Files="..\assets\AML.zip" />
         <ZipDir ZipFileName="..\assets\AML.zip" DirectoryName="AML" />
+        <Delete Files="..\assets\*.sh" />
+        <ItemGroup>
+          <Ev2Files Include="setup_scripts\**\*" />
+        </ItemGroup>
+        <Copy SourceFiles="@(Ev2Files)" DestinationFolder="..\assets" />
     </Target>
   <UsingTask TaskName="ZipDir" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
     <ParameterGroup>
