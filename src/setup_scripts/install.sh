@@ -19,7 +19,7 @@ groupid=`id -g $username`
 sudo mount -t cifs //$2.file.core.windows.net/azureml-share $homedir/mnt/azureml-share -o vers=3.0,username=$2,password=$3,uid=$userid,gid=$groupid,rw,dir_mode=0777,file_mode=0777,serverino
 
 sudo -u $username bash $homedir/envsetup.sh $1 $2 $3
-sudo cp $homedir/AML/config/spark-defaults.config /dsvm/tools/spark/current/conf/spark-defaults.conf
+sudo cp $homedir/notebooks/config/spark-defaults.config /dsvm/tools/spark/current/conf/spark-defaults.conf
 
 sudo mount -t cifs //$2.file.core.windows.net/azureml-project $homedir/notebooks -o vers=3.0,username=$2,password=$3,uid=$userid,gid=$groupid,rw,dir_mode=0777,file_mode=0777,serverino
 
