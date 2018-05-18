@@ -18,6 +18,14 @@ file_service = FileService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAG
 file_service.create_share(share_name='azureml-project', quota=1)
 file_service.create_share(share_name='azureml-share', quota=1)
 
+file_service.create_directory('azureml-share', 'Solution1')
+file_service.create_directory('azureml-share', 'Solution2')
+
+block_blob_service = BlockBlobService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
+
+container_name ='telemetry'
+block_blob_service.create_container(container_name)  
+
 source=os.environ['AML_ASSETS_URL']
 dest='azureml_project.zip'
 

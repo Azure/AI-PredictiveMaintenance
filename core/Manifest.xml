@@ -17,6 +17,13 @@
                 <ResourceProvider name = "Microsoft.ContainerService"/>
     </RegisterResourceProviders>
     <ProvisioningSteps>
+        <Manual title="Configure Linux DSVM">
+            <Parameters>
+                <Credential type="linuxvm" username="adminUsername" password="adminPassword" />
+                <Parameter name="fileUris" hidden="true" defaultValue="{PatternAssetBaseUrl}/install.sh {PatternAssetBaseUrl}/envsetup.sh" />
+                <VmSku name="vmSize" defaultValue="Standard_DS3_v2" description="Size for the Virtual Machine" allowedValues="{VirtualMachineSkus}" />
+            </Parameters>
+        </Manual>
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
         <ArmDeployment source="arm/azureBatch.json" title="Creating Azure Batch account" />
         <ActiveDirectoryApplication displayName="PdM" replyUrls="https://{Outputs.webSiteName}.azurewebsites.net/.auth/login/aad/callback" title="Creating Azure Active Directory application">
@@ -52,8 +59,15 @@
                 <Parameter name="amlAssetsUrl" defaultValue="{PatternAssetBaseUrl}/AML.zip" hidden="true" />
                 <Parameter name="modelManagementSwaggerUrl" defaultValue="{Outputs.modelManagementSwaggerLocation}" hidden="true" />
                 <Parameter name="computeResourceId" defaultValue="{Outputs.computeResourceId}" hidden="true" />
+                <Parameter name="dsvmName" defaultValue="{Outputs.vmName}" hidden="true" />
             </Parameters>
         </ArmDeployment>
+        <WebJob title="Creating file shares and containers" retriable="true">
+            <Parameters>
+                <Parameter name="appName" defaultValue="{Outputs.webSiteName}" />
+                <Parameter name="jobName" defaultValue="azurestoragesetup" />
+            </Parameters>
+        </WebJob>
         <ArmDeployment source="arm/authSettings.json" title="Enabling Authentication/Authorization" autoResolveParameters="true" />
         <ArmDeployment source="arm/iotHubStorageRoute.json" title="Configuring IoT Hub endpoints and routes (Azure Storage, Service Bus)">
             <Parameters>
@@ -61,6 +75,11 @@
                 <Parameter name="storageContainerName" defaultValue="telemetry" hidden="true" />
                 <Parameter name="serviceBusPrimaryConnectionString" defaultValue="{Outputs.serviceBusPrimaryConnectionString}" hidden="true" />
                 <Parameter name="serviceBusQueueName" defaultValue="{Outputs.serviceBusQueueName}" hidden="true" />
+            </Parameters>
+        </ArmDeployment>
+                <ArmDeployment source="arm/linuxDsvm.json" title="Provisioning Linux DSVM" autoResolveParameters="true">
+            <Parameters>
+                <Parameter name="commandToExecute" hidden="true" defaultValue="bash install.sh {PatternAssetBaseUrl}/AML.zip {Outputs.storageAccountName} {Outputs.storageAccountKey}" />
             </Parameters>
         </ArmDeployment>
         <ArmDeployment source="arm/operationalization.json" title="Creating Machine Learning Compute resources" autoResolveParameters="true" retriable= "false">
