@@ -2,17 +2,13 @@
 
 [![Deploy to Azure](https://raw.githubusercontent.com/Azure/Azure-CortanaIntelligence-SolutionAuthoringWorkspace/master/docs/images/DeployToAzure.PNG)](https://quickstart.azure.ai/Deployments/new/ai-predictivemaintenance)
 
-## PRIVATE PREVIEW
-
-### Please send your feedback, questions, and comments to ciqsoncall@microsoft.com
-
 ## Summary
 
 This solution template provides an architectural framework to build proof-of-concept (POC) solutions for Predictive Maintenance (PdM). It shows how to put together an end to end PdM solution. In-depth content on the why and how of the data science and the software design are provided. A key motivation behind this template is to enable developers to quickly reuse or customize it for new customer scenarios.
 
 The key phases of an end to end modeling pipeline are shown: data  ingestion, staging, preparation; feature engineering, model training and validation; model operationalization and output of results. Real-time and stationary data ingestion is supported. Modeling experiments can be run both on a hosting DSVM, or on a scalable Azure service. Online and batch scoring are demonstrated. An easy to use dashboard provides a friendly demo experience, hiding the complexity behind provisioning clusters and other resources.
 
-The AI sections of the template follow the principles and practice described in the popular [Azure AI Guide for Predictive Maintenance](./docs/cortana-analytics-playbook-predictive-maintenance.md) (previously called _Cortana Intelligence Predictive Maintenance Playbook for aerospace and other industries_). Two PdM use cases are provided with the template:
+The AI sections of the template follow the principles and practice described in the popular [Azure AI Guide for Predictive Maintenance](https://docs.microsoft.com/en-us/azure/machine-learning/team-data-science-process/cortana-analytics-playbook-predictive-maintenance) (previously called _Cortana Intelligence Predictive Maintenance Playbook for aerospace and other industries_). Two PdM use cases are provided with the template:
 1. (Use Case UC1) Predict failure condition of a machine - based on real-time sensor-based data.
 2. (Use Case UC2) Predict that a machine will fail within a future time period - based on historical stationary data.
 
@@ -22,14 +18,12 @@ The code for the solution template is [available in GitHub](http://github.com/az
 
 ## Audience
 
-[//]: # (**ONCE THE AI GUIDE IS IN MICROSOFT DOCS, UPDATE THE LINKS BELOW TO HTTP ADDRESS**)
-
 | Start with ... | If you are ... |
 |:---------------|----------------|
-| _Business case for PdM_ section in the [Azure AI Guide for Predictive Maintenance](./docs/cortana-analytics-playbook-predictive-maintenance.md) | a business decision maker (BDM) looking to reduce the downtime and improve utilization of critical equipment |
-| _Data Science for PdM_ section in the [Azure AI Guide for Predictive Maintenance](./docs/cortana-analytics-playbook-predictive-maintenance.md) | a technical decision maker (TDM), architect, or developer, looking to understand the data science behind PdM technologies. |
+| _Business case for PdM_ section in the [Azure AI Guide for Predictive Maintenance](https://docs.microsoft.com/en-us/azure/machine-learning/team-data-science-process/cortana-analytics-playbook-predictive-maintenance) | a business decision maker (BDM) looking to reduce the downtime and improve utilization of critical equipment |
+| _Data Science for PdM_ section in the [Azure AI Guide for Predictive Maintenance](https://docs.microsoft.com/en-us/azure/machine-learning/team-data-science-process/cortana-analytics-playbook-predictive-maintenance) | a technical decision maker (TDM), architect, or developer, looking to understand the data science behind PdM technologies. |
 | This solution template, starting with [Prerequisites](#Prerequisites) | a software architect or developer looking to quickly implement a cloud-based POC solution for Predictive Maintenance with Azure AI. |
-| _Solution Templates and Samples for PdM_ in the [Azure AI Guide for Predictive Maintenance](./docs/cortana-analytics-playbook-predictive-maintenance.md) | a software architect or developer surveying other technical contributions for predictive maintenance from across Microsoft.
+| _Solution Templates and Samples for PdM_ in the [Azure AI Guide for Predictive Maintenance](https://docs.microsoft.com/en-us/azure/machine-learning/team-data-science-process/cortana-analytics-playbook-predictive-maintenance) | a software architect or developer surveying other technical contributions for predictive maintenance from across Microsoft.
 
 ## Prerequisites
 
@@ -44,7 +38,7 @@ You will need an [Azure subscription](https://azure.microsoft.com/en-us/pricing/
 |[Azure IoT Hub Services](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-what-is-iot-hub) | IoT Hub | management of, and data ingestion from, sensor devices |
 |[Azure Blobs & Tables](https://docs.microsoft.com/en-us/azure/storage/common/storage-introduction) | Storage account | Staging of real-time and stationary data |
 |[Azure Data Science VM](https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/) | Virtual machine | Workstation/space for the AI Developer |
-|[Azure Machine Learning v2.0](https://docs.microsoft.com/en-us/azure/machine-learning/service/) | Machine Learning Model Management | Enable AI Developer to manage models |
+|[Azure Machine Learning Service](https://docs.microsoft.com/en-us/azure/machine-learning/service/) | Machine Learning Model Management | Enable AI Developer to manage models |
 |[Azure Kubernetes Cluster (for O16N)](https://docs.microsoft.com/en-us/azure/aks/intro-kubernetes) | Microsoft.MachineLearningCompute/ operationalizationClusters | To operationalize models from Azure ML |
 |[Azure Service Bus](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-fundamentals-hybrid-solutions) | Service Bus | To buffer messages for online scoring |
 
@@ -69,18 +63,14 @@ Click on the **Deploy** button to start a new deployment of the solution templat
 See this [step by step deployment walkthrough](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Deployment.md) for details.
 
 ## Estimated cost
-In its default configuration and quiescent state, the cost of running the template is less than $20 per day. Actual costs may vary depending on the usage and load on the services.
+In its default configuration and quiescent state, the cost of running the template is less than $50 per day. Actual costs may vary depending on the usage and load on the services.
 
 ## Description
 The solution template and its operations are described in the following sections.
 
-- [Solution Template Deployment - step by step](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Deployment.md).
 - [Solution Template Architecture](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Architecture.md)
-- [Model train and test - by use case](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Model-Train-Test.md)
-- [Model operationalization - by use case](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Model-Operationalize.md)
-- [Developer's Guide for reuse of solution template](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Developers-Guide.md)
-- [Frequently Asked Questions](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/FAQ.md)
-- [Release Notes](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Release-Notes.md)
+- [Model train and test - self-documented, and by use case](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Model-Train-Test.md)
+- [Model operationalization - self-documented, and by use case](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Model-Operationalize.md)
 
 ## Privacy
 Usage data is collected to help improve Microsoft products and services. See the [privacy statement](https://privacy.microsoft.com/en-us/privacystatement) to learn more.

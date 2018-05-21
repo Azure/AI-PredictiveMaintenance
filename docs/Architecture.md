@@ -13,7 +13,7 @@ This solution template provides an architecture that supports _cloud based_ scen
 
 [//]: # (**ONCE THE AI GUIDE IS IN MICROSOFT DOCS, UPDATE THE LINKS BELOW TO HTTP ADDRESS**)
 
-This template demonstrates how to build an end to end POC solution composed of these two parts. Review this architecture along with the [Azure AI Guide to Predictive Maintenance](.\cortana-analytics-playbook-predictive-maintenance.md) as a reference.
+This template demonstrates how to build an end to end POC solution composed of these two parts. Review this architecture along with the [Azure AI Guide to Predictive Maintenance](https://docs.microsoft.com/en-us/azure/machine-learning/team-data-science-process/cortana-analytics-playbook-predictive-maintenance) as a reference.
 
 ## How it works - in a Nutshell 
 
@@ -21,17 +21,17 @@ This template demonstrates how to build an end to end POC solution composed of t
 
 Figure 1. PdM solution template architecture
 
-The diagram shows the Azure services that are deployed into the specified resource group. It also shows the data and control flow between these different components during usage. A step by step walkthrough of the architecture follows.
+The diagram shows the Azure services that are deployed into the specified resource group. It also shows the data and control flow between these different components during usage. To demonstrate reuse of the template, two use cases are presented using the same template. A step by step walkthrough of the architecture follows.
 
 GENERATE
 
-**1:** The data generator deployed with the template helps emulate real-time data generation for a (hypothetical) customer scenario. Tens to hundreds of devices can be registered with an IoTHub. Each device can have multiple sensors for attributes such as temperature, pressure etc. Each sensor can be calibrated to produce output at a specific frequency and amplitude.
+**1:** The data generator deployed with the template emulates real-time data output from sensors for a (hypothetical) customer scenario. Tens to hundreds of devices can be registered with an IoTHub. Each device can have multiple sensors for attributes such as temperature, pressure etc. Each sensor can be calibrated to produce output at a specific frequency and amplitude.
 
 INGEST
 
 **2:** Azure IoT Hub is a fully managed service that enables reliable and secure bidirectional communications between millions of IoT devices and a solution back end. Device data streamed out of the IoT Hub is staged in Azure Storage Blobs.
 
-**3:** Maintenance logs, error logs, and failure history that are stored in historical databases at the (hypothetical) customer premise are loaded into Azure Storage Blobs. The storage account provides a repository for other generated artifacts that need to survive across resource deletions or reconfigurations. Specific examples:
+**3:** Maintenance logs, error logs, and failure history that are stored in historical databases at a (hypothetical) customer premise are loaded into Azure Storage Blobs. The storage account also acts as a repository for other generated artifacts that need to survive across resource deletions or reconfigurations. Specific examples:
 - Notebooks for use cases.
 - Pickled (.zip) model files generated as a result of modeling experiments.
 - Stationary training, test and new data to be scored. Stationary data is typical in most PdM applications.
@@ -42,17 +42,15 @@ Data preparation is done in combination with feature engineering as part of the 
 
 TRAIN-TEST
 
-**4:** The Train-Test phase is an iterative experimental process to create models that meet the required success criteria. A DSVM is provisioned in the resource group as the developer's workbench. The Jupyter notebook runtime installed in DSVM supports multiple [iPython kernels](http://jupyter.readthedocs.io/en/latest/projects/kernels.html).
-- For moderately sized training datasets (MB to few GB), train and test routines can be run against a local Python runtime, or locally provisioned Spark clusters (this example is shown with Use Case 2).
-- For larger datasets, the user can provision [Azure HDInsight](https://azure.microsoft.com/en-us/services/hdinsight/) from the Admin dashboard (see [Solution Template Deployment - step by step](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Deployment.md)). By switching the iPython kernel to HDInsight, the user can run the notebooks on the HDInsight Spark clusters.
-
-**5:** Once the models are created, the pickle files of the models are maintained in Blob storage. Accidental loss of models owing to cluster or DSVM deletion is prevented in this manner.
+**4 and 5:** Two options are provided for the Train-Test phase to create models that meet the required success criteria:
+ - A DSVM is provisioned in the resource group as the developer's workbench. The Jupyter notebook runtime installed in DSVM supports multiple [iPython kernels](http://jupyter.readthedocs.io/en/latest/projects/kernels.html). For moderately sized training datasets (MB to few GB), train and test routines can be run against a local Python runtime, or locally provisioned Spark clusters (this example is shown with Use Case 2).
+- For larger datasets, the user can provision [Azure Batch](https://github.com/Azure/aztk) from the Admin dashboard (see [Solution Template Deployment - step by step](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Deployment.md)). The user can run the notebooks from the Jupyter installed in the master node of the Azure Batch cluster.
 
 OPERATIONALIZE
 
-**6:** The pickled files representing the models are registered with Azure MLv2.0 model management service along with relevant metadata. Once Azure MLv2.0 is generally available, the duplication of model files may no longer be necessary.
+**6:** Once the models are created, the pickle files of the models are maintained in Blob storage. Accidental loss of models owing to cluster or DSVM deletion is prevented in this manner. The pickled files representing the models are registered with Azure ML model management service along with relevant metadata. Once Azure ML Service is generally available, this duplication of model files may no longer be necessary.
 
-**7:** Azure MLv2.0 is then used to deploy the models for online scoring.
+**7:** Azure ML Service is used to deploy the models for online scoring on Docker containers which are then deployed on Azure Kubernetes Service.
 
 **8:** Data from Azure Blobs is preprocessed and written into a service bus to sequence messages correctly.
 - Use Case 1 demonstrates online scoring. Two web jobs are used in this implementation, The first web job fetches a new record from the service bus, and provides it to the second web job. The second web job generates the prediction for this record. Docker images hosting these two web jobs are run on a Kubernetes cluster. Each of the Docker image has its own Spark cluster.
@@ -67,10 +65,6 @@ CONSUME
 
 A PowerBI or other BI client can be used for data visualization. This implementation is not in scope for this template.
 
-## System Design
-
-**TBD - Basic design document in 3-4 paragraphs**
-
 ## Solution Template Source Code Explained
 
 The Python code for the inner experimentation loop for model train-test and validation is discussed here:
@@ -81,33 +75,6 @@ The code used to implement the outer processing pipeline is described below.
 
 | Stage | File under $GITHUBROOT | Purpose |
 |------------------------|-------|---------|
-| Deployment | assets\\* | TBD |
-| Deployment | core\Manifest.xml  | TBD |
-| Deployment | core\markdown\Instructions.md | TBD |
-| Deployment | core\arm\*.json | JSON specification of component ARM templates |
-| TBD | src\build.proj | TBD |
-| TBD | src\AML\aml_config\\* | TBD |
-| TBD | src\AML\aml_config\Notebooks | Notebooks by Use Case |
-| TBD | src\AML\aml_config\Notebooks\.pynb_checkpoints | TBD |
-| TBD | src\WebApp\blankArmTemplate.json | TBD |
-| TBD | src\WebApp\requirements.txt | TBD |
-| TBD | src\WebApp\setup.html | TBD |
-| TBD | src\WebApp\setup.js | TBD |
-| TBD | src\WebApp\setup.ps1 | TBD |
-| TBD | src\WebApp\web.config | TBD |
-| Generate  | src\WebApp\App_Data\jobs\continuous\Simulator\simulator.py | TBD |
-| Generate  | src\WebApp\App_Data\jobs\continuous\DataSync\run.cmd | TBD |
-| Generate  | src\WebApp\App_Data\jobs\continuous\DataSync\settings.job | TBD |
-| Generate  | src\WebApp\App_Data\jobs\continuous\DataSync\sync.py | TBD |
-| TBD | src\WebApp\flask\README.md | TBD
-| TBD | src\WebApp\flask\app.py | TBD |
-| Operationalize | src\WebApp\flask\model_management.py | TBD |
-| Operationalize | src\WebApp\flask\aztk_cluster.py | TBD |
-| TBD | src\WebApp\flask\spark\customScripts\jupyter.sh | TBD |
-| TBD | src\WebApp\flask\spark\spark\.config\core-site.xml | TBD |
-| TBD | src\WebApp\flask\spark\spark\.config\spark-defaults.xml | TBD |
-| TBD | src\WebApp\flask\spark\spark\.config\spark-env.sh | TBD |
-| TBD | src\WebApp\flask\static\\* | Decorative .png files used in Notebooks |
 | Dashboard | src\WebApp\flask\templates\\*.html | HTML for Dashboard UX |
 | Documentation | README.md | Home Page |
 | Documentation | LICENSE | Text for Creative Commons License |
