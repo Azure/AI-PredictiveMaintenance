@@ -13,6 +13,7 @@ if  [ "$AZTK_IS_MASTER" = "true" ]; then
     pip install notebook --upgrade
     pip install azureml
     pip install azureml-model-management-sdk
+    pip install ggplot
 
     PYSPARK_DRIVER_PYTHON="/.pyenv/versions/${USER_PYTHON_VERSION}/bin/jupyter"
     JUPYTER_KERNELS="/.pyenv/versions/${USER_PYTHON_VERSION}/share/jupyter/kernels"

@@ -62,7 +62,7 @@
                 <Parameter name="dsvmName" defaultValue="{Outputs.vmName}" hidden="true" />
             </Parameters>
         </ArmDeployment>
-        <WebJob title="Creating file shares and containers" retriable="true">
+        <WebJob title="Creating file shares and containers" retriable="true" autoRetryCount = "2">
             <Parameters>
                 <Parameter name="appName" defaultValue="{Outputs.webSiteName}" />
                 <Parameter name="jobName" defaultValue="azurestoragesetup" />
