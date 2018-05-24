@@ -2,7 +2,7 @@
 <Template>
     <Title>Predictive Maintenance</Title>
     <ImageUrl>{PatternAssetBaseUrl}/thank_you.jpg</ImageUrl>
-    <Description>Your equipment will thank you.</Description>
+    <Description>Predictive Maintenance - end to end proof of concept solutions</Description>
     <EstimatedTime>20 Minutes</EstimatedTime>
     <LocationsToExclude>
         <Location>West Central US</Location>
@@ -10,11 +10,12 @@
     <Owners>
         <Owner displayname="Andrew Ivanov" email="anivan@microsoft.com"/>
         <Owner displayname="Bolun Huang" email="bohuan@microsoft.com"/>
+        <Owner displayname="Ramkumar Krishnan" email="ramkri@microsoft.com"/>
     </Owners>
     <RegisterResourceProviders>
-                <ResourceProvider name = "Microsoft.MachineLearningCompute"/>
-                <ResourceProvider name = "Microsoft.ContainerRegistry"/>
-                <ResourceProvider name = "Microsoft.ContainerService"/>
+        <ResourceProvider name = "Microsoft.MachineLearningCompute"/>
+        <ResourceProvider name = "Microsoft.ContainerRegistry"/>
+        <ResourceProvider name = "Microsoft.ContainerService"/>
     </RegisterResourceProviders>
     <ProvisioningSteps>
         <Manual title="Configure Linux DSVM">
@@ -23,6 +24,10 @@
                 <Parameter name="fileUris" hidden="true" defaultValue="{PatternAssetBaseUrl}/install.sh {PatternAssetBaseUrl}/envsetup.sh" />
                 <VmSku name="vmSize" defaultValue="Standard_DS3_v2" description="Size for the Virtual Machine" allowedValues="{VirtualMachineSkus}" />
             </Parameters>
+            <Instructions src="markdown\ConfigureLinuxDSVM.md" format="markdown" />
+        </Manual>
+        Manual title="Confirm deployment">
+            <Instructions format="markdown" src="markdown\ManualConfirmation.md"/>
         </Manual>
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
         <ArmDeployment source="arm/azureBatch.json" title="Creating Azure Batch account" />
