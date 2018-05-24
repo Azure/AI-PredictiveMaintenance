@@ -1,6 +1,11 @@
 {% extends "layout.html" %}
 
 {% block body %}
+    <div>
+        <p>
+        <i><b>Spark Cluster</b></i>  
+        </p>
+    </div>
     {% if clusterDetails.Status == 0 or  clusterDetails.Status == 4 or clusterDetails.Status == 3 %}
     <form action = "/createCluster" method = "POST">
         <div class="form-group has-feedback">
