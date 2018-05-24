@@ -26,9 +26,6 @@
             </Parameters>
             <Instructions src="markdown\ConfigureLinuxDSVM.md" format="markdown" />
         </Manual>
-        Manual title="Confirm deployment">
-            <Instructions format="markdown" src="markdown/ManualConfirmation.md"/>
-        </Manual>
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
         <ArmDeployment source="arm/azureBatch.json" title="Creating Azure Batch account" />
         <ActiveDirectoryApplication displayName="PdM" replyUrls="https://{Outputs.webSiteName}.azurewebsites.net/.auth/login/aad/callback" title="Creating Azure Active Directory application">
