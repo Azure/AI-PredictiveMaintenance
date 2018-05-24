@@ -1,21 +1,6 @@
 {% extends "layout.html" %}
 
 {% block body %}
-    <div>
-        <p>
-            This solution template provides you the choice of two platforms to build and test your models: (a) Data Science VM, or (b) AZTK cluster.
-            DSVM is an ideal gateway for Azure AI - it comes all the latest and popular tools pre-installed. AZTK enables scalable model builds and testing.
-            Both these environments offer Jupyter notebooks. You can run the PySpark code for feature engineering, model creation, testing, and from
-            these notebooks. The models generated from this experimentation phase are stored in the Blob to ensure persistence past cluster or DSVM
-            deletion. The models can then be registered with AML model management service, and operationalized using AML in the next step.
-        </p>
-        <p>
-        <img src="https://https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/img/PdM_Solution_Template.png">
-        </p>
-        <p>
-        <i><b>Spark Cluster</b></i>  
-        </p>
-    </div>
     {% if clusterDetails.Status == 0 or  clusterDetails.Status == 4 or clusterDetails.Status == 3 %}
     <form action = "/createCluster" method = "POST">
         <div class="form-group has-feedback">
