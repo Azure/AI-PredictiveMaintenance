@@ -3,38 +3,34 @@ import json
 import pickle
 import logging
 import random
+import math
 from devices.simulated_device import SimulatedDevice
-from .device import Device
+from .device import RotationalMachine
 
 class Engine(SimulatedDevice):
     def initialize(self, device_info):
+        device_id = device_info['deviceId']
         properties_desired = device_info['properties']['desired']
         properties_reported = device_info['properties']['reported']
 
-        if 'failure' in properties_reported and properties_reported['failure']:
-            return False
+        d = 0.05
+        a = -0.3
+        b = 0.2
+        th = 0.45
+        ttf1 = random.randint(5000, 50000)
+        ttf2 = random.randint(5000, 90000)
 
-        spectral_profile = {
-            'W': [1, 2, 3, 4, 5, 12, 15],
-            'A': [5, 8, 2/3, 9, 8, 13, 5]
-        }
-        pressure_factor = 2
+        def h_generator(ttf, d, a, b, th = 0):
+            for t in range(ttf, -1, -1):
+                h = 1 - d - math.exp(a*t**b)
+                if h < th:
+                    break
+                yield t, h
 
-        self.failure_onset = None if 'failureOnset' not in properties_desired else properties_desired['failureOnset']
-
-        if self.failure_onset == 'F01':
-            spectral_profile = {
-                'W': [1/2, 1, 2, 3, 5, 7, 12, 18],
-                'A': [1, 5, 80, 2/3, 8, 2, 14, 50]
-            }
-        elif self.failure_onset == 'F02':
-            pressure_factor = 1.5
-
-        self.target_speed = properties_desired['speed']
-        self.digital_twin = Device(W = spectral_profile['W'], A = spectral_profile['A'])
-        self.digital_twin.pressure_factor = pressure_factor
-        self.auto_pilot = False
-        self.version = properties_reported['$version']
+        h1 = h_generator(ttf1, d, a, b)
+        h2 = h_generator(ttf2, d, a, b)
+        
+        self.digital_twin = RotationalMachine(device_id, h1, h2)
         return True
 
     def on_update(self, update_state, properties_json):
@@ -56,22 +52,13 @@ class Engine(SimulatedDevice):
             interval_start = time.time()
             state = self.digital_twin.next_state()
 
-            if state['speed'] == 0 and self.target_speed == 0:
-                # the device is fully turned off
-                time.sleep(1)
-                continue
+            #self.log('failure', self.failure_onset, logging.CRITICAL)
 
-            if self.failure_onset is not None and self.version > 600:
-                self.report_state({
-                    'failure': True
-                })
-                self.log('failure', self.failure_onset, logging.CRITICAL)
-                return
-
-            pl = bytearray(pickle.dumps(state))
-            self.send_telemetry(pl)
-
-            self.digital_twin.set_speed((self.target_speed + self.digital_twin.get_speed()) / 2)
+            #pl = bytearray(pickle.dumps(state))
+            #self.send_telemetry(pl)
+            state['vibration'] = None
+            telemetry_json = json.dumps(state)
+            self.send_telemetry(telemetry_json)
 
             self.report_state({
                 'speed': state['speed'],
@@ -81,10 +68,8 @@ class Engine(SimulatedDevice):
                 'ambientPressure': state['ambient_pressure']
                 })
 
-            self.version += 1
-
-            if self.auto_pilot and self.biased_coin_flip(p = 0.2):
-                self.target_speed = random.randint(600, 1500)
+            # if self.auto_pilot and self.biased_coin_flip(p = 0.2):
+            #     self.target_speed = random.randint(600, 1500)
 
             time_elapsed = time.time() - interval_start
             # print('Cadence: {0}'.format(time_elapsed))
