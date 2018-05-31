@@ -14,9 +14,9 @@ import com.microsoft.azure.storage.table.{CloudTableClient, TableOperation, Clou
 
 
 object Featurizer {
-  val without = "Endpoint=sb://iothub-ns-tst-anivan-480027-0331fbec0e.servicebus.windows.net/;SharedAccessKeyName=iothubowner;SharedAccessKey=0N0N5HPF9dr4Bd5Nkqb/1GgVPYjZVoAddh5O17NYiyc="
-  val eventHubName = "tst-anivan"
-  val storageAccountConnectionString = "DefaultEndpointsProtocol=https;AccountName=stgbej33ejkxkhh6;AccountKey=xdY2fhA13X4CeVtApeNyE/7Siq1Ka9495ZlIrZPCh2YUgELOqbJLj6+iLdIC2kWdC0MXJYjKjFIVoWU7zd2QfQ==;EndpointSuffix=core.windows.net"
+  val without = ""
+  val eventHubName = ""
+  val storageAccountConnectionString = ""
 
   val futureTimestamp = new Timestamp(6284160000000L)
   val cycleGapMs = 30 * 1000;
