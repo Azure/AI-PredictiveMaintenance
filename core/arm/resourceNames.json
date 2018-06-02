@@ -4,7 +4,6 @@
     "variables": {        
         "uniqueString": "[uniqueString(resourceGroup().id)]",        
         "webSiteName": "[concat('pdm-demo-', variables('uniqueString'))]",
-        "computeResourceName": "[concat('aml-o16n-', variables('uniqueString'))]",
         "location": "[resourceGroup().location]",
         "vmName": "[toLower(concat('pm', uniqueString(resourceGroup().id), '.', variables('location'), '.cloudapp.azure.com'))]"
     },
@@ -14,17 +13,9 @@
             "type": "string",
             "value": "[variables('webSiteName')]"
         },
-        "computeResourceName": {
-            "type": "string",
-            "value": "[variables('computeResourceName')]"
-        },
         "vmName": {
             "type": "string",
             "value": "[variables('vmName')]"
-        },
-        "computeResourceId": {
-            "type": "string",
-            "value": "[resourceId('Microsoft.MachineLearningCompute/operationalizationClusters', variables('computeResourceName'))]"
         }
     }
 }

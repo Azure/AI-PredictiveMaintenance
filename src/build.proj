@@ -7,9 +7,9 @@
         <ZipDir ZipFileName="..\assets\AML.zip" DirectoryName="AML" />
         <Delete Files="..\assets\*.sh" />
         <ItemGroup>
-          <Ev2Files Include="setup_scripts\**\*" />
+          <CustomScripts Include="CustomScripts\**\*" />
         </ItemGroup>
-        <Copy SourceFiles="@(Ev2Files)" DestinationFolder="..\assets" />
+        <Copy SourceFiles="@(CustomScripts)" DestinationFolder="..\assets" />
     </Target>
   <UsingTask TaskName="ZipDir" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
     <ParameterGroup>
