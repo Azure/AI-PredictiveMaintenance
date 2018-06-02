@@ -1,0 +1,44 @@
+\documentclass[tikz]{standalone}
+\usepackage[T1]{fontenc}
+\usetikzlibrary{arrows, calc, positioning,backgrounds,fit,matrix,decorations.markings,decorations.pathreplacing,decorations.text}
+\begin{document}
+\begin{tikzpicture}[
+    node distance=4cm,
+    font=\sffamily\small\mdseries
+]
+
+\def\h{7em}
+\def\o{0.5}
+
+\matrix (m) [
+    matrix of nodes,
+    row sep=2cm,
+    column sep=2cm] {
+&
+&
+\node[label={[name=KubernatesLabel,align=center]-90:Real-time Machine Learning Web Service\\\it(Azure Kubernetes Service)}](Kubernetes){\includegraphics[height=\h]{aks.png}}; &
+\\
+&
+\node[label={[name=TableStorageInputLabel]-90:Azure Table Storage}](TableStorageInput){\includegraphics[height=\h]{table-storage.png}}; &
+\node[label={[align=center]-90:Scoring Orchestrator\\\it(Web Job)}](ScoringOrchestrator){\includegraphics[height=\h]{webjob.png}}; &
+\node[label={[name=TableStorageOutputLabel]-90:Azure Table Storage}](TableStorageOutput){\includegraphics[height=\h]{table-storage.png}}; &
+\\
+&
+&
+\node[label={-90:Dashboard}](Dashboard){\includegraphics[height=\h]{dashboard.png}}; &
+\\
+};
+
+\path[->]
+    (TableStorageInput) edge[thick] (ScoringOrchestrator)
+    (ScoringOrchestrator) edge[thick] (TableStorageOutput);
+        
+\path (ScoringOrchestrator) edge [->,thick,transform canvas={xshift=-1em}] (KubernatesLabel);
+\path (KubernatesLabel) edge [->,thick,transform canvas={xshift=1em}] (ScoringOrchestrator);
+
+\draw [->,thick,postaction={decorate,decoration={raise=-1em, text along path,text align=center,text={|\it|Real-time metrics}}}] (TableStorageInputLabel.south) to [out=-90,in=-180] (Dashboard.west);
+
+\draw [<-,thick,postaction={decorate,decoration={raise=-1em, text along path,text align=center,text={|\it|Predictions}}}] (Dashboard.east) to [out=0,in=-90] (TableStorageOutputLabel.south);
+
+\end{tikzpicture}
+\end{document}
