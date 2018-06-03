@@ -59,7 +59,7 @@
         <WebJob title="Creating file shares and containers" retriable="true" autoRetryCount = "2">
             <Parameters>
                 <Parameter name="appName" defaultValue="{Outputs.webSiteName}" />
-                <Parameter name="jobName" defaultValue="azurestoragesetup" />
+                <Parameter name="jobName" defaultValue="EnvironmentSetup" />
             </Parameters>
         </WebJob>
         <ArmDeployment source="arm/authSettings.json" title="Enabling Authentication/Authorization" autoResolveParameters="true" />
