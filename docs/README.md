@@ -1,6 +1,6 @@
 # INTRODUCTION
 
-For years, applying Artificial Intelligence to business problems has been possible, but not practical, for mainstream organizations. Over the last few years, access to cheap storage at massive scale, combined with nearly limitless on-demand compute, has changed that. The cloud has enabled an environment where Artificial Intelligence is accessible to nearly all organizations. It has made returns and the cost model compelling for not just the extremely high-value endeavors, but also for more common scenarios.
+For years, applying Artificial Intelligence to business problems has been possible, but not practical for mainstream organizations. Over the last few years, access to cheap storage at massive scale, combined with nearly limitless on-demand compute, has changed that. The cloud has enabled an environment where Artificial Intelligence is accessible to nearly all organizations. It has made returns and the cost model compelling for not just the extremely high-value endeavors, but also for more common scenarios.
 
 Still, many organizations struggle with where to start in AI: what scenarios are most accessible, and therefore the most appealing initial project candidates? Which are the most compelling and impactful to my business? And how will the specialized technologies required change the way we acquire and manage skills in our organization?
 
