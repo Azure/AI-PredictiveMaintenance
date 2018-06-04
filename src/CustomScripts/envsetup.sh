@@ -10,7 +10,7 @@ conda env update --file ~/notebooks/aml_config/conda_dependencies.yml
 #conda install -n py35 -y -c conda-forge ggplot
 
 conda install -n py35 -y python-snappy
+pip install imblearn
 
 mkdir ~/mnt
 mkdir ~/mnt/azureml-share
-
