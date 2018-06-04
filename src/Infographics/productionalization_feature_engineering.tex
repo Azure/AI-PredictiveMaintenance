@@ -1,0 +1,60 @@
+\documentclass[tikz]{standalone}
+\usepackage[T1]{fontenc}
+\usetikzlibrary{arrows, calc, positioning,backgrounds,fit,matrix,decorations.markings,decorations.pathreplacing}
+\begin{document}
+\begin{tikzpicture}[
+    node distance=4cm,
+    font=\sffamily\small\mdseries
+]
+
+\def\h{7em}
+\def\o{0.5}
+
+\matrix (m) [
+    matrix of nodes,
+    row sep=0.5cm,
+    column sep=0.5cm,
+    minimum width=5cm] {
+\node[label={-90:IoT Hub}] (IoTHub){\includegraphics[height=\h]{iot-hub.png}}; &
+\node[label={[align=center]-90:{Event Hub-\\compatible endpoint}}](EventHubCompatible){\includegraphics[height=\h]{event-hub.png}}; &
+\node[label={-90:Structured Streaming}](SparkStreaming){\includegraphics[height=\h]{spark-logo.png}}; &
+\node[label={-90:Azure Table Storage}](TableStorage){\includegraphics[height=\h]{table-storage.png}}; &
+\\[5em]
+&
+\node[label={-90:Event Hub}](EventHub){\includegraphics[height=\h]{event-hub.png}}; &
+\node[label={[opacity=\o]-90:Azure Stream Analytics},opacity=\o](StreamAnalytics){\includegraphics[height=\h]{stream-analytics.png}}; &
+\node[label={-90:Azure SQL Database}](SqlDatabase){\includegraphics[height=\h]{sql-database.png}}; &
+\\
+&
+\node[label={-90:Kafka}](Kafka){\includegraphics[height=\h]{kafka-logo.png}}; &
+    &
+\node[label={-90:Azure Cosmos DB}](CosmosDb){\includegraphics[height=\h]{cosmos-db.png}}; &    
+\\
+};
+
+\path[->]
+        (IoTHub) edge[thick] (EventHubCompatible)
+        (EventHubCompatible) edge[thick] (SparkStreaming)
+        (SparkStreaming) edge[thick] (TableStorage);
+        
+\draw[dotted,thick,<-,transform canvas={yshift=-0.45cm}] (SparkStreaming.south) --  ++(0,-1) -| node [pos=0.25, below] (TextNode) {\emph{Historical and static data}} (TableStorage.south);
+
+% The braces
+\draw[decorate, decoration={brace, raise=8pt}](IoTHub.north west) -- (EventHubCompatible.north east);
+\draw[decorate, decoration={brace, raise=8pt}](SparkStreaming.north west) -- (SparkStreaming.north east);
+\draw[decorate, decoration={brace, raise=8pt}](TableStorage.north west) -- (TableStorage.north east);
+
+
+\node[] at ([yshift=3em]$(IoTHub.north)!0.5!(EventHubCompatible.north)$)
+    {\textsc{Telemetry Ingestion}};
+
+\node[] at ([yshift=3em]SparkStreaming.north)
+    {\textsc{Stream Analysis}};
+    
+\node[] at ([yshift=3em]TableStorage.north)
+    {\textsc{Output Sink}};
+    
+    \draw[dotted]([yshift=-7em]IoTHub.south west) -- ([yshift=-7em]TableStorage.south east) node [fill=white, anchor=center, pos=0.5] (TextNode) {Alternatives};
+
+\end{tikzpicture}
+\end{document}

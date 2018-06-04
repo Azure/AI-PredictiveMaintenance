@@ -2,7 +2,11 @@
 <Template>
     <Title>Predictive Maintenance</Title>
     <ImageUrl>{PatternAssetBaseUrl}/thank_you.jpg</ImageUrl>
-    <Description>Your equipment will thank you.</Description>
+    <Description>
+        An end-to-end solution template demonstrating
+        data science and infrastructure of a possible
+        production-grade Predictive Maintenance system.
+    </Description>
     <EstimatedTime>20 Minutes</EstimatedTime>
     <LocationsToExclude>
         <Location>West Central US</Location>
@@ -10,11 +14,12 @@
     <Owners>
         <Owner displayname="Andrew Ivanov" email="anivan@microsoft.com"/>
         <Owner displayname="Bolun Huang" email="bohuan@microsoft.com"/>
+        <Owner displayname="Ramkumar Krishnan" email="ramkri@microsoft.com"/>
     </Owners>
     <RegisterResourceProviders>
-                <ResourceProvider name = "Microsoft.MachineLearningCompute"/>
-                <ResourceProvider name = "Microsoft.ContainerRegistry"/>
-                <ResourceProvider name = "Microsoft.ContainerService"/>
+        <ResourceProvider name = "Microsoft.MachineLearningCompute"/>
+        <ResourceProvider name = "Microsoft.ContainerRegistry"/>
+        <ResourceProvider name = "Microsoft.ContainerService"/>
     </RegisterResourceProviders>
     <ProvisioningSteps>
         <Manual title="Configure Linux DSVM">
@@ -23,9 +28,9 @@
                 <Parameter name="fileUris" hidden="true" defaultValue="{PatternAssetBaseUrl}/install.sh {PatternAssetBaseUrl}/envsetup.sh" />
                 <VmSku name="vmSize" defaultValue="Standard_DS3_v2" description="Size for the Virtual Machine" allowedValues="{VirtualMachineSkus}" />
             </Parameters>
+            <Instructions src="markdown\ConfigureLinuxDSVM.md" format="markdown" />
         </Manual>
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
-        <ArmDeployment source="arm/azureBatch.json" title="Creating Azure Batch account" />
         <ActiveDirectoryApplication displayName="PdM" replyUrls="https://{Outputs.webSiteName}.azurewebsites.net/.auth/login/aad/callback" title="Creating Azure Active Directory application">
             <ResourceAccess>
                 <!-- Windows Azure Active Directory -->
@@ -43,53 +48,30 @@
             </ResourceAccess>
         </ActiveDirectoryApplication>
         <ArmDeployment source="arm/iotHub.json" title="Creating IoT Hub" />
-        <ArmDeployment source="arm/modelManagement.json" title="Creating Machine Learning Model Management account" />
-        <ArmDeployment source="arm/serviceBus.json" title="Creating Azure Service Bus">
-            <LocationProvidedFor>
-                <ResourceType>Microsoft.Resources/deployments</ResourceType>
-            </LocationProvidedFor>
-        </ArmDeployment>
         <ArmDeployment source="arm/storageAccount.json" title="Creating storage account" />
         <ArmDeployment source="arm/demoDashboard.json" title="Deploying and setting up Demo Dashboard" autoResolveParameters="true">
-            <LocationProvidedFor>
-                <ResourceType>Microsoft.Resources/deployments</ResourceType>
-            </LocationProvidedFor>
             <Parameters>
                 <Parameter name="webAppUrl" defaultValue="{PatternAssetBaseUrl}/WebApp.zip" hidden="true" />
                 <Parameter name="amlAssetsUrl" defaultValue="{PatternAssetBaseUrl}/AML.zip" hidden="true" />
-                <Parameter name="modelManagementSwaggerUrl" defaultValue="{Outputs.modelManagementSwaggerLocation}" hidden="true" />
-                <Parameter name="computeResourceId" defaultValue="{Outputs.computeResourceId}" hidden="true" />
                 <Parameter name="dsvmName" defaultValue="{Outputs.vmName}" hidden="true" />
             </Parameters>
         </ArmDeployment>
         <WebJob title="Creating file shares and containers" retriable="true" autoRetryCount = "2">
             <Parameters>
                 <Parameter name="appName" defaultValue="{Outputs.webSiteName}" />
-                <Parameter name="jobName" defaultValue="azurestoragesetup" />
+                <Parameter name="jobName" defaultValue="EnvironmentSetup" />
             </Parameters>
         </WebJob>
         <ArmDeployment source="arm/authSettings.json" title="Enabling Authentication/Authorization" autoResolveParameters="true" />
-        <ArmDeployment source="arm/iotHubStorageRoute.json" title="Configuring IoT Hub endpoints and routes (Azure Storage, Service Bus)">
+        <ArmDeployment source="arm/iotHubStorageRoute.json" title="Configuring IoT Hub endpoints and routes">
             <Parameters>
                 <Parameter name="storageAccountConnectionString" defaultValue="DefaultEndpointsProtocol=https;AccountName={Outputs.storageAccountName};AccountKey={Outputs.storageAccountKey}" hidden="true" />
                 <Parameter name="storageContainerName" defaultValue="telemetry" hidden="true" />
-                <Parameter name="serviceBusPrimaryConnectionString" defaultValue="{Outputs.serviceBusPrimaryConnectionString}" hidden="true" />
-                <Parameter name="serviceBusQueueName" defaultValue="{Outputs.serviceBusQueueName}" hidden="true" />
             </Parameters>
         </ArmDeployment>
                 <ArmDeployment source="arm/linuxDsvm.json" title="Provisioning Linux DSVM" autoResolveParameters="true">
             <Parameters>
                 <Parameter name="commandToExecute" hidden="true" defaultValue="bash install.sh {PatternAssetBaseUrl}/AML.zip {Outputs.storageAccountName} {Outputs.storageAccountKey}" />
-            </Parameters>
-        </ArmDeployment>
-        <ArmDeployment source="arm/operationalization.json" title="Creating Machine Learning Compute resources" autoResolveParameters="true" retriable= "false">
-            <Parameters>
-                <VmSku name="agentNodeSize" hidden="true" instanceCount="2" minCores="4">
-                    <DefaultValue>Standard_D3_v2</DefaultValue>
-                </VmSku>
-                <VmSku name="masterNodeSize" hidden="true" instanceCount="1" usedFor="masterNode" minCores="4">
-                    <DefaultValue>Standard_D2_v2</DefaultValue>
-                </VmSku>
             </Parameters>
         </ArmDeployment>
         <Manual title="Done">

@@ -20,12 +20,6 @@
           "description": "AML assets URL"
       }
     },
-    "modelManagementSwaggerUrl": {
-      "type": "string",
-      "metadata": {
-          "description": "Machine Learning Model Management Swagger location"
-      }
-    },
     "iotHubName": {
       "type": "string",
       "metadata": {
@@ -42,42 +36,6 @@
       "type": "securestring",
       "metadata": {
           "description": "IOT Hub device key"
-      }
-    },
-    "batchAccountName": {
-      "type": "string",
-      "metadata": {
-          "description": "Azure Batch account name"
-      }
-    },
-    "batchAccountKey": {
-      "type": "securestring",
-      "metadata": {
-          "description": "Azure Batch account key"
-      }
-    },
-    "batchAccountUrl": {
-      "type": "string",
-      "metadata": {
-          "description": "Azure Batch account URL"
-      }
-    },
-    "computeResourceId": {
-      "type": "string",
-      "metadata": {
-          "description": "Machine Learning Compute resource ID"
-      }
-    },
-    "serviceBusPrimaryConnectionString": {
-      "type": "string",
-      "metadata": {
-          "description": "Service Bus primary connection string"
-      }
-    },
-    "serviceBusQueueName": {
-      "type": "string",
-      "metadata": {
-          "description": "Service Bus queue name"
       }
     },
     "storageAccountName": {
@@ -186,14 +144,7 @@
             "IOT_HUB_NAME": "[parameters('iotHubName')]",
             "IOT_HUB_OWNER_KEY": "[parameters('iotHubOwnerKey')]",
             "IOT_HUB_DEVICE_KEY": "[parameters('iotHubDeviceKey')]",
-            "BATCH_ACCOUNT_NAME": "[parameters('batchAccountName')]",
-            "BATCH_ACCOUNT_KEY": "[parameters('batchAccountKey')]",
-            "BATCH_ACCOUNT_URL": "[parameters('batchAccountUrl')]",
             "AML_ASSETS_URL": "[parameters('amlAssetsUrl')]",
-            "MODEL_MANAGEMENT_SWAGGER_URL": "[parameters('modelManagementSwaggerUrl')]",
-            "ML_COMPUTE_RESOURCE_ID": "[parameters('computeResourceId')]",
-            "SERVICE_BUS_CONNECTION_STRING": "[parameters('serviceBusPrimaryConnectionString')]",
-            "SERVICE_BUS_QUEUE_NAME": "[parameters('serviceBusQueueName')]",
             "DSVM_NAME": "[parameters('dsvmName')]"
           }
         },

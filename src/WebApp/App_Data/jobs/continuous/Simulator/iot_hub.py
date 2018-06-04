@@ -96,7 +96,11 @@ class IoTHub:
             sleep(5)
 
     def try_claim_device(self, client_id):
-        devices = self.get_device_list()
+        try:
+            devices = self.get_device_list()
+        except:
+            return
+
         random.shuffle(devices)
         for device in devices:
             if device.connectionState == IoTHubDeviceConnectionState.CONNECTED:
