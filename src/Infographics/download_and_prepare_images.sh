@@ -20,13 +20,12 @@ wget -O aml-workbench.svg "http://azureml.azureedge.net/content/apphome/media/AM
 wget -O model.png "https://vc4prod.blob.core.windows.net/catalog/Recommendations/Machine-Learning.png"
 wget -O jupyter.png "http://jupyter.org/assets/try/jupyter.png"
 
-# convert -density 300 event-hub.svg event-hub.png
-# convert -density 300 iot-hub.svg iot-hub.png
-# convert -density 300 databricks.svg databricks.png
-# convert -density 300 table-storage.svg table-storage.png
-# convert -density 300 stream-analytics.svg stream-analytics.png
-# convert -density 300 sql-database.svg sql-database.png
-# convert -density 300 cosmos-db.svg cosmos-db.png
-# convert -density 300 dsvm.svg dsvm.png
-# convert -density 300 aml-workbench.svg aml-workbench.png
-
+convert -density 300 event-hub.svg event-hub.png
+convert -density 300 iot-hub.svg iot-hub.png
+convert -density 300 databricks.svg databricks.png
+convert -density 300 table-storage.svg table-storage.png
+convert -density 300 stream-analytics.svg stream-analytics.png
+convert -density 300 sql-database.svg sql-database.png
+convert -density 300 cosmos-db.svg cosmos-db.png
+convert -density 300 dsvm.svg dsvm.png
+convert -density 300 aml-workbench.svg aml-workbench.png
