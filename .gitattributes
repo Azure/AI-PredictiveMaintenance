@@ -1,1 +1,3 @@
 src/AML/Notebooks/*.ipynb linguist-vendored=false
+src/WebApp/flask/templates/*.html linguist-vendored=false
+src/WebApp/flask/static/*.css linguist-vendored=false
