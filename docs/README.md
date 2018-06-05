@@ -11,6 +11,8 @@ Predictive Maintenance is emerging as one of the most demanded applications of p
 
 This solution describes the logical services that can be delivered to a customer – or leveraged if those logical services already exist – and then combined to deliver business impact through a production predictive maintenance deployment.  An important design goal is modularity: the service functions provide utility on their own, and can be re-used in different scenarios to solve many problems over time.  In the end, a more flexible and modular approach allows us to provide value faster, and to re-use existing services to solve other business problems at a lower incremental cost.
 
+![](img/data_flow.png)
+
 ## Data Ingress and Storage
 
 Solving any business problem with AI starts with data. The question you are trying to answer will affect what data you need, and in what format, quantities, and time horizons.  Most predictive maintenance problems are based on the desire to understand the behavior and operational health of distributed devices with embedded sensors. A message ingestion service supports ingesting real-time operational data from those sensors and saving it to long term (cold) cloud storage.  For most predictive maintenance scenarios, this message ingestion substrate also provides two-way communication back to remote devices to configure and manage those devices over time.
@@ -28,3 +30,7 @@ The dashboard is used to present the near-real-time status of the business data 
 
 Ultimately, all the logical services listed above cumulatively represent a cloud AI platform that can support solving not just predictive maintenance business challenges, but other industry-specific or general business challenges.
 Predictive maintenance has wide applicability in many industries, as most companies utilize long-term assets that are core to delivering on their business model. There are also many industry-specific ISV solutions that more narrowly target these challenges by industry.
+
+---
+
+Please refer to the [Solution Design](Solution-Design.md) document for an in-depth overview of the solution's architecture and technical trade-offs.
