@@ -27,7 +27,7 @@
 \draw [->] (modeling) to (operationalization);
 \draw [->] (featurization) to (scoring);
 
-\node[circle, minimum width=3.5em, fill={rgb:red,1;green,2;blue,3}] (model) at ($(operationalization.east)!0.5!(scoring.west)$) {\textcolor{white}{Model}};
+\node[circle, minimum width=3.5em, fill={rgb:red,1;green,2;blue,3},label={-90:\tiny\emph{Web Service}}] (model) at ($(operationalization.east)!0.5!(scoring.west)$) {\textcolor{white}{ML}};
 
 \draw [->] (scoring.south) to [out=-90,in=0] (visualization.east);
 
