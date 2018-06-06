@@ -1,4 +1,4 @@
-* linguist-vendored
-*.ipynb linguist-vendored=false
-*.html linguist-vendored=false
-*.css linguist-vendored=false
+*.ipynb linguist-detectable=false
+*.html linguist-detectable=false
+*.css linguist-detectable=false
+*.sh linguist-detectable=false
