@@ -3,8 +3,8 @@
     <Target Name="CopyAssets">
         <Delete Files="..\assets\WebApp.zip" />
         <ZipDir ZipFileName="..\assets\WebApp.zip" DirectoryName="WebApp" />
-        <Delete Files="..\assets\AML.zip" />
-        <ZipDir ZipFileName="..\assets\AML.zip" DirectoryName="AML" />
+        <Delete Files="..\assets\Notebooks.zip" />
+        <ZipDir ZipFileName="..\assets\Notebooks.zip" DirectoryName="Notebooks" />
         <Delete Files="..\assets\*.sh" />
         <ItemGroup>
           <CustomScripts Include="CustomScripts\**\*" />
