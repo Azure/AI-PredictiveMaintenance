@@ -1,3 +1,6 @@
-src/AML/Notebooks/*.ipynb linguist-vendored=false
-src/WebApp/flask/templates/*.html linguist-vendored=false
-src/WebApp/flask/static/*.css linguist-vendored=false
+*.ipynb linguist-detectable=false
+*.html linguist-detectable=false
+*.css linguist-detectable=false
+*.bat linguist-detectable=false
+*.cmd linguist-detectable=false
+*.tex linguist-detectable=false

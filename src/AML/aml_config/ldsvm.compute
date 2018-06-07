@@ -1,7 +1,0 @@
-address: 52.161.164.93
-baseDockerImage: microsoft/mmlspark:plus-0.10.9
-nativeSharedDirectory: ~/.azureml/share/
-password: AzureMlSecret=ldsvm#anivan#508c13f078134fb58da151bbfa2c91e8
-sharedVolumes: true
-type: remotedocker
-username: anivan

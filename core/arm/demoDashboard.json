@@ -90,13 +90,35 @@
       },
       "resources": [
         {
-          "type": "siteextensions",
-          "name": "python364x64",
+          "type": "extensions",
+          "name": "MSDeploy",
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [
             "[variables('web-site-id')]"
           ],
-          "properties": { }
+          "properties": {
+            "packageUri": "[parameters('webAppUrl')]",
+            "dbType": "None",
+            "connectionString": ""
+          }
+        },
+        {
+          "type": "config",
+          "name": "appsettings",
+          "apiVersion": "[variables('web-site-version')]",
+          "dependsOn": [
+            "[variables('web-site-id')]",
+            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/config/logs')]"
+          ],
+          "properties": {
+            "STORAGE_ACCOUNT_NAME": "[parameters('storageAccountName')]",
+            "STORAGE_ACCOUNT_KEY": "[parameters('storageAccountKey')]",
+            "IOT_HUB_NAME": "[parameters('iotHubName')]",
+            "IOT_HUB_OWNER_KEY": "[parameters('iotHubOwnerKey')]",
+            "IOT_HUB_DEVICE_KEY": "[parameters('iotHubDeviceKey')]",
+            "AML_ASSETS_URL": "[parameters('amlAssetsUrl')]",
+            "DSVM_NAME": "[parameters('dsvmName')]"
+          }
         },
         {
           "type": "config",
@@ -104,7 +126,7 @@
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [
             "[variables('web-site-id')]",
-            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/config/appsettings')]"
+            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/extensions/MSDeploy')]"
           ],
           "properties": {
             "use32BitWorkerProcess": false,
@@ -117,7 +139,7 @@
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [
             "[variables('web-site-id')]",
-            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/config/appsettings')]"
+            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/config/web')]"
           ],
           "properties": {
             "applicationLogs": {
@@ -131,36 +153,14 @@
           }
         },
         {
-          "type": "config",
-          "name": "appsettings",
+          "type": "siteextensions",
+          "name": "azureappservice-python364x64",
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [
             "[variables('web-site-id')]",
-            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/extensions/MSDeploy')]"
+            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/config/appsettings')]"
           ],
-          "properties": {
-            "STORAGE_ACCOUNT_NAME": "[parameters('storageAccountName')]",
-            "STORAGE_ACCOUNT_KEY": "[parameters('storageAccountKey')]",
-            "IOT_HUB_NAME": "[parameters('iotHubName')]",
-            "IOT_HUB_OWNER_KEY": "[parameters('iotHubOwnerKey')]",
-            "IOT_HUB_DEVICE_KEY": "[parameters('iotHubDeviceKey')]",
-            "AML_ASSETS_URL": "[parameters('amlAssetsUrl')]",
-            "DSVM_NAME": "[parameters('dsvmName')]"
-          }
-        },
-        {
-          "type": "extensions",
-          "name": "MSDeploy",
-          "apiVersion": "[variables('web-site-version')]",
-          "dependsOn": [
-            "[variables('web-site-id')]",
-            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/siteextensions/python364x64')]"
-          ],
-          "properties": {
-            "packageUri": "[parameters('webAppUrl')]",
-            "dbType": "None",
-            "connectionString": ""
-          }
+          "properties": { }
         }
       ]
     }
