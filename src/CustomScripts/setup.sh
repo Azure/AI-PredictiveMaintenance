@@ -9,7 +9,7 @@ echo $user
 username=${user% *}
 homedir=${user#* }
 
-basedir=`dirname $0`
+basedir=$PWD
 
 pushd $homedir/notebooks
 rm -rf *
