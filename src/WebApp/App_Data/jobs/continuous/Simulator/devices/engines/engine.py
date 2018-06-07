@@ -4,6 +4,7 @@ import pickle
 import logging
 import random
 import math
+from datetime import datetime
 from devices.simulated_device import SimulatedDevice
 from .device import RotationalMachine
 
@@ -43,34 +44,49 @@ class Engine(SimulatedDevice):
             self.log(mode, 'MODE_CHANGE')
             self.auto_pilot = mode == 'auto'
 
-    def biased_coin_flip(self, p = 0.5):
-        return True if random.random() < p else False
-
     def run(self):
         self.log('Simulation started.')
-        while True:
-            interval_start = time.time()
-            state = self.digital_twin.next_state()
 
-            #self.log('failure', self.failure_onset, logging.CRITICAL)
+        cycle_length_min = 1
+        cycle_length_max = 5
+        
+        while True: # cycle
+            l = random.randint(cycle_length_min, cycle_length_max)        
+            duration = l * 60
+            cooldown_point = duration - 20
+            
+            self.digital_twin.set_speed(1000)
+            
+            for i in range(duration):
+                if i == cooldown_point:
+                    self.digital_twin.set_speed(0)
+                                
+                try:
+                    interval_start = time.time()
+                    state = self.digital_twin.next_state()
 
-            #pl = bytearray(pickle.dumps(state))
-            #self.send_telemetry(pl)
-            state['vibration'] = None
-            telemetry_json = json.dumps(state)
-            self.send_telemetry(telemetry_json)
+                    state['vibration'] = None
+                    state['timestamp'] = datetime.now().isoformat()
+                    state['machineID'] = self.digital_twin.name
 
-            self.report_state({
-                'speed': state['speed'],
-                'temperature': state['temperature'],
-                'pressure': state['pressure'],
-                'ambientTemperature': state['ambient_temperature'],
-                'ambientPressure': state['ambient_pressure']
-                })
+                    telemetry_json = json.dumps(state)
+                    self.send_telemetry(telemetry_json)
 
-            # if self.auto_pilot and self.biased_coin_flip(p = 0.2):
-            #     self.target_speed = random.randint(600, 1500)
+                    self.report_state({
+                        'speed': state['speed'],
+                        'temperature': state['temperature'],
+                        'pressure': state['pressure'],
+                        'ambientTemperature': state['ambient_temperature'],
+                        'ambientPressure': state['ambient_pressure']
+                        })
 
-            time_elapsed = time.time() - interval_start
-            # print('Cadence: {0}'.format(time_elapsed))
-            time.sleep(max(1 - time_elapsed, 0))
+                    time_elapsed = time.time() - interval_start
+                    time.sleep(max(1 - time_elapsed, 0))
+                    
+                    if not state['speed']:
+                        break
+                except Exception as e:
+                    self.log('failure', str(e), logging.CRITICAL)
+                    return
+
+            time.sleep(60)
