@@ -66,8 +66,10 @@ object Featurizer {
 
     val spark = SparkSession
       .builder
-      .appName("StructuredNetworkWordCount").master("local[2]")
+      .appName("PredictiveMaintenanceFeaturizer") //.master("local[2]")
       .getOrCreate()
+
+    spark.sparkContext.setLogLevel("WARN")
 
     import spark.implicits._
 
