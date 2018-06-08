@@ -56,7 +56,7 @@
         "description": "DSVM name"
       }
     },
-    "databrickworkspaceUrl": {
+    "databricksworkspaceUrl": {
       "type": "string",
       "metadata": {
         "description": "DSVM name"
@@ -142,7 +142,7 @@
             "IOT_HUB_DEVICE_KEY": "[parameters('iotHubDeviceKey')]",
             "AML_ASSETS_URL": "[parameters('amlAssetsUrl')]",
             "DSVM_NAME": "[parameters('dsvmName')]",
-            "DATABRICKS_URL": "[parameters('databrickworkspaceUrl')]",
+            "DATABRICKS_URL": "[parameters('databricksworkspaceUrl')]",
             "EVENT_HUB_ENDPOINT": "[parameters('eventHubConnectionString')]",
             "JAR_Storage_Connection_String": "[parameters('jarStorageConnectionString')]",
             "DATABRICKS_TOKEN": "[parameters('dataBricksToken')]",

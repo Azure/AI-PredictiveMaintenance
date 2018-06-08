@@ -22,7 +22,7 @@
         <ResourceProvider name = "Microsoft.ContainerService"/>
     </RegisterResourceProviders>
     <ProvisioningSteps>
-        <ArmDeployment title="Creating Azure Databricks workspace" autoResolveParameters="true" source="arm/databricksARM.json" />
+        <ArmDeployment title="Creating Azure Databricks workspace" autoResolveParameters="true" source="arm/databricks.json" />
         <Manual title="Configure Linux DSVM">
             <Parameters>
                 <Credential type="linuxvm" username="adminUsername" password="adminPassword" />
@@ -63,7 +63,7 @@
                 <Parameter name="webAppUrl" defaultValue="{PatternAssetBaseUrl}/WebApp.zip" hidden="true" />
                 <Parameter name="amlAssetsUrl" defaultValue="{PatternAssetBaseUrl}/AML.zip" hidden="true" />
                 <Parameter name="dsvmName" defaultValue="{Outputs.vmName}" hidden="true" />
-                <Parameter name="databrickworkspaceUrl" defaultValue="{Outputs.databrickworkspaceUrl}" hidden="true" />
+                <Parameter name="databricksworkspaceUrl" defaultValue="{Outputs.databricksworkspaceUrl}" hidden="true" />
                 <Parameter name="eventHubConnectionString" defaultValue="{Outputs.eventHubConnectionString}" hidden="true" />
                 <Parameter name="jarStorageConnectionString" defaultValue="{PatternAssetBaseUrl}" hidden="true" />
                 <Parameter name="dataBricksToken" defaultValue="{Inputs.DataBricksToken}" hidden="true" />

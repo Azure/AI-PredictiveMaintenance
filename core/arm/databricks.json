@@ -28,6 +28,6 @@
     }
 ],
     "outputs": {
-        "databrickworkspaceUrl": { "type": "string", "value": "[concat(resourceGroup().location, '.azuredatabricks.net')]" }
+        "databricksworkspaceUrl": { "type": "string", "value": "[concat(resourceGroup().location, '.azuredatabricks.net')]" }
         }
 }
