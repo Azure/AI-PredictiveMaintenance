@@ -1,53 +1,53 @@
 package com.microsoft.ciqs.predictivemaintenance
 
 import java.sql.Timestamp
+import scala.beans.BeanProperty
 import com.microsoft.azure.storage.table.TableServiceEntity
 
 object Definitions {
-  type DeviceId = String
+  case class TelemetryEvent(timestamp: Timestamp, machineID: String)
 
-  case class CycleInterval(start: Timestamp, end: Timestamp, machineID: DeviceId)
+  case class CycleInterval(start: Timestamp, end: Timestamp, machineID: String)
 
-  case class CycleAggregates(val cycle_start: Timestamp,
-                             var cycle_end: Timestamp,
-                             val machineID: String,
-                             var speed_desired_max: Double,
-                             var speed_avg: Double,
-                             var temperature_avg: Double,
-                             var temperature_max: Double,
-                             var pressure_avg: Double,
-                             var pressure_max: Double,
-                             var raw_count: Long) extends  TableServiceEntity {
+  case class CycleAggregates(var MachineID: String,
+                             var CycleStart: String,
+                             @BeanProperty var CycleEnd: String,
+                             @BeanProperty var SpeedDesiredMax: Double,
+                             @BeanProperty var SpeedAvg: Double,
+                             @BeanProperty var TemperatureAvg: Double,
+                             @BeanProperty var TemperatureMax: Double,
+                             @BeanProperty var PressureAvg: Double,
+                             @BeanProperty var PressureMax: Double,
+                             @BeanProperty var RawCount: Long) extends  TableServiceEntity {
 
-    private var cycleEnd = cycle_end.toString
+    // nullary constructor
+    def this() {
+      this(null, null, null, 0, 0, 0, 0, 0, 0, 0)
+    }
 
-    def getcycle_end = cycleEnd
-    def setcycle_end(value: String): Unit = cycleEnd = value
+    override def setPartitionKey(partitionKey: String): Unit = {
+      MachineID = partitionKey
+      super.setPartitionKey(partitionKey)
+    }
 
-    def getspeed_desired_max: Double = speed_desired_max
-    def setspeed_desired_max(value: Double): Unit = speed_desired_max = value
+    override def setRowKey(rowKey: String): Unit = {
+      CycleStart = rowKey
+      super.setRowKey(rowKey)
+    }
 
-    def getspeed_avg: Double = speed_avg
-    def setspeed_avg(value: Double): Unit = speed_avg = value
-
-    def gettemperature_avg: Double = temperature_avg
-    def settemperature_avg(value: Double): Unit = temperature_avg = value
-
-    def gettemperature_max: Double = temperature_max
-    def settemperature_max(value: Double): Unit = temperature_max = value
-
-    def getpressure_avg: Double = pressure_avg
-    def setpressure_avg(value: Double): Unit = pressure_avg = value
-
-    def getpressure_max: Double = pressure_max
-    def setpressure_max(value: Double): Unit = pressure_max = value
-
-    def getraw_count: Long = raw_count
-    def setraw_count(value: Long): Unit = raw_count = value
-
-    partitionKey = machineID
-    rowKey = cycle_start.toString
+    partitionKey = MachineID
+    rowKey = CycleStart
   }
 
-  case class Signal(timestamp: Timestamp, speed: Double, machineID: DeviceId)
+  case class Features(val MachineID: String,
+                      val CycleStart: String,
+                      @BeanProperty
+                      var CycleEnd: String) extends TableServiceEntity {
+
+    @BeanProperty
+    var FeaturesJson: String = null
+
+    partitionKey = MachineID
+    rowKey = CycleStart
+  }
 }
