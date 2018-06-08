@@ -195,7 +195,7 @@ def featurizationjobTask(token):
         'jar_params' : jar_params
     }
 
-    job_run_details = requests.post('https://' + databricksUrl + '/api/2.0/jobs/run-now', headers={'Authorization': json_data}, json = payload).json()
+    job_run_details = requests.post('https://' + databricksUrl + '/api/2.0/jobs/run-now', headers=json_data, json = payload).json()
     jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Job_Running"}
     table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
 
