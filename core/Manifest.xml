@@ -30,7 +30,7 @@
             </Parameters>
             <Instructions src="markdown\ConfigureLinuxDSVM.md" format="markdown" />
         </Manual>
-        <Manual title="Configure Linux DSVM">
+        <Manual title="DataBricks Personal Access token">
             <Parameters>
                 <Parameter name="DataBricksToken" description="DataBricks Personal Access token">
                     <ExtraDescription>
