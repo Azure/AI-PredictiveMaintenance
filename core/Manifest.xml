@@ -25,7 +25,6 @@
         <Manual title="Configure Linux DSVM">
             <Parameters>
                 <Credential type="linuxvm" username="adminUsername" password="adminPassword" />
-                <Parameter name="fileUris" hidden="true" defaultValue="{PatternAssetBaseUrl}/install.sh {PatternAssetBaseUrl}/envsetup.sh" />
                 <VmSku name="vmSize" defaultValue="Standard_DS3_v2" description="Size for the Virtual Machine" allowedValues="{VirtualMachineSkus}" />
             </Parameters>
             <Instructions src="markdown\ConfigureLinuxDSVM.md" format="markdown" />
@@ -69,9 +68,10 @@
                 <Parameter name="storageContainerName" defaultValue="telemetry" hidden="true" />
             </Parameters>
         </ArmDeployment>
-                <ArmDeployment source="arm/linuxDsvm.json" title="Provisioning Linux DSVM" autoResolveParameters="true">
+        <ArmDeployment source="arm/linuxDsvm.json" title="Provisioning Linux DSVM" autoResolveParameters="true">
             <Parameters>
-                <Parameter name="commandToExecute" hidden="true" defaultValue="bash install.sh {PatternAssetBaseUrl}/AML.zip {Outputs.storageAccountName} {Outputs.storageAccountKey}" />
+                <Parameter name="fileUris" hidden="true" defaultValue="{PatternAssetBaseUrl}/setup.sh {PatternAssetBaseUrl}/Notebooks.zip" />
+                <Parameter name="commandToExecute" hidden="true" defaultValue="bash setup.sh" />
             </Parameters>
         </ArmDeployment>
         <Manual title="Done">
