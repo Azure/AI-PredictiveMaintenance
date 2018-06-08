@@ -48,11 +48,14 @@
         </ActiveDirectoryApplication>
         <ArmDeployment source="arm/iotHub.json" title="Creating IoT Hub" />
         <ArmDeployment source="arm/storageAccount.json" title="Creating storage account" />
+        <ArmDeployment title="Creating Azure Databricks workspace" autoResolveParameters="true" source="arm/databricksARM.json" />
         <ArmDeployment source="arm/demoDashboard.json" title="Deploying and setting up Demo Dashboard" autoResolveParameters="true">
             <Parameters>
                 <Parameter name="webAppUrl" defaultValue="{PatternAssetBaseUrl}/WebApp.zip" hidden="true" />
                 <Parameter name="amlAssetsUrl" defaultValue="{PatternAssetBaseUrl}/AML.zip" hidden="true" />
                 <Parameter name="dsvmName" defaultValue="{Outputs.vmName}" hidden="true" />
+                <Parameter name="databrickworkspaceUrl" defaultValue="{Outputs.databrickworkspaceUrl}" hidden="true" />
+                <Parameter name="eventHubConnectionString" defaultValue="{Outputs.eventHubConnectionString}" hidden="true" />
             </Parameters>
         </ArmDeployment>
         <WebJob title="Creating file shares and containers" retriable="true" autoRetryCount = "2">

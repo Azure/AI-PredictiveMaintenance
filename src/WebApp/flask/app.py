@@ -18,6 +18,8 @@ from azure.storage.blob.models import BlobPermissions
 from azure.storage.table import TableService, Entity, TablePermissions
 from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 from model_management import ModelManagement
+from threading import Thread
+import urllib
 
 # TODO: Fix possible WebJob restarts because of this.
 simulator_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/jobs/continuous/Simulator'))
@@ -34,6 +36,9 @@ STORAGE_ACCOUNT_SUFFIX = 'core.windows.net'
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 TELEMETRY_CONTAINER_NAME = 'telemetry'
+IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
+EVENT_HUB_ENDPOINT = os.environ['EVENT_HUB_ENDPOINT']
+StorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=" + STORAGE_ACCOUNT_NAME + ";AccountKey=" + STORAGE_ACCOUNT_KEY + ";EndpointSuffix=core.windows.net"
 
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
@@ -72,6 +77,146 @@ def telemetry():
     devices = iot_hub.get_device_list()
     devices.sort(key = lambda x: x.deviceId)
     return render_template('telemetry.html', assets = devices)
+
+def featurizationjobTask(token):
+    databricksUrl = os.environ['DATABRICKS_URL']
+    bearer_token = 'Bearer ' + token
+    json_data = { 'Authorization': bearer_token }
+    
+    url = 'https://stgjw6kzpeckznx6.blob.core.windows.net/ai-predictivemaintenance/featurizer_2.11-1.0.jar'  
+    urllib.request.urlretrieve(url, 'D:/home/site/wwwroot/featurizer_2.11-1.0.jar') 
+
+    #upload jar
+    dbfs_path = "/mnt/pdm/"
+    bdfs = "/mnt/pdm/avro.jar"
+    mkdirs_payload = { 'path': dbfs_path }
+    bearerToken = "\" Bearer " + token +"\""
+    resp = requests.post('https://' + databricksUrl + '/api/2.0/dbfs/mkdirs',headers=json_data, json = mkdirs_payload).json()
+    print(resp)
+
+    file = 'D:/home/site/wwwroot/featurizer_2.11-1.0.jar'
+    image = dbfs_path + file
+    files = {'file': open(file, 'rb')}
+    put_payload = { 'path' : bdfs, 'overwrite' : 'true' }
+    # push the images to DBFS
+    resp = requests.post('https://' + databricksUrl + '/api/2.0/dbfs/put', headers=json_data,data = put_payload, files = files).json()
+    print(resp)    
+
+    #create cluster
+
+    sparkSpec= {
+        'spark.speculation' : 'true'
+    }
+    payload = {
+        'cluster_name' : 'laks-cluster2',
+        'spark_version' : '4.0.x-scala2.11',
+        'node_type_id' : 'Standard_D3_v2',
+        'spark_conf' : sparkSpec,
+        'num_workers' : 2
+    }
+
+    cluster_details = requests.post('https://' + databricksUrl + '/api/2.0/clusters/create', headers=json_data, json = payload).json()
+    print(cluster_details)
+
+    if 'cluster_id' in cluster_details:
+        clusterid = cluster_details['cluster_id']
+
+        jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Cluster_Creating"}
+        table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
+
+    else:
+        jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Cluster_Failed", 'Message': str(cluster_details)}
+        table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
+        return None
+
+    #get cluster
+    request_url = 'https://' + databricksUrl + '/api/2.0/clusters/get?cluster_id=' + clusterid
+    cluster_details = requests.get(request_url, headers=json_data, json = payload).json()
+
+    while cluster_details['state'] != 'RUNNING' and cluster_details['state'] != 'TERMINATED':
+        time.sleep(10)
+        cluster_details = requests.get(request_url, headers=json_data, json = payload).json()
+
+    if cluster_details['state'] == 'RUNNING':
+        jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Cluster_Completed"}
+        table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
+    else:
+        jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Cluster_Failed", 'Message': cluster_details['state_message']}
+        table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
+        return None
+    #create job
+
+    jar_path = "dbfs:" + bdfs
+    jar = {
+        'jar' : jar_path
+    }
+
+    maven_coordinates = {
+        'coordinates' : 'com.microsoft.azure:azure-eventhubs-spark_2.11:2.3.1'
+    }
+
+    maven = {
+    'maven' : maven_coordinates
+    }
+
+    libraries = [jar, maven]
+
+    spark_jar_task= {
+        'main_class_name' : 'com.microsoft.ciqs.predictivemaintenance.Featurizer'
+    }
+
+    payload = {
+        'name' : 'Job1',
+        'existing_cluster_id' : clusterid,
+        'libraries' : libraries,
+        'timeout_seconds' : 3600,
+        'max_retries' : 1,
+        'spark_jar_task' : spark_jar_task
+    }
+
+    job_details = requests.post('https://' + databricksUrl + '/api/2.0/jobs/create', headers=json_data, json = payload).json()
+    
+    if 'job_id' in job_details:
+        jobid = job_details['job_id']
+
+        jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Job_Created"}
+        table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
+
+    else:
+        jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Job_Failed", 'Message': str(job_details)}
+        table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
+        return None        
+
+    #run a job
+
+    jar_params = [EVENT_HUB_ENDPOINT,IOT_HUB_NAME,StorageConnectionString]
+
+    payload = {
+        'job_id' : jobid,
+        'jar_params' : jar_params
+    }
+
+    job_run_details = requests.post('https://' + databricksUrl + '/api/2.0/jobs/run-now', headers={'Authorization': bearerToken}, json = payload).json()
+    jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Job_Running"}
+    table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
+
+@app.route('/startFeaturizationJob', methods=['POST'])
+@login_required
+def startFeaturizationJob():    
+    token = request.form['token']
+    thread = Thread(target=featurizationjobTask, args=(token,))
+    thread.daemon = True
+    thread.start()
+    jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Cluster_Running"}
+    table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
+    return redirect('/operationalization')
+
+@app.route('/operationalization')
+@register_breadcrumb(app, '.operationalization', 'Operationalization')
+@login_required
+def operationalization():
+    jobDetails = table_service.get_entity('featurizationJobStatus', 'predictivemaintenance', 'predictivemaintenance')
+    return render_template('operationalization.html', jobDetails = jobDetails)
 
 @app.route('/createDevices', methods=['POST'])
 @login_required
@@ -197,268 +342,6 @@ def setup():
 def analytics():
     dsvmName = os.environ['DSVM_NAME']
     return render_template('analytics.html', dsvmName = dsvmName)
-
-@app.route('/operationalization')
-@register_breadcrumb(app, '.operationalization', 'Operationalization')
-@login_required
-def operationalization():
-    return render_template('operationalization.html')
-
-
-@app.route('/operationalization/<operation>', methods=['GET'])
-@app.route('/operationalization/<operation>/<id>', methods=['GET'])
-@login_required
-def operationalization_get_operation(operation, id = None):
-    model_management = ModelManagement(os.environ['MODEL_MANAGEMENT_SWAGGER_URL'], get_access_token())
-    operation = operation.lower()
-    if operation == 'models':
-        mm_response = model_management.get('models?name=failure-prediction-model')
-        mm_response_json = json.loads(mm_response.text)
-        resp = Response(json.dumps(mm_response_json['value']))
-        resp.headers['Content-type'] = 'application/json'
-        return resp
-    elif operation == 'manifests':
-        mm_response = model_management.get('manifests?manifestName=failure-prediction-manifest')
-        mm_response_json = json.loads(mm_response.text)
-        resp = Response(json.dumps(mm_response_json['value']))
-        resp.headers['Content-type'] = 'application/json'
-        return resp
-    elif operation == 'images':
-        if id == None:
-            mm_response = model_management.get('images')
-            mm_response_json = json.loads(mm_response.text)
-            resp = Response(json.dumps(mm_response_json['value']))
-            resp.headers['Content-type'] = 'application/json'
-            return resp
-        else:
-            mm_response = model_management.get('images/{0}'.format(id))
-            resp = Response(mm_response.text)
-            resp.headers['Content-type'] = 'application/json'
-            return resp
-    elif operation == 'services':
-        if id == None:
-            mm_response = model_management.get('services')
-            mm_response_json = json.loads(mm_response.text)
-            config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/scoring.json'))
-            consumedId = ''
-
-            if os.path.isfile(config_path):
-                with open(config_path, 'r') as f:
-                    scoring_config = json.loads(f.read())
-                    if 'id' in scoring_config:
-                        consumedId = scoring_config['id']
-
-
-            for service in mm_response_json['value']:
-                id = service['id']
-                if consumedId == id:
-                    service['consumed'] = True
-                else:
-                    service['consumed'] = False
-
-            resp = Response(json.dumps(mm_response_json['value']))
-            resp.headers['Content-type'] = 'application/json'
-            return resp
-        else:
-            mm_response = model_management.get('services/{0}'.format(id))
-            mm_response_json = json.loads(mm_response.text)
-            config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/scoring.json'))
-            consumedId = ''
-
-            if os.path.isfile(config_path):
-                with open(config_path, 'r') as f:
-                    scoring_config = json.loads(f.read())
-                    if 'id' in scoring_config:
-                        consumedId = scoring_config['id']
-
-            if consumedId == id:
-                mm_response_json['consumed'] = True
-            else:
-                mm_response_json['consumed'] = False
-
-            resp = Response(json.dumps(mm_response_json))
-            resp.headers['Content-type'] = 'application/json'
-            return resp
-    elif operation == 'operations':
-        mm_response = model_management.get('operations/{0}'.format(id))
-        resp = Response(mm_response.text, status = mm_response.status_code)
-        resp.headers['Content-type'] = 'application/json'
-        return resp
-
-def create_snapshot(file_share, directory_name, file_name, container_name, correlation_guid = str(uuid.uuid4())):
-    file_service = FileService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
-    blob_service = BlockBlobService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
-    file_sas_token = file_service.generate_file_shared_access_signature(
-        file_share,
-        directory_name,
-        file_name,
-        permission = FilePermissions.READ,
-        expiry = datetime.now() + timedelta(minutes = 10))
-
-    file_url = file_service.make_file_url(file_share, directory_name, file_name, sas_token = file_sas_token)
-
-    blob_name = '{0}/{1}/{2}'.format(correlation_guid, directory_name, file_name)
-    blob_service.create_container(container_name)
-
-    try:
-        blob_service.copy_blob(container_name, blob_name, file_url)
-    except Exception as e:
-        raise ValueError('Missing file ' + file_name)
-
-    blob_sas_token = blob_service.generate_blob_shared_access_signature(
-        container_name,
-        blob_name,
-        permission = BlobPermissions.READ,
-        expiry = datetime.now() + timedelta(days = 1000))
-
-    return blob_service.make_blob_url(container_name, blob_name, sas_token = blob_sas_token)
-
-
-@app.route('/operationalization/<operation>', methods=['POST'])
-@login_required
-def operationalization_post_operation(operation):
-    model_management = ModelManagement(os.environ['MODEL_MANAGEMENT_SWAGGER_URL'], get_access_token())
-
-    operation = operation.lower()
-    if operation == 'registermodel':
-        try:
-            model_blob_url = create_snapshot('azureml-share', 'Solution1', 'model.tar.gz', 'o16n')
-        except Exception as e:
-            resp = Response("No serialized model found. " + str(e), status = 400)
-            return resp
-
-        payload = {
-    		"name": "failure-prediction-model",
-    		"tags": ["pdms"],
-    		"url": model_blob_url,
-    		"mimeType": "application/json",
-    		"description": "Testing",
-    		"unpack": True
-    	}
-
-        mm_response = model_management.post('models', payload)
-        resp = Response(mm_response.text, status = mm_response.status_code)
-        resp.headers['Content-type'] = 'application/json'
-        return resp
-    elif operation == 'registermanifest':
-
-        model_id = request.form["modelId"]
-        # take a snapshots of driver.py, score.py, requirements.txt and conda_dependencies.yml
-        try:
-            correlation_guid = str(uuid.uuid4())
-            driver_url = create_snapshot('azureml-project', None , 'driver.py', 'o16n', correlation_guid)
-            score_url = create_snapshot('azureml-share', 'Solution1', 'score.py', 'o16n', correlation_guid)
-            featurization_url = create_snapshot('azureml-share', 'Solution1', 'featurization.py', 'o16n', correlation_guid)
-            schema_url = create_snapshot('azureml-share', 'Solution1', 'service_schema.json', 'o16n', correlation_guid)
-            requirements_url = create_snapshot('azureml-project', 'aml_config', 'requirements.txt', 'o16n', correlation_guid)
-            conda_dependencies_url = create_snapshot('azureml-project', 'aml_config', 'conda_dependencies.yml', 'o16n', correlation_guid)
-        except Exception as e:
-            resp = Response("Missing operationalization assets. " + str(e), status = 400)
-            return resp
-
-        payload = {
-                    "modelIds": [model_id],
-                	"name": "failure-prediction-manifest",
-                	"description": "Failure prediction manifest",
-                	"driverProgram": "driver",
-                	"assets": [{
-                        "id": "driver",
-                        "mimeType": "application/x-python",
-                        "url": driver_url,
-                        "unpack": False
-                    },
-                    {
-                        "id": "score",
-                        "mimeType": "application/x-python",
-                        "url": score_url,
-                        "unpack": False
-                    },
-                    {
-                        "id": "featurization",
-                        "mimeType": "application/x-python",
-                        "url": featurization_url,
-                        "unpack": False
-                    },
-                    {
-                        "id": "schema",
-                        "mimeType": "application/json",
-                        "url": schema_url,
-                        "unpack": False
-                    }],
-                	"targetRuntime": {
-                        "runtimeType": "SparkPython",
-                        "properties": {
-                            "pipRequirements": requirements_url,
-                            "condaEnvFile": conda_dependencies_url
-                        }
-                    },
-                	"webserviceType": "Realtime",
-                    "modelType": "Registered"
-                }
-
-        mm_response = model_management.post('manifests', payload)
-        resp = Response(mm_response.text, status = mm_response.status_code)
-        resp.headers['Content-type'] = 'application/json'
-        return resp
-
-    elif operation == 'createimage':
-        manifest_id = request.form["manifestId"]
-
-        payload = {
-            "computeResourceId": os.environ['ML_COMPUTE_RESOURCE_ID'],
-    		"name": "failure-prediction-image",
-    		"manifestId": manifest_id,
-    		"imageType": "Docker"
-    	}
-
-        mm_response = model_management.post('images', payload)
-
-        operation_location = mm_response.headers['operation-location']
-        resp = Response(status = mm_response.status_code)
-        resp.headers['Operation-Location'] = operation_location
-        return resp
-    elif operation == 'createservice':
-        image_id = request.form["imageId"]
-        name = request.form["name"]
-
-        payload = {
-            "computeResource": {
-                "id": os.environ['ML_COMPUTE_RESOURCE_ID'],
-                "type": "Cluster"
-            },
-    		"name": name,
-    		"imageId": image_id
-    	}
-
-        mm_response = model_management.post('services', payload)
-
-        resp = Response(mm_response.text, status = mm_response.status_code)
-        if mm_response.status_code == 202:
-            operation_location = mm_response.headers['operation-location']
-            resp.headers['Operation-Location'] = operation_location
-        return resp
-    elif operation == 'consume':
-        service_id = request.form["serviceId"]
-        mm_response_service = model_management.get('services/{0}'.format(service_id))
-        mm_response_service_keys = model_management.get('services/{0}/keys'.format(service_id))
-
-        mm_response_service_json = json.loads(mm_response_service.text)
-        mm_response_service_keys_json = json.loads(mm_response_service_keys.text)
-
-        scoring_config = json.dumps({
-            'id': service_id,
-            'scoringUri': mm_response_service_json['scoringUri'],
-            'primaryKey': mm_response_service_keys_json['primaryKey']
-        })
-
-        config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/scoring.json'))
-
-        with open(config_path, 'w') as f:
-            f.write(scoring_config)
-
-        resp = Response(scoring_config)
-        resp.headers['Content-type'] = 'application/json'
-        return resp
 
 @app.route('/intelligence')
 @register_breadcrumb(app, '.intelligence', 'Intelligence')

@@ -1,0 +1,33 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+    },
+    "variables": {
+        "namePrefix": "[resourceGroup().name]",
+        "unique": "[uniqueString(resourceGroup().id)]",
+        "workspaceName": "[concat('databricks', variables('unique'))]",
+        "uniqueNamePrefix": "[toLower(concat(resourceGroup().name, uniqueString(subscription().subscriptionId)))]",
+        "location": "[resourceGroup().location]",
+        "tier": "premium",
+        "managedResourceGroupName": "[concat('databricks-rg-', variables('workspaceName'), '-', uniqueString(variables('workspaceName'), resourceGroup().id))]",
+        "managedResourceGroupId": "[concat(subscription().id, '/resourceGroups/', variables('managedResourceGroupName'))]"
+    },   
+    "resources": [
+    {
+            "apiVersion": "2018-04-01",
+            "location": "[variables('location')]",
+            "name": "[variables('workspaceName')]",
+            "sku": {
+                "name": "[variables('tier')]"
+            },
+            "properties": {
+                "ManagedResourceGroupId": "[variables('managedResourceGroupId')]"
+            },
+            "type": "Microsoft.Databricks/workspaces"
+    }
+],
+    "outputs": {
+        "databrickworkspaceUrl": { "type": "string", "value": "[concat(resourceGroup().location, '.azuredatabricks.net')]" }
+        }
+}

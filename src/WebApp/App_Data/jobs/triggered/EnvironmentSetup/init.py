@@ -16,3 +16,7 @@ block_blob_service = BlockBlobService(account_name=STORAGE_ACCOUNT_NAME, account
 
 block_blob_service.create_container('telemetry')
 table_service.create_table('cycles')
+table_service.create_table('featurizationJobStatus')
+
+jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Cluster_NotCreated"}
+table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
