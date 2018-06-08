@@ -90,7 +90,6 @@ def featurizationjobTask(token):
     dbfs_path = "/mnt/pdm/"
     bdfs = "/mnt/pdm/avro.jar"
     mkdirs_payload = { 'path': dbfs_path }
-    bearerToken = "\" Bearer " + token +"\""
     resp = requests.post('https://' + databricksUrl + '/api/2.0/dbfs/mkdirs',headers=json_data, json = mkdirs_payload).json()
     print(resp)
 
@@ -108,7 +107,7 @@ def featurizationjobTask(token):
         'spark.speculation' : 'true'
     }
     payload = {
-        'cluster_name' : 'laks-cluster2',
+        'cluster_name' : 'pdm-cluster',
         'spark_version' : '4.0.x-scala2.11',
         'node_type_id' : 'Standard_D3_v2',
         'spark_conf' : sparkSpec,
@@ -196,7 +195,7 @@ def featurizationjobTask(token):
         'jar_params' : jar_params
     }
 
-    job_run_details = requests.post('https://' + databricksUrl + '/api/2.0/jobs/run-now', headers={'Authorization': bearerToken}, json = payload).json()
+    job_run_details = requests.post('https://' + databricksUrl + '/api/2.0/jobs/run-now', headers={'Authorization': json_data}, json = payload).json()
     jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Job_Running"}
     table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
 
@@ -207,7 +206,7 @@ def startFeaturizationJob():
     thread = Thread(target=featurizationjobTask, args=(token,))
     thread.daemon = True
     thread.start()
-    jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Cluster_Running"}
+    jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Cluster_Creating"}
     table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
     return redirect('/operationalization')
 
