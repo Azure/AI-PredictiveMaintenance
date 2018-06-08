@@ -67,6 +67,18 @@
       "metadata": {
         "description": "DSVM name"
       }
+    },
+    "jarStorageConnectionString": {
+      "type": "string",
+      "metadata": {
+        "description": "DSVM name"
+      }
+    },
+    "dataBricksToken": {
+      "type": "string",
+      "metadata": {
+        "description": "DSVM name"
+      }
     }
   },
   "variables": {
@@ -131,7 +143,11 @@
             "AML_ASSETS_URL": "[parameters('amlAssetsUrl')]",
             "DSVM_NAME": "[parameters('dsvmName')]",
             "DATABRICKS_URL": "[parameters('databrickworkspaceUrl')]",
-            "EVENT_HUB_ENDPOINT": "[parameters('eventHubConnectionString')]"
+            "EVENT_HUB_ENDPOINT": "[parameters('eventHubConnectionString')]",
+            "JAR_Storage_Connection_String": "[parameters('jarStorageConnectionString')]",
+            "DATABRICKS_TOKEN": "[parameters('dataBricksToken')]",
+            "WEBJOBS_IDLE_TIMEOUT": "3600"
+            
           }
         },
         {

@@ -22,12 +22,22 @@
         <ResourceProvider name = "Microsoft.ContainerService"/>
     </RegisterResourceProviders>
     <ProvisioningSteps>
+        <ArmDeployment title="Creating Azure Databricks workspace" autoResolveParameters="true" source="arm/databricksARM.json" />
         <Manual title="Configure Linux DSVM">
             <Parameters>
                 <Credential type="linuxvm" username="adminUsername" password="adminPassword" />
                 <VmSku name="vmSize" defaultValue="Standard_DS3_v2" description="Size for the Virtual Machine" allowedValues="{VirtualMachineSkus}" />
             </Parameters>
             <Instructions src="markdown\ConfigureLinuxDSVM.md" format="markdown" />
+        </Manual>
+        <Manual title="Configure Linux DSVM">
+            <Parameters>
+                <Parameter name="DataBricksToken" description="DataBricks Personal Access token">
+                    <ExtraDescription>
+                        DataBricks Personal Access token.
+                    </ExtraDescription>
+                </Parameter>
+            </Parameters>
         </Manual>
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
         <ActiveDirectoryApplication displayName="PdM" replyUrls="https://{Outputs.webSiteName}.azurewebsites.net/.auth/login/aad/callback" title="Creating Azure Active Directory application">
@@ -48,7 +58,6 @@
         </ActiveDirectoryApplication>
         <ArmDeployment source="arm/iotHub.json" title="Creating IoT Hub" />
         <ArmDeployment source="arm/storageAccount.json" title="Creating storage account" />
-        <ArmDeployment title="Creating Azure Databricks workspace" autoResolveParameters="true" source="arm/databricksARM.json" />
         <ArmDeployment source="arm/demoDashboard.json" title="Deploying and setting up Demo Dashboard" autoResolveParameters="true">
             <Parameters>
                 <Parameter name="webAppUrl" defaultValue="{PatternAssetBaseUrl}/WebApp.zip" hidden="true" />
@@ -56,6 +65,8 @@
                 <Parameter name="dsvmName" defaultValue="{Outputs.vmName}" hidden="true" />
                 <Parameter name="databrickworkspaceUrl" defaultValue="{Outputs.databrickworkspaceUrl}" hidden="true" />
                 <Parameter name="eventHubConnectionString" defaultValue="{Outputs.eventHubConnectionString}" hidden="true" />
+                <Parameter name="jarStorageConnectionString" defaultValue="{PatternAssetBaseUrl}" hidden="true" />
+                <Parameter name="dataBricksToken" defaultValue="{Inputs.DataBricksToken}" hidden="true" />
             </Parameters>
         </ArmDeployment>
         <WebJob title="Creating file shares and containers" retriable="true" autoRetryCount = "2">

@@ -17,8 +17,6 @@ from azure.storage.file.models import FilePermissions
 from azure.storage.blob.models import BlobPermissions
 from azure.storage.table import TableService, Entity, TablePermissions
 from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
-from model_management import ModelManagement
-from threading import Thread
 import urllib
 
 # TODO: Fix possible WebJob restarts because of this.
@@ -78,144 +76,11 @@ def telemetry():
     devices.sort(key = lambda x: x.deviceId)
     return render_template('telemetry.html', assets = devices)
 
-def featurizationjobTask(token):
-    databricksUrl = os.environ['DATABRICKS_URL']
-    bearer_token = 'Bearer ' + token
-    json_data = { 'Authorization': bearer_token }
-    
-    url = 'https://stgjw6kzpeckznx6.blob.core.windows.net/ai-predictivemaintenance/featurizer_2.11-1.0.jar'  
-    urllib.request.urlretrieve(url, 'D:/home/site/wwwroot/featurizer_2.11-1.0.jar') 
-
-    #upload jar
-    dbfs_path = "/mnt/pdm/"
-    bdfs = "/mnt/pdm/avro.jar"
-    mkdirs_payload = { 'path': dbfs_path }
-    resp = requests.post('https://' + databricksUrl + '/api/2.0/dbfs/mkdirs',headers=json_data, json = mkdirs_payload).json()
-    print(resp)
-
-    file = 'D:/home/site/wwwroot/featurizer_2.11-1.0.jar'
-    image = dbfs_path + file
-    files = {'file': open(file, 'rb')}
-    put_payload = { 'path' : bdfs, 'overwrite' : 'true' }
-    # push the images to DBFS
-    resp = requests.post('https://' + databricksUrl + '/api/2.0/dbfs/put', headers=json_data,data = put_payload, files = files).json()
-    print(resp)    
-
-    #create cluster
-
-    sparkSpec= {
-        'spark.speculation' : 'true'
-    }
-    payload = {
-        'cluster_name' : 'pdm-cluster',
-        'spark_version' : '4.0.x-scala2.11',
-        'node_type_id' : 'Standard_D3_v2',
-        'spark_conf' : sparkSpec,
-        'num_workers' : 2
-    }
-
-    cluster_details = requests.post('https://' + databricksUrl + '/api/2.0/clusters/create', headers=json_data, json = payload).json()
-    print(cluster_details)
-
-    if 'cluster_id' in cluster_details:
-        clusterid = cluster_details['cluster_id']
-
-        jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Cluster_Creating"}
-        table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
-
-    else:
-        jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Cluster_Failed", 'Message': str(cluster_details)}
-        table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
-        return None
-
-    #get cluster
-    request_url = 'https://' + databricksUrl + '/api/2.0/clusters/get?cluster_id=' + clusterid
-    cluster_details = requests.get(request_url, headers=json_data, json = payload).json()
-
-    while cluster_details['state'] != 'RUNNING' and cluster_details['state'] != 'TERMINATED':
-        time.sleep(10)
-        cluster_details = requests.get(request_url, headers=json_data, json = payload).json()
-
-    if cluster_details['state'] == 'RUNNING':
-        jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Cluster_Completed"}
-        table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
-    else:
-        jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Cluster_Failed", 'Message': cluster_details['state_message']}
-        table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
-        return None
-    #create job
-
-    jar_path = "dbfs:" + bdfs
-    jar = {
-        'jar' : jar_path
-    }
-
-    maven_coordinates = {
-        'coordinates' : 'com.microsoft.azure:azure-eventhubs-spark_2.11:2.3.1'
-    }
-
-    maven = {
-    'maven' : maven_coordinates
-    }
-
-    libraries = [jar, maven]
-
-    spark_jar_task= {
-        'main_class_name' : 'com.microsoft.ciqs.predictivemaintenance.Featurizer'
-    }
-
-    payload = {
-        'name' : 'Job1',
-        'existing_cluster_id' : clusterid,
-        'libraries' : libraries,
-        'timeout_seconds' : 3600,
-        'max_retries' : 1,
-        'spark_jar_task' : spark_jar_task
-    }
-
-    job_details = requests.post('https://' + databricksUrl + '/api/2.0/jobs/create', headers=json_data, json = payload).json()
-    
-    if 'job_id' in job_details:
-        jobid = job_details['job_id']
-
-        jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Job_Created"}
-        table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
-
-    else:
-        jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Job_Failed", 'Message': str(job_details)}
-        table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
-        return None        
-
-    #run a job
-
-    jar_params = [EVENT_HUB_ENDPOINT,IOT_HUB_NAME,StorageConnectionString]
-
-    payload = {
-        'job_id' : jobid,
-        'jar_params' : jar_params
-    }
-
-    job_run_details = requests.post('https://' + databricksUrl + '/api/2.0/jobs/run-now', headers=json_data, json = payload).json()
-    jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Job_Running"}
-    table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
-
-@app.route('/startFeaturizationJob', methods=['POST'])
-@login_required
-def startFeaturizationJob():    
-    token = request.form['token']
-    thread = Thread(target=featurizationjobTask, args=(token,))
-    thread.daemon = True
-    thread.start()
-    jobStatus = {'PartitionKey': 'predictivemaintenance', 'RowKey': 'predictivemaintenance', 'Status': "Cluster_Creating"}
-    table_service.insert_or_merge_entity('featurizationJobStatus', jobStatus)
-    return redirect('/operationalization')
-
 @app.route('/operationalization')
 @register_breadcrumb(app, '.operationalization', 'Operationalization')
 @login_required
 def operationalization():
-    jobDetails = table_service.get_entity('featurizationJobStatus', 'predictivemaintenance', 'predictivemaintenance')
-    return render_template('operationalization.html', jobDetails = jobDetails)
+    return render_template('operationalization.html')
 
 @app.route('/createDevices', methods=['POST'])
 @login_required
