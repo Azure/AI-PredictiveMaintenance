@@ -17,54 +17,56 @@ import scala.collection.JavaConverters._
 
 object Featurizer {
   val PARTITION_KEY = "PartitionKey"
-  val futureTimestamp = new Timestamp(6284160000000L)
-  val cycleGapMs = 30 * 1000
+  val FAR_FUTURE_TIMESTAMP = new Timestamp(6284160000000L)
+  val DEFAULT_CYCLE_GAP_MS = 30 * 1000 // (ms)
+
+  def getIntervalsFromTimeSeries(timestamps: Iterator[Timestamp], cycleGapMs: Int) = {
+    val first = timestamps.next()
+    val augmented = Seq(first) ++ timestamps ++ Seq(FAR_FUTURE_TIMESTAMP)
+
+    ((first, first) :: augmented.sliding(2)
+      .map(x => (x(0), x(1), x(1).getTime - x(0).getTime))
+      .filter(_._3 > cycleGapMs).map(x => (x._1, x._2)).toList)
+      .sliding(2).map(x => List(x(0)._2, x(1)._1)).toList.reverse
+  }
+
+  def getCycleIntervalsStateful(machineID: String,
+                                inputs: Iterator[TelemetryEvent],
+                                groupState: GroupState[CycleInterval]): Iterator[CycleInterval] = {
+    if (groupState.hasTimedOut) {
+      assert(inputs.isEmpty)
+      val state = groupState.get
+      groupState.remove()
+      Iterator(state)
+    } else {
+      val timestamps = inputs.map(x => x.timestamp)
+
+      val latest :: tail = getIntervalsFromTimeSeries(timestamps, DEFAULT_CYCLE_GAP_MS)
+
+      groupState.setTimeoutTimestamp(latest(1).getTime, "30 seconds")
+
+      if (groupState.exists) {
+        val state = groupState.get
+        if (latest(0).getTime - state.end.getTime < DEFAULT_CYCLE_GAP_MS) {
+          groupState.update(CycleInterval(state.start, latest(1), machineID))
+          Iterator(groupState.get)
+        } else {
+          groupState.update(CycleInterval(latest(0), latest(1), machineID))
+          Iterator(state)
+        }
+      } else {
+        groupState.update(CycleInterval(latest(0), latest(1), machineID))
+        tail.map(x => CycleInterval(x(0), x(1), machineID)).iterator
+      }
+    }
+  }
 
   def main(args: Array[String]) {
     val endpoint = args(0)
     val eventHubName = args(1)
     val storageAccountConnectionString = args(2)
 
-    def getCycleIntervalsStateful(machineID: String,
-                                  inputs: Iterator[TelemetryEvent],
-                                  groupState: GroupState[CycleInterval]): Iterator[CycleInterval] = {
-      if (groupState.hasTimedOut) {
-        assert(inputs.isEmpty)
-        val state = groupState.get
-        groupState.remove()
-        Iterator(state)
-      } else {
-        val timestamps = inputs.map(x => x.timestamp)
-        val first = timestamps.next()
-        val augmented = Seq(first) ++ timestamps ++ Seq(futureTimestamp)
-
-        val intervals = (first :: augmented.sliding(2)
-          .map(x => (x(0), x(1).getTime - x(0).getTime))
-          .filter(_._2 > cycleGapMs).map(_._1).toList
-          ).sliding(2).toList.reverse
-
-        val latest :: tail = intervals
-
-        groupState.setTimeoutTimestamp(latest(1).getTime, "30 seconds")
-        //groupState.setTimeoutDuration("30 seconds")
-
-        if (groupState.exists) {
-          val state = groupState.get
-          if (latest(0).getTime - state.end.getTime < cycleGapMs) {
-            groupState.update(CycleInterval(state.start, latest(1), machineID))
-            Iterator(groupState.get)
-          } else {
-            groupState.update(CycleInterval(latest(0), latest(1), machineID))
-            Iterator(state)
-          }
-        } else {
-          groupState.update(CycleInterval(latest(0), latest(1), machineID))
-          tail.map(x => CycleInterval(x(0), x(1), machineID)).iterator
-        }
-      }
-    }
-
-   val connectionString = ConnectionStringBuilder(endpoint)
+    val connectionString = ConnectionStringBuilder(endpoint)
      .setEventHubName(eventHubName)
      .build
 
@@ -116,7 +118,7 @@ object Featurizer {
     var cycleAggregates = cycleIntervals.
       join(telemetry,
         $"renamed_machineID" === $"machineID" &&
-          $"start" < $"timestamp" &&
+          $"start" <= $"timestamp" &&
           $"end" >= $"timestamp", "leftOuter").
       groupBy("machineID", "start", "end").
       agg(
