@@ -10,19 +10,23 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.streaming.{GroupState, GroupStateTimeout, OutputMode}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.Row
-import com.microsoft.azure.storage.table.{CloudTableClient, TableOperation, CloudTable}
+import com.microsoft.azure.storage.table.{CloudTableClient, TableOperation, CloudTable, TableQuery}
+import com.microsoft.azure.storage.table.TableQuery.QueryComparisons
+import org.apache.spark.sql.expressions.Window
+import scala.collection.JavaConverters._
 
 object Featurizer {
+  val PARTITION_KEY = "PartitionKey"
   val futureTimestamp = new Timestamp(6284160000000L)
-  val cycleGapMs = 30 * 1000;
+  val cycleGapMs = 30 * 1000
 
   def main(args: Array[String]) {
     val endpoint = args(0)
     val eventHubName = args(1)
     val storageAccountConnectionString = args(2)
 
-    def getCycleIntervalsStateful(machineID: DeviceId,
-                                  inputs: Iterator[Signal],
+    def getCycleIntervalsStateful(machineID: String,
+                                  inputs: Iterator[TelemetryEvent],
                                   groupState: GroupState[CycleInterval]): Iterator[CycleInterval] = {
       if (groupState.hasTimedOut) {
         assert(inputs.isEmpty)
@@ -66,10 +70,11 @@ object Featurizer {
 
     val spark = SparkSession
       .builder
-      .appName("PredictiveMaintenanceFeaturizer") //.master("local[2]")
+      .appName("PredictiveMaintenanceFeaturizer").master("local[2]")
       .getOrCreate()
 
-    spark.sparkContext.setLogLevel("WARN")
+    val sc = spark.sparkContext
+    sc.setLogLevel("WARN")
 
     import spark.implicits._
 
@@ -96,7 +101,7 @@ object Featurizer {
       .withColumn("BodyJ", from_json($"body".cast(StringType), schemaTyped))
       .select("*", "BodyJ.*")
       .withWatermark("timestamp", "1 days")
-      .as[Signal]
+      .as[TelemetryEvent]
 
     val telemetryByDevice = telemetry.withWatermark("timestamp", "30 seconds").groupByKey(_.machineID)
 
@@ -115,15 +120,15 @@ object Featurizer {
           $"end" >= $"timestamp", "leftOuter").
       groupBy("machineID", "start", "end").
       agg(
-        max("speed_desired").alias("speed_desired_max"),
-        avg("speed").alias("speed_avg"),
-        avg("temperature").alias("temperature_avg"),
-        max("temperature").alias("temperature_max"),
-        avg("pressure").alias("pressure_avg"),
-        max("pressure").alias("pressure_max"),
-        min("timestamp").alias("cycle_start"),
-        max("timestamp").alias("cycle_end"),
-        count(lit(1)).alias("raw_count")
+        max("speed_desired").alias("SpeedDesiredMax"),
+        avg("speed").alias("SpeedAvg"),
+        avg("temperature").alias("TemperatureAvg"),
+        max("temperature").alias("TemperatureMax"),
+        avg("pressure").alias("PressureAvg"),
+        max("pressure").alias("PressureMax"),
+        min("timestamp").alias("CycleStart"),
+        max("timestamp").alias("CycleEnd"),
+        count(lit(1)).alias("RawCount")
       )
 
     val writer = new ForeachWriter[CycleAggregates] {
@@ -151,6 +156,52 @@ object Featurizer {
       foreach(writer).
       start()
 
-    sq.awaitTermination()
+    val storageAccount =  CloudStorageAccount.parse(storageAccountConnectionString)
+    val tableClient = storageAccount.createCloudTableClient
+    val cyclesTableReference = tableClient.getTableReference("cycles")
+    val featuresTableReference = tableClient.getTableReference("features")
+    val lookback = 5
+    val w = Window.rowsBetween(-lookback, Window.currentRow).orderBy("CycleStart")
+
+
+    while (true) {
+      val machineID = "MACHINE-000"
+
+      val partitionFilter = TableQuery.generateFilterCondition(
+        PARTITION_KEY,
+        QueryComparisons.EQUAL,
+        machineID)
+
+      val partitionQuery = TableQuery.from(classOf[CycleAggregates]).where(partitionFilter)
+
+      val l = cyclesTableReference.execute(partitionQuery).asScala
+
+      val df = sc.parallelize(l.toSeq).toDF
+
+      val rollingAverages = Seq("TemperatureAvg", "TemperatureMax", "PressureAvg", "PressureMax")
+
+      val augmented_labeled_cycles_df = rollingAverages.foldLeft(df){
+        (_df, colName) => _df.withColumn(colName.concat("RollingAvg"), avg(colName).over(w))
+      }.orderBy(desc("CycleStart")).limit(1).drop( "RawCount")
+
+      var nonFeatureColumns = Set("MachineID", "CycleStart", "CycleEnd")
+      val featureColumns = augmented_labeled_cycles_df.columns.filterNot(c => nonFeatureColumns.contains(c))
+
+      val obfuscateColumns = featureColumns zip (1 to featureColumns.length + 1)
+
+      val features_df = obfuscateColumns.foldLeft(augmented_labeled_cycles_df){
+        (_df, c) => _df.withColumnRenamed(c._1, "s".concat(c._2.toString))
+      }.as[Features]
+
+      val featuresJson = features_df.drop(nonFeatureColumns.toList: _*).toJSON.first()
+
+      val features = features_df.first()
+      features.FeaturesJson = featuresJson
+
+      val insertFeatures = TableOperation.insertOrReplace(features)
+      featuresTableReference.execute(insertFeatures)
+
+      sq.awaitTermination(5000)
+    }
   }
 }
