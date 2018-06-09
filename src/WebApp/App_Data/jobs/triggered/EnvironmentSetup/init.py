@@ -40,7 +40,7 @@ bdfs = "/mnt/pdm/featurizer_2.11-1.0.jar"
 mkdirs_payload = { 'path': dbfs_path }
 resp = requests.post('https://' + databricks_url + '/api/2.0/dbfs/mkdirs',headers=json_data, json = mkdirs_payload).json()
 
-file = 'D:/home/site/wwwroot/featurizer_2.11-1.0.jar'
+file = 'D:/home/site/jars/featurizer_2.11-1.0.jar'
 image = dbfs_path + file
 files = {'file': open(file, 'rb')}
 put_payload = { 'path' : bdfs, 'overwrite' : 'true' }
@@ -94,7 +94,8 @@ run_id = requests.post('https://' + databricks_url + '/api/2.0/jobs/runs/submit'
 print(run_id)
 run_details = requests.get('https://' + databricks_url + '/api/2.0/jobs/runs/get?run_id=' + str(run_id['run_id']), headers=json_data).json()
 
-while run_details['state']['life_cycle_state'] == 'PENDING':
+while run_details['state']['life_cycle_state'] != 'RUNNING' and run_details['state']['life_cycle_state'] != 'TERMINATED':
+    run_details = requests.get('https://' + databricks_url + '/api/2.0/jobs/runs/get?run_id=' + str(run_id['run_id']), headers=json_data).json()
     time.sleep(10)
 
 if run_details['state']['life_cycle_state'] == 'RUNNING':
