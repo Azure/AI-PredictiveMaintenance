@@ -102,6 +102,7 @@ object Featurizer {
       .withColumn("BodyJ", from_json($"body".cast(StringType), schemaTyped))
       .select("*", "BodyJ.*")
       .withWatermark("timestamp", "1 days")
+      .dropDuplicates()
       .as[TelemetryEvent]
 
     val telemetryByDevice = telemetry.withWatermark("timestamp", "30 seconds").groupByKey(_.machineID)
@@ -162,7 +163,7 @@ object Featurizer {
     val cyclesTableReference = tableClient.getTableReference("cycles")
     val featuresTableReference = tableClient.getTableReference("features")
     val lookback = 5
-    val w = Window.rowsBetween(-lookback, Window.currentRow).orderBy("CycleStart")
+    val w = Window.partitionBy("machineID").rowsBetween(-lookback, Window.currentRow).orderBy("CycleStart")
 
 
     while (true) {
