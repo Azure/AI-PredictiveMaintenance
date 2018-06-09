@@ -17,7 +17,6 @@ from azure.storage.file.models import FilePermissions
 from azure.storage.blob.models import BlobPermissions
 from azure.storage.table import TableService, Entity, TablePermissions
 from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
-import urllib
 
 # TODO: Fix possible WebJob restarts because of this.
 simulator_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/jobs/continuous/Simulator'))
@@ -207,6 +206,56 @@ def analytics():
     dsvmName = os.environ['DSVM_NAME']
     return render_template('analytics.html', dsvmName = dsvmName)
 
+<<<<<<< HEAD
+=======
+@app.route('/operationalization')
+@register_breadcrumb(app, '.operationalization', 'Operationalization')
+@login_required
+def operationalization():
+    return render_template('operationalization.html')
+
+
+@app.route('/operationalization/<operation>', methods=['GET'])
+@app.route('/operationalization/<operation>/<id>', methods=['GET'])
+@login_required
+def operationalization_get_operation(operation, id = None):
+    pass
+
+def create_snapshot(file_share, directory_name, file_name, container_name, correlation_guid = str(uuid.uuid4())):
+    file_service = FileService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
+    blob_service = BlockBlobService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
+    file_sas_token = file_service.generate_file_shared_access_signature(
+        file_share,
+        directory_name,
+        file_name,
+        permission = FilePermissions.READ,
+        expiry = datetime.now() + timedelta(minutes = 10))
+
+    file_url = file_service.make_file_url(file_share, directory_name, file_name, sas_token = file_sas_token)
+
+    blob_name = '{0}/{1}/{2}'.format(correlation_guid, directory_name, file_name)
+    blob_service.create_container(container_name)
+
+    try:
+        blob_service.copy_blob(container_name, blob_name, file_url)
+    except Exception as e:
+        raise ValueError('Missing file ' + file_name)
+
+    blob_sas_token = blob_service.generate_blob_shared_access_signature(
+        container_name,
+        blob_name,
+        permission = BlobPermissions.READ,
+        expiry = datetime.now() + timedelta(days = 1000))
+
+    return blob_service.make_blob_url(container_name, blob_name, sas_token = blob_sas_token)
+
+
+@app.route('/operationalization/<operation>', methods=['POST'])
+@login_required
+def operationalization_post_operation(operation):
+    pass
+
+>>>>>>> 19e9cc34e135a3ffbd373967c80fad3cdd5aac82
 @app.route('/intelligence')
 @register_breadcrumb(app, '.intelligence', 'Intelligence')
 @login_required

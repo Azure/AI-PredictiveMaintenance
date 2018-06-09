@@ -3,7 +3,6 @@ import zipfile
 from datetime import datetime
 from azure.storage.table import TableService, Entity, TablePermissions
 from azure.storage.blob import BlockBlobService
-from azure.storage.blob import PublicAccess
 from azure.storage.file import FileService
 import sys, os, time, glob
 import requests
@@ -11,9 +10,6 @@ import json
 import uuid
 import json
 import random
-import markdown
-import jwt
-from datetime import datetime, timedelta
 
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
@@ -24,10 +20,9 @@ block_blob_service = BlockBlobService(account_name=STORAGE_ACCOUNT_NAME, account
 
 block_blob_service.create_container('telemetry')
 table_service.create_table('cycles')
-table_service.create_table('featurizationJobStatus')
 
 databricks_url = os.environ['DATABRICKS_URL']
-jar_Storage_Connection_String = os.environ['JAR_Storage_Connection_String'] 
+FEATURIZER_JAR_URL = os.environ['FEATURIZER_JAR_URL'] 
 access_token = os.environ['DATABRICKS_TOKEN'] 
 IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 EVENT_HUB_ENDPOINT = os.environ['EVENT_HUB_ENDPOINT']
@@ -36,12 +31,12 @@ StorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=" + STORAG
 bearer_token = 'Bearer ' + access_token
 json_data = { 'Authorization': bearer_token }
         
-url = jar_Storage_Connection_String + '/featurizer_2.11-1.0.jar'  
-urllib.request.urlretrieve(url, 'D:/home/site/wwwroot/featurizer_2.11-1.0.jar') 
+url = FEATURIZER_JAR_URL + '/featurizer_2.11-1.0.jar'  
+urllib.request.urlretrieve(url, 'D:/home/site/jars/featurizer_2.11-1.0.jar') 
 
 #upload jar
 dbfs_path = "/mnt/pdm/"
-bdfs = "/mnt/pdm/featurization.jar"
+bdfs = "/mnt/pdm/featurizer_2.11-1.0.jar"
 mkdirs_payload = { 'path': dbfs_path }
 resp = requests.post('https://' + databricks_url + '/api/2.0/dbfs/mkdirs',headers=json_data, json = mkdirs_payload).json()
 
@@ -109,3 +104,4 @@ else:
     print(errorMessage)
     raise Exception(errorMessage)
     
+table_service.create_table('features')

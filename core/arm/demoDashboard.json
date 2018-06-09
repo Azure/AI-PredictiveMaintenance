@@ -68,7 +68,7 @@
         "description": "DSVM name"
       }
     },
-    "jarStorageConnectionString": {
+    "FEATURIZER_JAR_URL": {
       "type": "string",
       "metadata": {
         "description": "DSVM name"
@@ -144,7 +144,7 @@
             "DSVM_NAME": "[parameters('dsvmName')]",
             "DATABRICKS_URL": "[parameters('databricksworkspaceUrl')]",
             "EVENT_HUB_ENDPOINT": "[parameters('eventHubConnectionString')]",
-            "JAR_Storage_Connection_String": "[parameters('jarStorageConnectionString')]",
+            "FEATURIZER_JAR_URL": "[parameters('FEATURIZER_JAR_URL')]",
             "DATABRICKS_TOKEN": "[parameters('dataBricksToken')]",
             "WEBJOBS_IDLE_TIMEOUT": "3600"
             
