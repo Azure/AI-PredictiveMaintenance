@@ -1,7 +1,6 @@
 package com.microsoft.ciqs.predictivemaintenance
 
 import java.sql.Timestamp
-
 import com.microsoft.azure.storage.CloudStorageAccount
 import com.microsoft.ciqs.predictivemaintenance.Definitions._
 import org.apache.spark.eventhubs.{ConnectionStringBuilder, EventHubsConf, EventPosition}
@@ -195,13 +194,16 @@ object Featurizer {
         (_df, c) => _df.withColumnRenamed(c._1, "s".concat(c._2.toString))
       }.as[Features]
 
-      val featuresJson = features_df.drop(nonFeatureColumns.toList: _*).toJSON.first()
+      if (features_df.count() > 0) {
 
-      val features = features_df.first()
-      features.FeaturesJson = featuresJson
+        val featuresJson = features_df.drop(nonFeatureColumns.toList: _*).toJSON.first()
 
-      val insertFeatures = TableOperation.insertOrReplace(features)
-      featuresTableReference.execute(insertFeatures)
+        val features = features_df.first()
+        features.FeaturesJson = featuresJson
+
+        val insertFeatures = TableOperation.insertOrReplace(features)
+        featuresTableReference.execute(insertFeatures)
+      }
 
       sq.awaitTermination(5000)
     }
