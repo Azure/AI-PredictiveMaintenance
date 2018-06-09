@@ -33,6 +33,9 @@ STORAGE_ACCOUNT_SUFFIX = 'core.windows.net'
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 TELEMETRY_CONTAINER_NAME = 'telemetry'
+IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
+EVENT_HUB_ENDPOINT = os.environ['EVENT_HUB_ENDPOINT']
+StorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=" + STORAGE_ACCOUNT_NAME + ";AccountKey=" + STORAGE_ACCOUNT_KEY + ";EndpointSuffix=core.windows.net"
 
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
@@ -71,6 +74,12 @@ def telemetry():
     devices = iot_hub.get_device_list()
     devices.sort(key = lambda x: x.deviceId)
     return render_template('telemetry.html', assets = devices)
+
+@app.route('/operationalization')
+@register_breadcrumb(app, '.operationalization', 'Operationalization')
+@login_required
+def operationalization():
+    return render_template('operationalization.html')
 
 @app.route('/createDevices', methods=['POST'])
 @login_required
@@ -197,6 +206,8 @@ def analytics():
     dsvmName = os.environ['DSVM_NAME']
     return render_template('analytics.html', dsvmName = dsvmName)
 
+<<<<<<< HEAD
+=======
 @app.route('/operationalization')
 @register_breadcrumb(app, '.operationalization', 'Operationalization')
 @login_required
@@ -244,6 +255,7 @@ def create_snapshot(file_share, directory_name, file_name, container_name, corre
 def operationalization_post_operation(operation):
     pass
 
+>>>>>>> 19e9cc34e135a3ffbd373967c80fad3cdd5aac82
 @app.route('/intelligence')
 @register_breadcrumb(app, '.intelligence', 'Intelligence')
 @login_required
