@@ -3,13 +3,13 @@
     <Target Name="CopyAssets">
         <Delete Files="..\assets\WebApp.zip" />
         <ZipDir ZipFileName="..\assets\WebApp.zip" DirectoryName="WebApp" />
-        <Delete Files="..\assets\AML.zip" />
-        <ZipDir ZipFileName="..\assets\AML.zip" DirectoryName="AML" />
+        <Delete Files="..\assets\Notebooks.zip" />
+        <ZipDir ZipFileName="..\assets\Notebooks.zip" DirectoryName="Notebooks" />
         <Delete Files="..\assets\*.sh" />
         <ItemGroup>
-          <Ev2Files Include="setup_scripts\**\*" />
+          <CustomScripts Include="CustomScripts\**\*" />
         </ItemGroup>
-        <Copy SourceFiles="@(Ev2Files)" DestinationFolder="..\assets" />
+        <Copy SourceFiles="@(CustomScripts)" DestinationFolder="..\assets" />
     </Target>
   <UsingTask TaskName="ZipDir" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
     <ParameterGroup>

@@ -1,0 +1,55 @@
+\documentclass[tikz]{standalone}
+\usepackage[T1]{fontenc}
+\usetikzlibrary{arrows,calc,positioning,backgrounds,fit,matrix,decorations.markings,decorations.pathreplacing,decorations.text,fit}
+\begin{document}
+\begin{tikzpicture}[
+    node distance=2cm,
+    font=\sffamily\small\mdseries
+]
+
+  \def\h{7em}
+  
+  \node[label={[align=center]-90:Input Dataset}](InputDataset) {\includegraphics[height=\h]{blob-storage.png}};
+  \node[right = of InputDataset] (FeatureEngineering){
+    \begin{tikzpicture}
+      \node[](Spark) {\includegraphics[height=\h]{spark-logo.png}};
+      \begin{scope}[node distance=1cm, yshift=-5em]
+        \node[scale=0.3,label={[align=center]0:Linux DSVM}](Dsvm) {\includegraphics[height=\h]{dsvm.png}};
+        \node[scale=0.3, below=of Dsvm.west, anchor=west](Dsvm) {\includegraphics[height=\h]{databricks.png}};
+      \end{scope}
+    \end{tikzpicture}
+  };
+  \node[minimum height=15em, draw,dotted,rounded corners=10,inner sep=2mm,label={[name=FeatureEngineeringBorderLabel]below:\emph{Feature Engineering}},fit=(FeatureEngineering)] (FeatureEngineeringBorder) {};
+  
+  \node[label={[align=center]-90:Feature Dataset}, right = of FeatureEngineering](FeatureDataset) {\includegraphics[height=\h]{file-storage.png}};
+
+    \node[right = of FeatureDataset] (Training){
+    \begin{tikzpicture}
+      %\node[](Spark) {\includegraphics[height=\h]{spark-logo.png}};
+      \begin{scope}[node distance=1cm, yshift=-5em]
+        \node[scale=0.3,label={[align=center]0:Linux DSVM}](Dsvm) {\includegraphics[height=\h]{dsvm.png}};
+        \node[scale=0.3,label={[align=center]0:Azure Machine Learning}, below=of Dsvm.west, anchor=west](Dsvm) {\includegraphics[height=\h]{aml-workbench.png}};
+      \end{scope}
+    \end{tikzpicture}
+  };
+    \node[minimum height=15em,draw,dotted,rounded corners=10,inner sep=2mm,label={[name=TrainingBorderLabel]below:\emph{Training and Evaluation}},fit=(Training)] (TrainingBorder) {};
+
+    \node[label={[align=center]-90:Trained AI Model}, right = of TrainingBorder](Model) {\includegraphics[height=\h]{model.png}};
+    
+  \draw [<-,dashed,postaction={decorate,decoration={raise=1em, text along path,text align=center,text={|\it\sffamily|repeat}}}] (FeatureEngineeringBorderLabel.south) to [out=-90,in=-90] (TrainingBorderLabel.south);
+
+  \node[above = of FeatureDataset](Jupyter) {\includegraphics[height=\h]{jupyter.png}};
+
+  \path[->]
+  (InputDataset) edge[thick] (FeatureEngineeringBorder)
+  (FeatureEngineeringBorder) edge[thick] (FeatureDataset)
+  (FeatureDataset) edge[thick] (TrainingBorder)
+  (TrainingBorder) edge[thick] (Model);
+
+  \path[-]
+  (Jupyter) edge[dotted] (FeatureEngineeringBorder.north)
+  (Jupyter) edge[dotted] (TrainingBorder.north);
+
+  
+\end{tikzpicture}
+\end{document}

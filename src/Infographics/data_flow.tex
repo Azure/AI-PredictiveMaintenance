@@ -1,0 +1,53 @@
+\documentclass[tikz]{standalone}
+\usepackage[T1]{fontenc}
+\usetikzlibrary{shapes, calc, positioning, decorations.text, decorations.markings,decorations.pathreplacing}
+\begin{document}
+\begin{tikzpicture}[
+    xscale=1.8,
+    yscale=2,
+    node distance=7em,
+    font=\sffamily
+]
+
+  \tikzset{
+    action/.style={rectangle, minimum width=8em, minimum height=3em, draw, align=left, fill=yellow!10, rounded corners}
+  }
+
+\node[action] (ingress) at (0, 3.5) {Ingress};
+\node[circle, minimum width=3.5em, fill={rgb:red,1;green,2;blue,3}] (data) at (0, 3) {\textcolor{white}{Data}};
+\node[action] (modeling) at (-2, 2) {Modeling};
+\node[action] (featurization) at (2, 2) {Featurization};
+\node[action] (operationalization) at (-2, 1)  {Model\\operationalization};
+\node[action] (scoring) at (2, 1) {Scoring};
+\node[action] (visualization) at (0, 0) {Visualization\\and actions};
+
+\draw [<-, postaction={decorate,decoration={raise=0.5em, text along path,text align=center,text={|\scriptsize\it\sffamily|Snapshot}}}] (modeling.north) to [out=90,in=-180] (data.west);
+\draw [->, postaction={decorate,decoration={raise=0.5em, text along path,text align=center,text={|\scriptsize\it\sffamily|Stream}}}] (data.east) to [out=0,in=90] (featurization.north);
+
+\draw [->] (modeling) to (operationalization);
+\draw [->] (featurization) to (scoring);
+
+\node[circle, minimum width=3.5em, fill={rgb:red,1;green,2;blue,3},label={-90:\tiny\emph{Web Service}}] (model) at ($(operationalization.east)!0.5!(scoring.west)$) {\textcolor{white}{ML}};
+
+\draw [->] (scoring.south) to [out=-90,in=0] (visualization.east);
+
+\draw [->,dashed] (operationalization) -- node [midway, above] {\scriptsize\emph{create}} (model);
+\draw [->,dashed] (scoring) -- node [midway, above] {\scriptsize\emph{use}} (model);
+
+\node[scale=0.6] (modelingBreakout) at ($(modeling.east)+(0.6, 0)$) {
+  \begin{tikzpicture}
+  \begin{scope}[node distance=1em, color=gray]
+    \node[action, fill=none, dashed] (featureEngineering) {Feature\\engineering};
+    \node[action, fill=none, dashed, below=of featureEngineering] (training) {Training};
+    \node[action, fill=none, dashed, below=of training] (evaluation) {Evaluation};
+
+    \draw [->] (featureEngineering) to (training);
+    \draw [->] (training) to (evaluation);
+  \end{scope}
+\end{tikzpicture}
+};
+
+\draw[decorate, decoration=brace, color=gray](modelingBreakout.south west) -- (modelingBreakout.north west);
+
+\end{tikzpicture}
+\end{document}

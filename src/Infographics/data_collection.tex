@@ -1,0 +1,52 @@
+\documentclass[tikz]{standalone}
+\usepackage[T1]{fontenc}
+\usetikzlibrary{arrows, calc, positioning,backgrounds,fit,matrix,decorations.markings,decorations.pathreplacing,decorations.text}
+\begin{document}
+\begin{tikzpicture}[
+    node distance=4cm,
+    font=\sffamily\small\mdseries
+  ]
+
+\def\h{7em}
+\def\o{0.5}
+
+\tikzset{
+  pics/plus/.style = {
+    code={
+      \draw [line cap=round] (-1/2,0) -- (1/2,0) (0,-1/2) -- (0,1/2);
+     }
+  }
+}
+
+\matrix (m) [%
+  matrix of nodes,
+  nodes in empty cells,
+  row sep=1cm,
+  column sep=1cm,
+  minimum width=4cm] {
+  \node[label={[name=IoTHubLabel,align=center]-90:IoT Hub}](IoTHub){\includegraphics[height=\h]{iot-hub.png}};
+  &
+  \node[label={-90:Telemetry Archive}](TelemetryArchive){\includegraphics[height=\h]{blob-storage.png}};
+  &
+  \node[label={-90:Enterprise Data}](EnterpriseData){\includegraphics[height=\h]{sql-database.png}};
+  \\[10em]
+  \node[label={-90:Data Generator}](DataGenerator){\includegraphics[height=\h]{python-logo.png}};
+  & &
+  \\
+};
+
+\node[label={[align=center]-90:Input Dataset}, right of = DataGenerator, xshift=\h+1cm](InputDataset) {\includegraphics[height=\h]{blob-storage.png}};
+
+\draw[->,thick] (IoTHub) -- node [midway,above=0.5em] {\emph{Avro}} (TelemetryArchive);
+\draw[->,thick] ($(DataGenerator.north)+(0, 3em)$) -> node [sloped,midway,anchor=center,above=0.5em,text width=8em] {\emph{Simulated real-time telemetry}} ($(IoTHubLabel.south)-(0, 3em)$);
+\draw[->,thick] (DataGenerator) -- node [midway,above=0.5em] {\emph{Static seed data}} ($(InputDataset.west)-(3em,0)$);
+
+\draw ($(TelemetryArchive)!0.5!(EnterpriseData)$) pic{plus={}};
+\draw[decorate, decoration={brace, raise=2em,amplitude=2em,mirror}](TelemetryArchive.south west) -- (EnterpriseData.south east);
+
+\draw[thick,->] ($(InputDataset.north)+(0,7em)$) -- node [midway,right, xshift=1em, text width=7em] {\emph{Transformation and consolidation}} ($(InputDataset.north)+(0,3em)$);
+
+\node[shape=circle,draw, thick, inner sep=2pt, fill=white, above of=InputDataset, yshift=-2.7em] (Transformation) {$f$};
+
+\end{tikzpicture}
+\end{document}

@@ -13,18 +13,6 @@
             "metadata": {
                 "description": "Storage account name."
             }
-        },
-        "serviceBusPrimaryConnectionString": {
-            "type": "string",
-            "metadata": {
-                "description": "Service Bus Primary key."
-            }
-        },
-        "serviceBusQueueName": {
-            "type": "string",
-            "metadata": {
-                "description": "Service Bus Queue Name."
-            }
         }        
     },
     "variables": {
@@ -62,14 +50,6 @@
                                 "maxChunkSizeInBytes": "10485760",
                                 "encoding": "avro"
                             }
-                        ],
-                        "serviceBusQueues": [
-                            {
-                                "connectionString": "[concat(parameters('serviceBusPrimaryConnectionString'), ';EntityPath=', parameters('serviceBusQueueName'))]",
-                                "name": "ServiceBus",
-                                "subscriptionId": "[variables('subscriptionId')]",
-                                "resourceGroup": "[variables('resourceGroupName')]"
-                            }
                         ]
                     },
                     "routes": [
@@ -83,11 +63,11 @@
                             "isEnabled": true
                         },
                         {
-                            "name": "ServiceBusRoute",
+                            "name": "EventsRoute",
                             "source": "DeviceMessages",
                             "condition": "true",
                             "endpointNames": [
-                                "serviceBus"
+                                "events"
                             ],
                             "isEnabled": true
                         }

@@ -20,12 +20,6 @@
           "description": "AML assets URL"
       }
     },
-    "modelManagementSwaggerUrl": {
-      "type": "string",
-      "metadata": {
-          "description": "Machine Learning Model Management Swagger location"
-      }
-    },
     "iotHubName": {
       "type": "string",
       "metadata": {
@@ -44,42 +38,6 @@
           "description": "IOT Hub device key"
       }
     },
-    "batchAccountName": {
-      "type": "string",
-      "metadata": {
-          "description": "Azure Batch account name"
-      }
-    },
-    "batchAccountKey": {
-      "type": "securestring",
-      "metadata": {
-          "description": "Azure Batch account key"
-      }
-    },
-    "batchAccountUrl": {
-      "type": "string",
-      "metadata": {
-          "description": "Azure Batch account URL"
-      }
-    },
-    "computeResourceId": {
-      "type": "string",
-      "metadata": {
-          "description": "Machine Learning Compute resource ID"
-      }
-    },
-    "serviceBusPrimaryConnectionString": {
-      "type": "string",
-      "metadata": {
-          "description": "Service Bus primary connection string"
-      }
-    },
-    "serviceBusQueueName": {
-      "type": "string",
-      "metadata": {
-          "description": "Service Bus queue name"
-      }
-    },
     "storageAccountName": {
       "type": "string",
       "metadata": {
@@ -93,6 +51,30 @@
       }
     },
     "dsvmName": {
+      "type": "string",
+      "metadata": {
+        "description": "DSVM name"
+      }
+    },
+    "databricksworkspaceUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "DSVM name"
+      }
+    },
+    "eventHubConnectionString": {
+      "type": "string",
+      "metadata": {
+        "description": "DSVM name"
+      }
+    },
+    "FEATURIZER_JAR_URL": {
+      "type": "string",
+      "metadata": {
+        "description": "DSVM name"
+      }
+    },
+    "dataBricksToken": {
       "type": "string",
       "metadata": {
         "description": "DSVM name"
@@ -132,13 +114,41 @@
       },
       "resources": [
         {
-          "type": "siteextensions",
-          "name": "python364x64",
+          "type": "extensions",
+          "name": "MSDeploy",
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [
             "[variables('web-site-id')]"
           ],
-          "properties": { }
+          "properties": {
+            "packageUri": "[parameters('webAppUrl')]",
+            "dbType": "None",
+            "connectionString": ""
+          }
+        },
+        {
+          "type": "config",
+          "name": "appsettings",
+          "apiVersion": "[variables('web-site-version')]",
+          "dependsOn": [
+            "[variables('web-site-id')]",
+            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/config/logs')]"
+          ],
+          "properties": {
+            "STORAGE_ACCOUNT_NAME": "[parameters('storageAccountName')]",
+            "STORAGE_ACCOUNT_KEY": "[parameters('storageAccountKey')]",
+            "IOT_HUB_NAME": "[parameters('iotHubName')]",
+            "IOT_HUB_OWNER_KEY": "[parameters('iotHubOwnerKey')]",
+            "IOT_HUB_DEVICE_KEY": "[parameters('iotHubDeviceKey')]",
+            "AML_ASSETS_URL": "[parameters('amlAssetsUrl')]",
+            "DSVM_NAME": "[parameters('dsvmName')]",
+            "DATABRICKS_URL": "[parameters('databricksworkspaceUrl')]",
+            "EVENT_HUB_ENDPOINT": "[parameters('eventHubConnectionString')]",
+            "FEATURIZER_JAR_URL": "[parameters('FEATURIZER_JAR_URL')]",
+            "DATABRICKS_TOKEN": "[parameters('dataBricksToken')]",
+            "WEBJOBS_IDLE_TIMEOUT": "3600"
+            
+          }
         },
         {
           "type": "config",
@@ -146,7 +156,7 @@
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [
             "[variables('web-site-id')]",
-            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/config/appsettings')]"
+            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/extensions/MSDeploy')]"
           ],
           "properties": {
             "use32BitWorkerProcess": false,
@@ -159,7 +169,7 @@
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [
             "[variables('web-site-id')]",
-            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/config/appsettings')]"
+            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/config/web')]"
           ],
           "properties": {
             "applicationLogs": {
@@ -173,43 +183,14 @@
           }
         },
         {
-          "type": "config",
-          "name": "appsettings",
+          "type": "siteextensions",
+          "name": "azureappservice-python364x64",
           "apiVersion": "[variables('web-site-version')]",
           "dependsOn": [
             "[variables('web-site-id')]",
-            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/extensions/MSDeploy')]"
+            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/config/appsettings')]"
           ],
-          "properties": {
-            "STORAGE_ACCOUNT_NAME": "[parameters('storageAccountName')]",
-            "STORAGE_ACCOUNT_KEY": "[parameters('storageAccountKey')]",
-            "IOT_HUB_NAME": "[parameters('iotHubName')]",
-            "IOT_HUB_OWNER_KEY": "[parameters('iotHubOwnerKey')]",
-            "IOT_HUB_DEVICE_KEY": "[parameters('iotHubDeviceKey')]",
-            "BATCH_ACCOUNT_NAME": "[parameters('batchAccountName')]",
-            "BATCH_ACCOUNT_KEY": "[parameters('batchAccountKey')]",
-            "BATCH_ACCOUNT_URL": "[parameters('batchAccountUrl')]",
-            "AML_ASSETS_URL": "[parameters('amlAssetsUrl')]",
-            "MODEL_MANAGEMENT_SWAGGER_URL": "[parameters('modelManagementSwaggerUrl')]",
-            "ML_COMPUTE_RESOURCE_ID": "[parameters('computeResourceId')]",
-            "SERVICE_BUS_CONNECTION_STRING": "[parameters('serviceBusPrimaryConnectionString')]",
-            "SERVICE_BUS_QUEUE_NAME": "[parameters('serviceBusQueueName')]",
-            "DSVM_NAME": "[parameters('dsvmName')]"
-          }
-        },
-        {
-          "type": "extensions",
-          "name": "MSDeploy",
-          "apiVersion": "[variables('web-site-version')]",
-          "dependsOn": [
-            "[variables('web-site-id')]",
-            "[concat('Microsoft.Web/sites/', variables('web-site-name'), '/siteextensions/python364x64')]"
-          ],
-          "properties": {
-            "packageUri": "[parameters('webAppUrl')]",
-            "dbType": "None",
-            "connectionString": ""
-          }
+          "properties": { }
         }
       ]
     }

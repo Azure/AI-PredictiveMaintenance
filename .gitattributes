@@ -1,0 +1,6 @@
+*.ipynb linguist-detectable=false
+*.html linguist-detectable=false
+*.css linguist-detectable=false
+*.bat linguist-detectable=false
+*.cmd linguist-detectable=false
+src/Infographics/* linguist-detectable=false

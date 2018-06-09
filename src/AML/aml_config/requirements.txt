@@ -1,1 +1,0 @@
-azure-ml-api-sdk==0.1.0a11

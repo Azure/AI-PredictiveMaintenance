@@ -17,8 +17,6 @@ from azure.storage.file.models import FilePermissions
 from azure.storage.blob.models import BlobPermissions
 from azure.storage.table import TableService, Entity, TablePermissions
 from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
-from model_management import ModelManagement
-from aztk_cluster import AztkCluster
 
 # TODO: Fix possible WebJob restarts because of this.
 simulator_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/jobs/continuous/Simulator'))
@@ -35,6 +33,9 @@ STORAGE_ACCOUNT_SUFFIX = 'core.windows.net'
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 TELEMETRY_CONTAINER_NAME = 'telemetry'
+IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
+EVENT_HUB_ENDPOINT = os.environ['EVENT_HUB_ENDPOINT']
+StorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=" + STORAGE_ACCOUNT_NAME + ";AccountKey=" + STORAGE_ACCOUNT_KEY + ";EndpointSuffix=core.windows.net"
 
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
@@ -73,6 +74,12 @@ def telemetry():
     devices = iot_hub.get_device_list()
     devices.sort(key = lambda x: x.deviceId)
     return render_template('telemetry.html', assets = devices)
+
+@app.route('/operationalization')
+@register_breadcrumb(app, '.operationalization', 'Operationalization')
+@login_required
+def operationalization():
+    return render_template('operationalization.html')
 
 @app.route('/createDevices', methods=['POST'])
 @login_required
@@ -196,26 +203,11 @@ def setup():
 @register_breadcrumb(app, '.analytics', 'Analytics')
 @login_required
 def analytics():
-    aztkcluster = AztkCluster()
-    clusterDetails = aztkcluster.getCluster()
     dsvmName = os.environ['DSVM_NAME']
-    clusterDetails['dsvmName'] = dsvmName
-    return render_template('analytics.html', clusterDetails = clusterDetails)
+    return render_template('analytics.html', dsvmName = dsvmName)
 
-@app.route('/createCluster', methods=['POST'])
-@login_required
-def createCluster():
-    aztkcluster = AztkCluster(request.form['vmsize'], request.form['skutype'], request.form['user'], request.form['password'])
-    aztkcluster.createCluster()
-    return redirect('/analytics')
-
-@app.route('/deleteCluster', methods=['POST'])
-@login_required
-def deleteCluster():
-    aztkcluster = AztkCluster()
-    aztkcluster.deleteCluster()
-    return redirect('/analytics')
-
+<<<<<<< HEAD
+=======
 @app.route('/operationalization')
 @register_breadcrumb(app, '.operationalization', 'Operationalization')
 @login_required
@@ -227,81 +219,7 @@ def operationalization():
 @app.route('/operationalization/<operation>/<id>', methods=['GET'])
 @login_required
 def operationalization_get_operation(operation, id = None):
-    model_management = ModelManagement(os.environ['MODEL_MANAGEMENT_SWAGGER_URL'], get_access_token())
-    operation = operation.lower()
-    if operation == 'models':
-        mm_response = model_management.get('models?name=failure-prediction-model')
-        mm_response_json = json.loads(mm_response.text)
-        resp = Response(json.dumps(mm_response_json['value']))
-        resp.headers['Content-type'] = 'application/json'
-        return resp
-    elif operation == 'manifests':
-        mm_response = model_management.get('manifests?manifestName=failure-prediction-manifest')
-        mm_response_json = json.loads(mm_response.text)
-        resp = Response(json.dumps(mm_response_json['value']))
-        resp.headers['Content-type'] = 'application/json'
-        return resp
-    elif operation == 'images':
-        if id == None:
-            mm_response = model_management.get('images')
-            mm_response_json = json.loads(mm_response.text)
-            resp = Response(json.dumps(mm_response_json['value']))
-            resp.headers['Content-type'] = 'application/json'
-            return resp
-        else:
-            mm_response = model_management.get('images/{0}'.format(id))
-            resp = Response(mm_response.text)
-            resp.headers['Content-type'] = 'application/json'
-            return resp
-    elif operation == 'services':
-        if id == None:
-            mm_response = model_management.get('services')
-            mm_response_json = json.loads(mm_response.text)
-            config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/scoring.json'))
-            consumedId = ''
-
-            if os.path.isfile(config_path):
-                with open(config_path, 'r') as f:
-                    scoring_config = json.loads(f.read())
-                    if 'id' in scoring_config:
-                        consumedId = scoring_config['id']
-
-
-            for service in mm_response_json['value']:
-                id = service['id']
-                if consumedId == id:
-                    service['consumed'] = True
-                else:
-                    service['consumed'] = False
-
-            resp = Response(json.dumps(mm_response_json['value']))
-            resp.headers['Content-type'] = 'application/json'
-            return resp
-        else:
-            mm_response = model_management.get('services/{0}'.format(id))
-            mm_response_json = json.loads(mm_response.text)
-            config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/scoring.json'))
-            consumedId = ''
-
-            if os.path.isfile(config_path):
-                with open(config_path, 'r') as f:
-                    scoring_config = json.loads(f.read())
-                    if 'id' in scoring_config:
-                        consumedId = scoring_config['id']
-
-            if consumedId == id:
-                mm_response_json['consumed'] = True
-            else:
-                mm_response_json['consumed'] = False
-
-            resp = Response(json.dumps(mm_response_json))
-            resp.headers['Content-type'] = 'application/json'
-            return resp
-    elif operation == 'operations':
-        mm_response = model_management.get('operations/{0}'.format(id))
-        resp = Response(mm_response.text, status = mm_response.status_code)
-        resp.headers['Content-type'] = 'application/json'
-        return resp
+    pass
 
 def create_snapshot(file_share, directory_name, file_name, container_name, correlation_guid = str(uuid.uuid4())):
     file_service = FileService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
@@ -335,149 +253,9 @@ def create_snapshot(file_share, directory_name, file_name, container_name, corre
 @app.route('/operationalization/<operation>', methods=['POST'])
 @login_required
 def operationalization_post_operation(operation):
-    model_management = ModelManagement(os.environ['MODEL_MANAGEMENT_SWAGGER_URL'], get_access_token())
+    pass
 
-    operation = operation.lower()
-    if operation == 'registermodel':
-        try:
-            model_blob_url = create_snapshot('azureml-share', 'Solution1', 'model.tar.gz', 'o16n')
-        except Exception as e:
-            resp = Response("No serialized model found. " + str(e), status = 400)
-            return resp
-
-        payload = {
-    		"name": "failure-prediction-model",
-    		"tags": ["pdms"],
-    		"url": model_blob_url,
-    		"mimeType": "application/json",
-    		"description": "Testing",
-    		"unpack": True
-    	}
-
-        mm_response = model_management.post('models', payload)
-        resp = Response(mm_response.text, status = mm_response.status_code)
-        resp.headers['Content-type'] = 'application/json'
-        return resp
-    elif operation == 'registermanifest':
-
-        model_id = request.form["modelId"]
-        # take a snapshots of driver.py, score.py, requirements.txt and conda_dependencies.yml
-        try:
-            correlation_guid = str(uuid.uuid4())
-            driver_url = create_snapshot('azureml-project', None , 'driver.py', 'o16n', correlation_guid)
-            score_url = create_snapshot('azureml-share', 'Solution1', 'score.py', 'o16n', correlation_guid)
-            featurization_url = create_snapshot('azureml-share', 'Solution1', 'featurization.py', 'o16n', correlation_guid)
-            schema_url = create_snapshot('azureml-share', 'Solution1', 'service_schema.json', 'o16n', correlation_guid)
-            requirements_url = create_snapshot('azureml-project', 'aml_config', 'requirements.txt', 'o16n', correlation_guid)
-            conda_dependencies_url = create_snapshot('azureml-project', 'aml_config', 'conda_dependencies.yml', 'o16n', correlation_guid)
-        except Exception as e:
-            resp = Response("Missing operationalization assets. " + str(e), status = 400)
-            return resp
-
-        payload = {
-                    "modelIds": [model_id],
-                	"name": "failure-prediction-manifest",
-                	"description": "Failure prediction manifest",
-                	"driverProgram": "driver",
-                	"assets": [{
-                        "id": "driver",
-                        "mimeType": "application/x-python",
-                        "url": driver_url,
-                        "unpack": False
-                    },
-                    {
-                        "id": "score",
-                        "mimeType": "application/x-python",
-                        "url": score_url,
-                        "unpack": False
-                    },
-                    {
-                        "id": "featurization",
-                        "mimeType": "application/x-python",
-                        "url": featurization_url,
-                        "unpack": False
-                    },
-                    {
-                        "id": "schema",
-                        "mimeType": "application/json",
-                        "url": schema_url,
-                        "unpack": False
-                    }],
-                	"targetRuntime": {
-                        "runtimeType": "SparkPython",
-                        "properties": {
-                            "pipRequirements": requirements_url,
-                            "condaEnvFile": conda_dependencies_url
-                        }
-                    },
-                	"webserviceType": "Realtime",
-                    "modelType": "Registered"
-                }
-
-        mm_response = model_management.post('manifests', payload)
-        resp = Response(mm_response.text, status = mm_response.status_code)
-        resp.headers['Content-type'] = 'application/json'
-        return resp
-
-    elif operation == 'createimage':
-        manifest_id = request.form["manifestId"]
-
-        payload = {
-            "computeResourceId": os.environ['ML_COMPUTE_RESOURCE_ID'],
-    		"name": "failure-prediction-image",
-    		"manifestId": manifest_id,
-    		"imageType": "Docker"
-    	}
-
-        mm_response = model_management.post('images', payload)
-
-        operation_location = mm_response.headers['operation-location']
-        resp = Response(status = mm_response.status_code)
-        resp.headers['Operation-Location'] = operation_location
-        return resp
-    elif operation == 'createservice':
-        image_id = request.form["imageId"]
-        name = request.form["name"]
-
-        payload = {
-            "computeResource": {
-                "id": os.environ['ML_COMPUTE_RESOURCE_ID'],
-                "type": "Cluster"
-            },
-    		"name": name,
-    		"imageId": image_id
-    	}
-
-        mm_response = model_management.post('services', payload)
-
-        resp = Response(mm_response.text, status = mm_response.status_code)
-        if mm_response.status_code == 202:
-            operation_location = mm_response.headers['operation-location']
-            resp.headers['Operation-Location'] = operation_location
-        return resp
-    elif operation == 'consume':
-        service_id = request.form["serviceId"]
-        mm_response_service = model_management.get('services/{0}'.format(service_id))
-        mm_response_service_keys = model_management.get('services/{0}/keys'.format(service_id))
-
-        mm_response_service_json = json.loads(mm_response_service.text)
-        mm_response_service_keys_json = json.loads(mm_response_service_keys.text)
-
-        scoring_config = json.dumps({
-            'id': service_id,
-            'scoringUri': mm_response_service_json['scoringUri'],
-            'primaryKey': mm_response_service_keys_json['primaryKey']
-        })
-
-        config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/scoring.json'))
-
-        with open(config_path, 'w') as f:
-            f.write(scoring_config)
-
-        resp = Response(scoring_config)
-        resp.headers['Content-type'] = 'application/json'
-        return resp
-
+>>>>>>> 19e9cc34e135a3ffbd373967c80fad3cdd5aac82
 @app.route('/intelligence')
 @register_breadcrumb(app, '.intelligence', 'Intelligence')
 @login_required
