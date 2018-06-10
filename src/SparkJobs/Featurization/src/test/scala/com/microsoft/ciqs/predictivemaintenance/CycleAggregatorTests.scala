@@ -3,14 +3,14 @@ package com.microsoft.ciqs.predictivemaintenance
 import java.sql.Timestamp
 import org.scalatest.FunSuite
 
-class FeaturizerTests extends FunSuite {
+class CycleAggregatorTests extends FunSuite {
   val MS = 1000
 
   test("getIntervalsFromTimeSeries returns one interval for contiguous timestamps") {
     val series = (1 to 10).map(t => new Timestamp(t * MS))
     val first = series.head
     val last = series.last
-    val intervals = Featurizer.getIntervalsFromTimeSeries(series.iterator, Featurizer.DEFAULT_CYCLE_GAP_MS)
+    val intervals = CycleAggregator.getIntervalsFromTimeSeries(series.iterator, CycleAggregator.DEFAULT_CYCLE_GAP_MS)
     assert(intervals.length === 1)
 
     val interval = intervals.head
@@ -23,7 +23,7 @@ class FeaturizerTests extends FunSuite {
     val series = (1 to 100 by 10).map(t => new Timestamp(t * MS))
     val first = series.head
     val last = series.last
-    val intervals = Featurizer.getIntervalsFromTimeSeries(series.iterator, Featurizer.DEFAULT_CYCLE_GAP_MS)
+    val intervals = CycleAggregator.getIntervalsFromTimeSeries(series.iterator, CycleAggregator.DEFAULT_CYCLE_GAP_MS)
     assert(intervals.length === 1)
 
     val interval = intervals.head
@@ -37,13 +37,13 @@ class FeaturizerTests extends FunSuite {
     val firstStart = series1.head
     val firstEnd = series1.last
 
-    val series2 = (1 to 100).map(t => new Timestamp((t + 100) * MS + Featurizer.DEFAULT_CYCLE_GAP_MS))
+    val series2 = (1 to 100).map(t => new Timestamp((t + 100) * MS + CycleAggregator.DEFAULT_CYCLE_GAP_MS))
     val secondStart = series2.head
     val secondEnd = series2.last
 
     val series = series1 ++ series2
 
-    val intervals = Featurizer.getIntervalsFromTimeSeries(series.iterator, Featurizer.DEFAULT_CYCLE_GAP_MS)
+    val intervals = CycleAggregator.getIntervalsFromTimeSeries(series.iterator, CycleAggregator.DEFAULT_CYCLE_GAP_MS)
     assert(intervals.length === 2)
 
     // intervals are returned in a reverse order
