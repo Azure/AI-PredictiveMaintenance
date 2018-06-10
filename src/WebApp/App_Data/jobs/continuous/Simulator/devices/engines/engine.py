@@ -72,13 +72,13 @@ class Engine(SimulatedDevice):
                     telemetry_json = json.dumps(state)
                     self.send_telemetry(telemetry_json)
 
-                    self.report_state({
-                        'speed': state['speed'],
-                        'temperature': state['temperature'],
-                        'pressure': state['pressure'],
-                        'ambientTemperature': state['ambient_temperature'],
-                        'ambientPressure': state['ambient_pressure']
-                        })
+                    # self.report_state({
+                    #     'speed': state['speed'],
+                    #     'temperature': state['temperature'],
+                    #     'pressure': state['pressure'],
+                    #     'ambientTemperature': state['ambient_temperature'],
+                    #     'ambientPressure': state['ambient_pressure']
+                    #     })
 
                     time_elapsed = time.time() - interval_start
                     time.sleep(max(1 - time_elapsed, 0))
