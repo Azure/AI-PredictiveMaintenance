@@ -75,12 +75,6 @@ def telemetry():
     devices.sort(key = lambda x: x.deviceId)
     return render_template('telemetry.html', assets = devices)
 
-@app.route('/operationalization')
-@register_breadcrumb(app, '.operationalization', 'Operationalization')
-@login_required
-def operationalization():
-    return render_template('operationalization.html')
-
 @app.route('/createDevices', methods=['POST'])
 @login_required
 def create_devices():
@@ -206,20 +200,11 @@ def analytics():
     dsvmName = os.environ['DSVM_NAME']
     return render_template('analytics.html', dsvmName = dsvmName)
 
-<<<<<<< HEAD
-=======
 @app.route('/operationalization')
 @register_breadcrumb(app, '.operationalization', 'Operationalization')
 @login_required
 def operationalization():
     return render_template('operationalization.html')
-
-
-@app.route('/operationalization/<operation>', methods=['GET'])
-@app.route('/operationalization/<operation>/<id>', methods=['GET'])
-@login_required
-def operationalization_get_operation(operation, id = None):
-    pass
 
 def create_snapshot(file_share, directory_name, file_name, container_name, correlation_guid = str(uuid.uuid4())):
     file_service = FileService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
@@ -249,13 +234,6 @@ def create_snapshot(file_share, directory_name, file_name, container_name, corre
 
     return blob_service.make_blob_url(container_name, blob_name, sas_token = blob_sas_token)
 
-
-@app.route('/operationalization/<operation>', methods=['POST'])
-@login_required
-def operationalization_post_operation(operation):
-    pass
-
->>>>>>> 19e9cc34e135a3ffbd373967c80fad3cdd5aac82
 @app.route('/intelligence')
 @register_breadcrumb(app, '.intelligence', 'Intelligence')
 @login_required
