@@ -33,6 +33,9 @@ STORAGE_ACCOUNT_SUFFIX = 'core.windows.net'
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 TELEMETRY_CONTAINER_NAME = 'telemetry'
+IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
+EVENT_HUB_ENDPOINT = os.environ['EVENT_HUB_ENDPOINT']
+StorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=" + STORAGE_ACCOUNT_NAME + ";AccountKey=" + STORAGE_ACCOUNT_KEY + ";EndpointSuffix=core.windows.net"
 
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
@@ -203,13 +206,6 @@ def analytics():
 def operationalization():
     return render_template('operationalization.html')
 
-
-@app.route('/operationalization/<operation>', methods=['GET'])
-@app.route('/operationalization/<operation>/<id>', methods=['GET'])
-@login_required
-def operationalization_get_operation(operation, id = None):
-    pass
-
 def create_snapshot(file_share, directory_name, file_name, container_name, correlation_guid = str(uuid.uuid4())):
     file_service = FileService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
     blob_service = BlockBlobService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
@@ -237,12 +233,6 @@ def create_snapshot(file_share, directory_name, file_name, container_name, corre
         expiry = datetime.now() + timedelta(days = 1000))
 
     return blob_service.make_blob_url(container_name, blob_name, sas_token = blob_sas_token)
-
-
-@app.route('/operationalization/<operation>', methods=['POST'])
-@login_required
-def operationalization_post_operation(operation):
-    pass
 
 @app.route('/intelligence')
 @register_breadcrumb(app, '.intelligence', 'Intelligence')

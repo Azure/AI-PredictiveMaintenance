@@ -110,6 +110,10 @@
         "iotHubDeviceKey": {
             "type": "string",
             "value": "[listKeys(resourceId('Microsoft.Devices/IotHubs/Iothubkeys', variables('iotHubName'), 'device'), variables('iotHubVersion')).primaryKey]"
+        },
+        "eventHubConnectionString": {
+            "type": "string",
+            "value": "[concat('Endpoint=',reference(resourceId('Microsoft.Devices/IoTHubs',variables('iothubname'))).eventHubEndpoints.events.endpoint,';SharedAccessKeyName=iothubowner;SharedAccessKey=',listKeys(resourceId('Microsoft.Devices/IotHubs',variables('iothubname')),variables('iotHubVersion')).value[0].primaryKey)]"
         }
     }
 }

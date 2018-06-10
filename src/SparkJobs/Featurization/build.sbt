@@ -9,3 +9,5 @@ libraryDependencies ++= Seq(
   "com.microsoft.azure" %% "azure-eventhubs-spark" % "2.3.1",
   "com.microsoft.azure" % "azure-storage" % "7.0.0"
 )
+
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"
