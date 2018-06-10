@@ -32,6 +32,6 @@ object Featurizer {
     augmenterThread.start()
 
     cycleAggregator.run
-    augmenterThread.join()
+    augmenterThread.interrupt
   }
 }

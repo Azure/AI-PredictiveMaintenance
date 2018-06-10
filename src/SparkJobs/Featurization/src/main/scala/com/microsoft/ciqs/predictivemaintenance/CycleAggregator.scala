@@ -1,20 +1,22 @@
 package com.microsoft.ciqs.predictivemaintenance
 
 import java.sql.Timestamp
+import java.util
+
 import com.microsoft.azure.storage.CloudStorageAccount
-import com.microsoft.azure.storage.table.{CloudTable, TableOperation}
-import com.microsoft.ciqs.predictivemaintenance.Definitions.{CycleAggregates, CycleInterval, TelemetryEvent}
+import com.microsoft.azure.storage.table._
+import com.microsoft.ciqs.predictivemaintenance.Definitions._
 import org.apache.spark.eventhubs.{ConnectionStringBuilder, EventHubsConf, EventPosition}
 import org.apache.spark.sql.{ForeachWriter, SparkSession}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.streaming.{GroupState, GroupStateTimeout, OutputMode}
 import org.apache.spark.sql.types._
+import scala.util.parsing.json._
+
+import scala.collection.JavaConversions._
 
 // Companion object
 object CycleAggregator {
-  val FAR_FUTURE_TIMESTAMP = new Timestamp(6284160000000L)
-  val DEFAULT_CYCLE_GAP_MS = 30 * 1000 // (ms)
-
   def getIntervalsFromTimeSeries(timestamps: Iterator[Timestamp], cycleGapMs: Int) = {
     val first = timestamps.next()
     val augmented = Seq(first) ++ timestamps ++ Seq(FAR_FUTURE_TIMESTAMP)
@@ -38,7 +40,7 @@ object CycleAggregator {
 
       val latest :: tail = getIntervalsFromTimeSeries(timestamps, DEFAULT_CYCLE_GAP_MS)
 
-      groupState.setTimeoutTimestamp(latest(1).getTime, "30 seconds")
+      groupState.setTimeoutTimestamp(latest(1).getTime, "5 minutes")
 
       if (groupState.exists) {
         val state = groupState.get
@@ -53,6 +55,20 @@ object CycleAggregator {
         groupState.update(CycleInterval(latest(0), latest(1), machineID))
         tail.map(x => CycleInterval(x(0), x(1), machineID)).iterator
       }
+    }
+  }
+
+  def getUpdatedRollingWindow(windowJson: String, newTimestamp: String, windowLength: Int) = {
+    val currentWindow = JSON.parseFull(windowJson) match {
+      case Some(l: List[Any]) => l.map(_.toString)
+      case _ => List[String]()
+    }
+
+    if (currentWindow.contains(newTimestamp)) {
+      (true, currentWindow)
+    } else {
+      val newWindow = (newTimestamp::currentWindow).sorted(Ordering.String.reverse).take(windowLength)
+      (currentWindow != newWindow, newWindow)
     }
   }
 }
@@ -92,7 +108,7 @@ class CycleAggregator(spark: SparkSession,
       .dropDuplicates()
       .as[TelemetryEvent]
 
-    val telemetryByDevice = telemetry.withWatermark("timestamp", "30 seconds").groupByKey(_.machineID)
+    val telemetryByDevice = telemetry.withWatermark("timestamp", "5 minutes").groupByKey(_.machineID)
 
     val cycleIntervals = telemetryByDevice.
       flatMapGroupsWithState(
@@ -129,12 +145,46 @@ class CycleAggregator(spark: SparkSession,
         tableReference = tableClient.getTableReference("cycles")
         true
       }
+
       override def process(value: CycleAggregates) = {
-        if (value.getPartitionKey != null) {
-          val insertCycleAggregates = TableOperation.insertOrReplace(value)
-          tableReference.execute(insertCycleAggregates)
+        try {
+          val retrieveIndexOperation = TableOperation.retrieve(INDEX_KEY, value.getPartitionKey, classOf[DynamicTableEntity])
+          val existingIndex = tableReference.execute(retrieveIndexOperation).getResultAsType[DynamicTableEntity]
+
+          val (index, updateIndexOperation) = Option(existingIndex) match {
+            case Some(entity) => (entity, TableOperation.replace(entity))
+            case None => {
+              val newIndex = new DynamicTableEntity(INDEX_KEY, value.getPartitionKey)
+              (newIndex, TableOperation.insert(newIndex))
+            }
+          }
+
+          val currentWindowJson = Option(index.getProperties.get("RollingWindow")) match {
+            case Some(entity) => entity.getValueAsString
+            case None => "[]"
+          }
+
+          val (isWindowUpdated, newWindow) = CycleAggregator.getUpdatedRollingWindow(currentWindowJson, value.CycleStart, LOOKBACK + 1)
+
+          if (isWindowUpdated) {
+            val newWindowJson = JSONArray(newWindow).toString()
+            index.getProperties.put("RollingWindow", new EntityProperty(newWindowJson))
+
+            val insertCycleAggregates = TableOperation.insertOrReplace(value)
+            tableReference.execute(insertCycleAggregates)
+
+            tableReference.execute(updateIndexOperation)
+          }
+        } catch {
+          case e: TableServiceException => {
+            if (e.getHttpStatusCode == 412 || e.getHttpStatusCode == 409) {
+              process(value)
+            }
+          }
+          case e: Exception => throw e
         }
       }
+
       override def close(errorOrNull: Throwable) = {}
     }
 

@@ -5,6 +5,13 @@ import scala.beans.BeanProperty
 import com.microsoft.azure.storage.table.TableServiceEntity
 
 object Definitions {
+  val PARTITION_KEY = "PartitionKey"
+  val ROW_KEY = "RowKey"
+  val INDEX_KEY = "_INDEX_"
+  val FAR_FUTURE_TIMESTAMP = new Timestamp(6284160000000L)
+  val DEFAULT_CYCLE_GAP_MS = 30 * 1000 // (ms)
+  val LOOKBACK = 5
+
   case class TelemetryEvent(timestamp: Timestamp, machineID: String)
 
   case class CycleInterval(start: Timestamp, end: Timestamp, machineID: String)
