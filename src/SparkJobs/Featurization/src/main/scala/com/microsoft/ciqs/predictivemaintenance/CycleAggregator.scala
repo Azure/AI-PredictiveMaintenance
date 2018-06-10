@@ -1,19 +1,16 @@
 package com.microsoft.ciqs.predictivemaintenance
 
 import java.sql.Timestamp
-import java.util
 
 import com.microsoft.azure.storage.CloudStorageAccount
 import com.microsoft.azure.storage.table._
 import com.microsoft.ciqs.predictivemaintenance.Definitions._
-import org.apache.spark.eventhubs.{ConnectionStringBuilder, EventHubsConf, EventPosition}
+import org.apache.spark.eventhubs.{EventHubsConf, EventPosition}
 import org.apache.spark.sql.{ForeachWriter, SparkSession}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.streaming.{GroupState, GroupStateTimeout, OutputMode}
 import org.apache.spark.sql.types._
 import scala.util.parsing.json._
-
-import scala.collection.JavaConversions._
 
 // Companion object
 object CycleAggregator {
@@ -36,11 +33,12 @@ object CycleAggregator {
       groupState.remove()
       Iterator(state)
     } else {
-      val timestamps = inputs.map(x => x.timestamp)
+      //TODO: are the inputs already sorted?
+      val timestamps = inputs.map(x => x.timestamp).toSeq.sortWith(_.before(_)).iterator
 
       val latest :: tail = getIntervalsFromTimeSeries(timestamps, DEFAULT_CYCLE_GAP_MS)
 
-      groupState.setTimeoutTimestamp(latest(1).getTime, "5 minutes")
+      groupState.setTimeoutTimestamp(latest(1).getTime, "15 minutes")
 
       if (groupState.exists) {
         val state = groupState.get
@@ -105,10 +103,9 @@ class CycleAggregator(spark: SparkSession,
       .withColumn("BodyJ", from_json($"body".cast(StringType), schemaTyped))
       .select("*", "BodyJ.*")
       .withWatermark("timestamp", "1 days")
-      .dropDuplicates()
       .as[TelemetryEvent]
 
-    val telemetryByDevice = telemetry.withWatermark("timestamp", "5 minutes").groupByKey(_.machineID)
+    val telemetryByDevice = telemetry.withWatermark("timestamp", "15 minutes").groupByKey(_.machineID)
 
     val cycleIntervals = telemetryByDevice.
       flatMapGroupsWithState(

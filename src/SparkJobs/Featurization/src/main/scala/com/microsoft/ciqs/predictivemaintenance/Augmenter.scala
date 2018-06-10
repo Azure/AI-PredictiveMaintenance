@@ -12,7 +12,6 @@ import com.microsoft.ciqs.predictivemaintenance.Definitions._
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.util.parsing.json.JSON
-import util.control.Breaks._
 
 // Scheduling jobs from separate threads within the same Spark application is allowed:
 // http://spark.apache.org/docs/latest/job-scheduling.html#scheduling-within-an-application

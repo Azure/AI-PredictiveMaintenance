@@ -1,13 +1,7 @@
 package com.microsoft.ciqs.predictivemaintenance
 
-import com.microsoft.azure.storage.CloudStorageAccount
-import com.microsoft.ciqs.predictivemaintenance.Definitions._
-import org.apache.spark.eventhubs.{ConnectionStringBuilder, EventHubsConf, EventPosition}
-import org.apache.spark.sql.{ForeachWriter, SparkSession}
-import org.apache.spark.sql.functions._
-import org.apache.spark.sql.streaming.{GroupState, GroupStateTimeout, OutputMode}
-import org.apache.spark.sql.types._
-import com.microsoft.azure.storage.table.{TableOperation, CloudTable}
+import org.apache.spark.eventhubs.ConnectionStringBuilder
+import org.apache.spark.sql.SparkSession
 
 object Featurizer {
   def main(args: Array[String]) {
