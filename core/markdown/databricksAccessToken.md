@@ -1,3 +1,3 @@
 To generate Databricks access token. Please follow the instructions in [here](https://docs.databricks.com/api/latest/authentication.html).
 
-You can access your Databricks workspace [here](https://eastus.azuredatabricks.net/aad/auth?has=&Workspace=/subscriptions/{Outputs.subscriptionId}/resourceGroups/{Outputs.resourceGroupName}/providers/Microsoft.Databricks/workspaces/{Outputs.workspaceName}&WorkspaceResourceGroupUri=/subscriptions/{Outputs.subscriptionId}/resourceGroups/{Outputs.mangedResourceGroupName})
+You can access your Databricks workspace [here](https://{Outputs.databricksworkspaceUrl}/aad/auth?has=&Workspace=/subscriptions/{Outputs.subscriptionId}/resourceGroups/{Outputs.resourceGroupName}/providers/Microsoft.Databricks/workspaces/{Outputs.workspaceName}&WorkspaceResourceGroupUri=/subscriptions/{Outputs.subscriptionId}/resourceGroups/{Outputs.mangedResourceGroupName})
