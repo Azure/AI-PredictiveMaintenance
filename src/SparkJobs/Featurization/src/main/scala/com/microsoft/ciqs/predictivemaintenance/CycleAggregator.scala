@@ -33,8 +33,12 @@ object CycleAggregator {
       groupState.remove()
       Iterator(state)
     } else {
-      //TODO: are the inputs already sorted?
-      val timestamps = inputs.map(x => x.timestamp).toSeq.sortWith(_.before(_)).iterator
+      // According to https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-devguide-messages-d2c,
+      // IoT Hub partitions messages by deviceId;
+      // https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-programming-guide suggests that
+      // message order is maintained within one partition. Therefore, it is assumed that messages are
+      // in the order they were sent to the Event Hub.
+      val timestamps = inputs.map(x => x.timestamp) //.toSeq.sortWith(_.before(_)).iterator
 
       val latest :: tail = getIntervalsFromTimeSeries(timestamps, DEFAULT_CYCLE_GAP_MS)
 

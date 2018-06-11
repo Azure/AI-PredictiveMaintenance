@@ -69,10 +69,22 @@
                 <Parameter name="dataBricksToken" defaultValue="{Inputs.DataBricksToken}" hidden="true" />
             </Parameters>
         </ArmDeployment>
-        <WebJob title="Creating file shares and containers" retriable="true" autoRetryCount = "2">
+        <WebJob title="Configuring Python 3.6" retriable="true" autoRetryCount = "2">
             <Parameters>
                 <Parameter name="appName" defaultValue="{Outputs.webSiteName}" />
-                <Parameter name="jobName" defaultValue="EnvironmentSetup" />
+                <Parameter name="jobName" defaultValue="PythonSetup" />
+            </Parameters>
+        </WebJob>
+        <WebJob title="Creating storage containers and tables" retriable="true" autoRetryCount = "2">
+            <Parameters>
+                <Parameter name="appName" defaultValue="{Outputs.webSiteName}" />
+                <Parameter name="jobName" defaultValue="StorageSetup" />
+            </Parameters>
+        </WebJob>
+        <WebJob title="Creating Databricks cluster and starting featurization streaming job" retriable="true" autoRetryCount = "2">
+            <Parameters>
+                <Parameter name="appName" defaultValue="{Outputs.webSiteName}" />
+                <Parameter name="jobName" defaultValue="DatabricksSetup" />
             </Parameters>
         </WebJob>
         <ArmDeployment source="arm/authSettings.json" title="Enabling Authentication/Authorization" autoResolveParameters="true" />

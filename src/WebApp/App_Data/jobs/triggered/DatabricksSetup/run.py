@@ -1,25 +1,12 @@
 import urllib
-import zipfile
-from datetime import datetime
-from azure.storage.table import TableService, Entity, TablePermissions
-from azure.storage.blob import BlockBlobService
-from azure.storage.file import FileService
-import sys, os, time, glob
+import os, time
 import requests
 import json
 import uuid
 import json
-import random
 
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
-
-table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
-file_service = FileService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
-block_blob_service = BlockBlobService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
-
-block_blob_service.create_container('telemetry')
-table_service.create_table('cycles')
 
 databricks_url = os.environ['DATABRICKS_URL']
 FEATURIZER_JAR_URL = os.environ['FEATURIZER_JAR_URL'] 
@@ -94,7 +81,7 @@ run_id = requests.post('https://' + databricks_url + '/api/2.0/jobs/runs/submit'
 print(run_id)
 run_details = requests.get('https://' + databricks_url + '/api/2.0/jobs/runs/get?run_id=' + str(run_id['run_id']), headers=json_data).json()
 
-while run_details['state']['life_cycle_state'] != 'RUNNING' and run_details['state']['life_cycle_state'] != 'TERMINATED':
+while run_details['state']['life_cycle_state'] not in ['RUNNING', 'TERMINATED', 'TERMINATING']:
     run_details = requests.get('https://' + databricks_url + '/api/2.0/jobs/runs/get?run_id=' + str(run_id['run_id']), headers=json_data).json()
     time.sleep(10)
 
@@ -104,5 +91,4 @@ else:
     errorMessage = 'Run state:' + run_details['state']['life_cycle_state'] + " Reason:" + run_details['state']['state_message']
     print(errorMessage)
     raise Exception(errorMessage)
-    
-table_service.create_table('features')
+
