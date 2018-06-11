@@ -81,7 +81,7 @@ run_id = requests.post('https://' + databricks_url + '/api/2.0/jobs/runs/submit'
 print(run_id)
 run_details = requests.get('https://' + databricks_url + '/api/2.0/jobs/runs/get?run_id=' + str(run_id['run_id']), headers=json_data).json()
 
-while run_details['state']['life_cycle_state'] not in ['RUNNING', 'TERMINATED', 'TERMINATING']:
+while run_details['state']['life_cycle_state'] in ['PENDING']:
     run_details = requests.get('https://' + databricks_url + '/api/2.0/jobs/runs/get?run_id=' + str(run_id['run_id']), headers=json_data).json()
     time.sleep(10)
 

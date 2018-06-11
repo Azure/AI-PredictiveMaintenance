@@ -30,13 +30,9 @@
             </Parameters>
             <Instructions src="markdown\ConfigureLinuxDSVM.md" format="markdown" />
         </Manual>
-        <Manual title="DataBricks Personal Access token">
+        <Manual title="Databricks authorization">
             <Parameters>
-                <Parameter name="DataBricksToken" description="DataBricks Personal Access token">
-                    <ExtraDescription>
-                        DataBricks Personal Access token.
-                    </ExtraDescription>
-                </Parameter>
+                <Parameter name="DatabricksToken" description="DataBricks personal access token" />
             </Parameters>
         </Manual>
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
@@ -63,10 +59,10 @@
                 <Parameter name="webAppUrl" defaultValue="{PatternAssetBaseUrl}/WebApp.zip" hidden="true" />
                 <Parameter name="amlAssetsUrl" defaultValue="{PatternAssetBaseUrl}/AML.zip" hidden="true" />
                 <Parameter name="dsvmName" defaultValue="{Outputs.vmName}" hidden="true" />
-                <Parameter name="databricksworkspaceUrl" defaultValue="{Outputs.databricksworkspaceUrl}" hidden="true" />
+                <Parameter name="databricksWorkspaceUrl" defaultValue="{Outputs.databricksWorkspaceUrl}" hidden="true" />
                 <Parameter name="eventHubConnectionString" defaultValue="{Outputs.eventHubConnectionString}" hidden="true" />
                 <Parameter name="FEATURIZER_JAR_URL" defaultValue="{PatternAssetBaseUrl}" hidden="true" />
-                <Parameter name="dataBricksToken" defaultValue="{Inputs.DataBricksToken}" hidden="true" />
+                <Parameter name="databricksToken" defaultValue="{Inputs.DatabricksToken}" hidden="true" />
             </Parameters>
         </ArmDeployment>
         <WebJob title="Configuring Python 3.6" retriable="true" autoRetryCount = "2">
