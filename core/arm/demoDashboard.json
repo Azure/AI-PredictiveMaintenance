@@ -79,6 +79,12 @@
       "metadata": {
         "description": "DSVM name"
       }
+    },
+    "scoreUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure ML Web service URL"
+      }
     }
   },
   "variables": {
@@ -146,6 +152,7 @@
             "EVENT_HUB_ENDPOINT": "[parameters('eventHubConnectionString')]",
             "FEATURIZER_JAR_URL": "[parameters('FEATURIZER_JAR_URL')]",
             "DATABRICKS_TOKEN": "[parameters('databricksToken')]",
+            "SCORE_URL": "[parameters('scoreUrl')]",
             "WEBJOBS_IDLE_TIMEOUT": "3600"
             
           }
