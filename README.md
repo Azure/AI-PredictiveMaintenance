@@ -2,11 +2,11 @@
 
 [![Deploy to Azure](https://raw.githubusercontent.com/Azure/Azure-CortanaIntelligence-SolutionAuthoringWorkspace/master/docs/images/DeployToAzure.PNG)](https://quickstart.azure.ai/Deployments/new/ai-predictivemaintenance)
 
-This open-source solution template showcases a complete Azure infrastructure capable of supporting Predictive Maintenance scenarios in the context of IoT remote monitoring. The main goal of this project is providing reusable and customizatable building blocks to enable a wide variety of Cloud AI solutions for solving Predictive Maintenance and other related customer problems.
+This open-source solution template showcases a complete Azure infrastructure capable of supporting Predictive Maintenance scenarios in the context of IoT remote monitoring. This repo provides reusable and customizable building blocks to enable Azure customers to solve Predictive Maintenance problems using Azure's cloud AI services.
 
 ## Main features
 
-* Quick automated deployment to Azure (via [CIQS](https://quickstart.azure.ai/)
+* Automated deployment to Azure (via [CIQS](https://quickstart.azure.ai/)
 )
 * Sample [Jupyter notebooks](src/Notebooks) covering feature engineering, model training, evaluation and operationalization
 * Configurable and extensible [data generator](src/Notebooks/DataGeneration.ipynb) (supports static and streaming modes)
