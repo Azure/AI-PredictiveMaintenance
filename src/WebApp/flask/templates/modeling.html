@@ -12,16 +12,15 @@
             <li>Model operationalization (deployment)</li>
         </ul>
     </p>
+    <h5>Notes on solution's Data Science sample</h5>
     <p>
-        This solution provides sample notebooks which can run on various compute targets.
-        In most situations, Linux Data Science Virtual Machine (DSVM) will be sufficient to perform feature engineering and model training.
-        Among all the steps, only feature engineering requires a Spark cluster. That is to enable scenarios with arbitrarily large input data sets.
-    </p>
-    <p>
-        Typically (in the context of Predictive Maintenance), the size of input data is drastically reduced following the feature engineering step. For that reason, Spark's MLlib was not used to perform model training.
+        The sample notebooks can run on various compute targets.
+        In most situations, <i>Linux Data Science Virtual Machine (DSVM)</i> will be sufficient to perform feature engineering and model training.
+        Feature engineering requires a <i>Spark</i> cluster; that is to enable scenarios with arbitrarily large input data sets.
+        Typically (in the context of Predictive Maintenance), the size of input data is drastically reduced following the feature engineering step. For that reason, <i>Spark</i>'s <i>MLlib</i> was not used to perform model training.
     </p>    
     <h5>
-        Select one of the options below and follow the instructions.
+        Choose a compute target and follow the instructions
     </h5>
 
     <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">

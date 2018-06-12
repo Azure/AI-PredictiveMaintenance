@@ -21,7 +21,7 @@ from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 # TODO: Fix possible WebJob restarts because of this.
 simulator_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/jobs/continuous/Simulator'))
 sys.path.append(simulator_path)
-# from iot_hub import IoTHub
+from iot_hub import IoTHub
 
 app = Flask(__name__)
 app.debug = True

@@ -26,6 +26,7 @@
             <Parameters>
                 <Parameter name="DatabricksToken" description="DataBricks personal access token" />
             </Parameters>
+            <Instructions src="markdown\databricksAccessToken.md" format="markdown" />
         </Manual>
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
         <ArmDeployment source="arm/iotHub.json" title="Creating IoT Hub" />

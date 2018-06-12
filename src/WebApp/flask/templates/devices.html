@@ -14,7 +14,7 @@
         <tbody>
           {% for asset in assets %}
           <tr>
-            <td><a href="/telemetry/{{ asset.deviceId }}">{{ asset.deviceId }}</a></td>
+            <td><a href="/devices/{{ asset.deviceId }}">{{ asset.deviceId }}</a></td>
             <td>{{ asset.lastActivityTime }}</td>
             <td>{{ asset.connectionState }}</td>
           </tr>
