@@ -30,7 +30,7 @@
 ],
     "outputs": {
         "databricksworkspaceUrl": { "type": "string", "value": "[concat(resourceGroup().location, '.azuredatabricks.net')]" },
-        "mangedResourceGroupName": { "type": "string", "value": "[variables('managedResourceGroupName')]" },
+        "managedResourceGroupName": { "type": "string", "value": "[variables('managedResourceGroupName')]" },
         "resourceGroupName": { "type": "string", "value": "[variables('namePrefix')]" },
         "workspaceName": { "type": "string", "value": "[variables('workspaceName')]" },
         "subscriptionId": { "type": "string", "value": "[variables('subscriptionId')]" }
