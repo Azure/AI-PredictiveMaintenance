@@ -467,3 +467,13 @@ footer.sticky-footer {
 #set-speed-form {
   margin-bottom: 0;
 }
+
+div.modeling img.target-logo {
+  float: left;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+div.modeling .tab-content p {
+  max-width: 600px;
+}

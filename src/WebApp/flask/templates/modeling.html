@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<div class="modeling col-md-12 col-sm-12">
+    <p>
+        The following steps of the <a href="https://docs.microsoft.com/en-us/azure/machine-learning/team-data-science-process/overview">Team Data Science Process (TDSP)</a> are typically associated with the role of the Data Scientist:
+        <ul>
+            <li>Data acquisition and understanding</li>
+            <li>Feature engineering</li>
+            <li>Model training</li>
+            <li>Model evaluation</li>
+            <li>Model operationalization (deployment)</li>
+        </ul>
+    </p>
+    <p>
+        This solution provides sample notebooks which can run on various compute targets.
+        In most situations, Linux Data Science Virtual Machine (DSVM) will be sufficient to perform feature engineering and model training.
+        Among all the steps, only feature engineering requires a Spark cluster. That is to enable scenarios with arbitrarily large input data sets.
+    </p>
+    <p>
+        Typically (in the context of Predictive Maintenance), the size of input data is drastically reduced following the feature engineering step. For that reason, Spark's MLlib was not used to perform model training.
+    </p>    
+    <h5>
+        Select one of the options below and follow the instructions.
+    </h5>
+
+    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-dsvm" role="tab" aria-controls="pills-home" aria-selected="true">Linux DSVM</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-databricks" role="tab" aria-controls="pills-profile" aria-selected="false">Azure Databricks</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-aztk" role="tab" aria-controls="pills-contact" aria-selected="false">AZTK</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-local" role="tab" aria-controls="pills-contact" aria-selected="false">Local</a>
+        </li>    
+    </ul>
+    <div class="tab-content" id="pills-tabContent">
+        <div class="tab-pane fade show active" id="pills-dsvm" role="tabpanel" aria-labelledby="pills-home-tab">
+            <img class="target-logo" src="https://106c4.wpc.azureedge.net/80106C4/Gallery-Prod/cdn/2015-02-24/prod20161101-microsoft-windowsazure-gallery/microsoft-ads.linux-data-science-vm-ubuntulinuxdsvmubuntu.1.0.13/Icons/Large.png" />
+            <p>                
+                A pre-configured instance of the Linux DSVM has been deployed as part of the solution. Please navigate to <a href="https://{{dsvmName}}:8000" target="_blank">Jupyter Notebooks</a> to continue.
+            </p>
+            <p>
+                Ignore certificate warnings if any.
+            </p> 
+        </div>
+        <div class="tab-pane fade" id="pills-databricks" role="tabpanel" aria-labelledby="pills-profile-tab">
+            <img class="target-logo" src="https://azure.microsoft.com/svghandler/databricks/?width=130&height=130" />
+            <p>                
+                Integration with Databricks is currently under construction. Stay tuned.
+            </p>
+        </div>
+        <div class="tab-pane fade" id="pills-aztk" role="tabpanel" aria-labelledby="pills-contact-tab">
+            <p>                
+                Instructions will be provided soon.
+            </p>        
+        </div>
+        <div class="tab-pane fade" id="pills-local" role="tabpanel" aria-labelledby="pills-contact-tab">
+            <p>                
+                Instructions will be provided soon.
+            </p>        
+        </div>    
+    </div>
+</div>
+{% endblock %}

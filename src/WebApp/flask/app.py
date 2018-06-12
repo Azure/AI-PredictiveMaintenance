@@ -21,7 +21,7 @@ from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 # TODO: Fix possible WebJob restarts because of this.
 simulator_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/jobs/continuous/Simulator'))
 sys.path.append(simulator_path)
-from iot_hub import IoTHub
+# from iot_hub import IoTHub
 
 app = Flask(__name__)
 app.debug = True
@@ -34,16 +34,17 @@ STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 TELEMETRY_CONTAINER_NAME = 'telemetry'
 IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
-EVENT_HUB_ENDPOINT = os.environ['EVENT_HUB_ENDPOINT']
-StorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=" + STORAGE_ACCOUNT_NAME + ";AccountKey=" + STORAGE_ACCOUNT_KEY + ";EndpointSuffix=core.windows.net"
+IOT_HUB_OWNER_KEY = os.environ['IOT_HUB_OWNER_KEY']
+DSVM_NAME = os.environ['DSVM_NAME']
 
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
-def login_required(f):
+def login_required(f):    
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'x-ms-token-aad-refresh-token' not in request.headers:
-            return redirect(url_for('setup'))
+            pass
+            #return redirect(url_for('setup'))
         return f(*args, **kwargs)
     return decorated_function
 
@@ -51,7 +52,7 @@ def get_identity():
     id_token = request.headers['x-ms-token-aad-id-token']
     return jwt.decode(id_token, verify=False)
 
-@app.context_processor
+#@app.context_processor
 def context_processor():
     return dict(user_name=get_identity()['name'])
 
@@ -66,19 +67,19 @@ def home():
     html = markdown.markdown(content)
     return render_template('home.html', content = html)
 
-@app.route('/telemetry')
-@register_breadcrumb(app, '.telemetry', 'Telemetry')
+@app.route('/devices')
+@register_breadcrumb(app, '.devices', 'IoT Devices')
 @login_required
-def telemetry():
-    iot_hub = IoTHub(os.environ['IOT_HUB_NAME'], os.environ['IOT_HUB_OWNER_KEY'])
+def devices():
+    iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
     devices = iot_hub.get_device_list()
     devices.sort(key = lambda x: x.deviceId)
-    return render_template('telemetry.html', assets = devices)
+    return render_template('devices.html', assets = devices)
 
 @app.route('/createDevices', methods=['POST'])
 @login_required
 def create_devices():
-    iot_hub = IoTHub(os.environ['IOT_HUB_NAME'], os.environ['IOT_HUB_OWNER_KEY'])
+    iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
     iot_device_count = 10
 
     devices = []
@@ -114,23 +115,23 @@ def create_devices():
 
         iot_hub.update_twin(device.deviceId, json.dumps(twin_properties))
 
-    return redirect(url_for('telemetry'))
+    return redirect(url_for('devices'))
 
 def view_asset_dlc(*args, **kwargs):
     device_id = request.view_args['device_id']
     return [
-        {'text': device_id, 'url': '/telemetry/{0}'.format(device_id)}]
+        {'text': device_id, 'url': '/devices/{0}'.format(device_id)}]
 
-@register_breadcrumb(app, '.telemetry.twin', '', dynamic_list_constructor=view_asset_dlc)
-@app.route('/telemetry/<device_id>')
+@register_breadcrumb(app, '.devices.twin', '', dynamic_list_constructor=view_asset_dlc)
+@app.route('/devices/<device_id>')
 @login_required
-def telemetry_twin(device_id):
+def device(device_id):
     return render_template('twin.html', device_id = device_id)
 
-@app.route('/twin/<device_id>', methods=['GET'])
+@app.route('/api/devices/<device_id>', methods=['GET'])
 @login_required
 def get_device_twin(device_id):
-    iot_hub = IoTHub(os.environ['IOT_HUB_NAME'], os.environ['IOT_HUB_OWNER_KEY'])
+    iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
     twin_data = iot_hub.get_device_twin(device_id)
     resp = Response(twin_data)
     resp.headers['Content-type'] = 'application/json'
@@ -153,7 +154,7 @@ def set_desired_properties(device_id):
     }
     payload_json = json.dumps(payload)
 
-    iot_hub = IoTHub(os.environ['IOT_HUB_NAME'], os.environ['IOT_HUB_OWNER_KEY'])
+    iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
     twin_data = iot_hub.update_twin(device_id, payload_json)
     resp = Response(twin_data)
     resp.headers['Content-type'] = 'application/json'
@@ -177,62 +178,17 @@ def get_access_token():
     return access_token
 
 
-def parse_website_owner_name():
+def parse_website_owner_name():    
     owner_name = os.environ['WEBSITE_OWNER_NAME']
     subscription, resource_group_location = owner_name.split('+', 1)
     resource_group, location = resource_group_location.split('-', 1)
     return subscription, resource_group, location
 
-@app.route('/setup')
-def setup():
-    subscription, resource_group, _ = parse_website_owner_name()
-    # TODO: use correct tenant name
-    return render_template('setup.html',
-        tenant_name = 'microsoft.onmicrosoft.com',
-        subscription = subscription,
-        resource_group = resource_group,
-        web_site_name = os.environ['WEBSITE_SITE_NAME'])
-
-@app.route('/analytics')
-@register_breadcrumb(app, '.analytics', 'Analytics')
+@app.route('/modeling')
+@register_breadcrumb(app, '.modeling', 'Modeling')
 @login_required
-def analytics():
-    dsvmName = os.environ['DSVM_NAME']
-    return render_template('analytics.html', dsvmName = dsvmName)
-
-@app.route('/operationalization')
-@register_breadcrumb(app, '.operationalization', 'Operationalization')
-@login_required
-def operationalization():
-    return render_template('operationalization.html')
-
-def create_snapshot(file_share, directory_name, file_name, container_name, correlation_guid = str(uuid.uuid4())):
-    file_service = FileService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
-    blob_service = BlockBlobService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
-    file_sas_token = file_service.generate_file_shared_access_signature(
-        file_share,
-        directory_name,
-        file_name,
-        permission = FilePermissions.READ,
-        expiry = datetime.now() + timedelta(minutes = 10))
-
-    file_url = file_service.make_file_url(file_share, directory_name, file_name, sas_token = file_sas_token)
-
-    blob_name = '{0}/{1}/{2}'.format(correlation_guid, directory_name, file_name)
-    blob_service.create_container(container_name)
-
-    try:
-        blob_service.copy_blob(container_name, blob_name, file_url)
-    except Exception as e:
-        raise ValueError('Missing file ' + file_name)
-
-    blob_sas_token = blob_service.generate_blob_shared_access_signature(
-        container_name,
-        blob_name,
-        permission = BlobPermissions.READ,
-        expiry = datetime.now() + timedelta(days = 1000))
-
-    return blob_service.make_blob_url(container_name, blob_name, sas_token = blob_sas_token)
+def analytics():    
+    return render_template('modeling.html', dsvmName = DSVM_NAME)
 
 @app.route('/intelligence')
 @register_breadcrumb(app, '.intelligence', 'Intelligence')
