@@ -5,6 +5,7 @@
     },
     "variables": {
         "namePrefix": "[resourceGroup().name]",
+        "subscriptionId": "[subscription().subscriptionId]",
         "unique": "[uniqueString(resourceGroup().id)]",
         "workspaceName": "[concat('databricks', variables('unique'))]",
         "uniqueNamePrefix": "[toLower(concat(resourceGroup().name, uniqueString(subscription().subscriptionId)))]",
@@ -28,6 +29,10 @@
     }
 ],
     "outputs": {
-        "databricksworkspaceUrl": { "type": "string", "value": "[concat(resourceGroup().location, '.azuredatabricks.net')]" }
+        "databricksworkspaceUrl": { "type": "string", "value": "[concat(resourceGroup().location, '.azuredatabricks.net')]" },
+        "managedResourceGroupName": { "type": "string", "value": "[variables('managedResourceGroupName')]" },
+        "resourceGroupName": { "type": "string", "value": "[variables('namePrefix')]" },
+        "workspaceName": { "type": "string", "value": "[variables('workspaceName')]" },
+        "subscriptionId": { "type": "string", "value": "[variables('subscriptionId')]" }
         }
 }

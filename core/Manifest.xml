@@ -34,6 +34,7 @@
             <Parameters>
                 <Parameter name="DatabricksToken" description="DataBricks personal access token" />
             </Parameters>
+            <Instructions src="markdown\databricksAccessToken.md" format="markdown" />
         </Manual>
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
         <ActiveDirectoryApplication displayName="PdM" replyUrls="https://{Outputs.webSiteName}.azurewebsites.net/.auth/login/aad/callback" title="Creating Azure Active Directory application">
