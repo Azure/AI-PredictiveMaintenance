@@ -101,7 +101,7 @@ class Augmenter(spark: SparkSession, storageAccountConnectionString: String) ext
             if (l.size > LOOKBACK + 1) {
               // log warning
             }
-            augment(l)
+            //augment(l)
             lastModified += machineID -> index.getTimestamp
           }
         }
