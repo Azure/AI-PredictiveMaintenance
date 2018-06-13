@@ -14,12 +14,22 @@ def call_score_web_service(url, payload):
     return response.json()
 
 def publish(prediction):
+    prediction_text = prediction[1] or 'Healthy'
     entity = {
         'PartitionKey': prediction[0][0],
         'RowKey': prediction[0][1],
-        'Prediction': prediction[1] or 'Healthy'
+        'Prediction': prediction_text
     }
     table_service.insert_or_replace_entity('predictions', entity)
+
+    index_entity = {
+        'PartitionKey': '_INDEX_',
+        'RowKey': prediction[0][0],
+        'Date': prediction[0][1],
+        'Prediction': prediction_text
+    }
+    table_service.insert_or_replace_entity('predictions', index_entity)
+
 
 def score():
     indices = table_service.query_entities('cycles', filter="PartitionKey eq '_INDEX_'")

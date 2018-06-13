@@ -7,6 +7,7 @@ import json
 import random
 import markdown
 import jwt
+import collections
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import Flask, render_template, Response, request,  redirect, url_for
@@ -134,7 +135,7 @@ def get_device_twin(device_id):
     resp.headers['Content-type'] = 'application/json'
     return resp
 
-@app.route('/twin/<device_id>', methods=['POST'])
+@app.route('/api/devices/<device_id>', methods=['POST'])
 @login_required
 def set_desired_properties(device_id):
     desired_props = {}
@@ -184,7 +185,7 @@ def parse_website_owner_name():
 @app.route('/modeling')
 @register_breadcrumb(app, '.modeling', 'Modeling')
 @login_required
-def analytics():    
+def analytics():
     return render_template('modeling.html', dsvmName = DSVM_NAME)
 
 @app.route('/intelligence')
@@ -193,6 +194,34 @@ def analytics():
 def intelligence():
     return render_template('intelligence.html')
 
+@app.route('/api/intelligence')
+@login_required
+def get_intelligence():
+    iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
+    devices = iot_hub.get_device_list()
+    device_ids = [d.deviceId for d in devices]
+
+    latest_predictions = table_service.query_entities('predictions', filter="PartitionKey eq '_INDEX_'")
+    
+    predictions_by_machine = dict([(p.RowKey, (p.Prediction, p.Date)) for p in  latest_predictions])
+    unknown_predictions = dict([(device_id, ('Unknown', None)) for device_id in device_ids if device_id not in predictions_by_machine])
+    combined = {**predictions_by_machine, **unknown_predictions}
+
+    summary = collections.Counter(['Need maintenance' if v[0].startswith('F') else v[0] for v in combined.values()])
+
+    payload = {
+        'predictions': [{
+            'machineID': k,
+            'prediction': v[0],
+            'date': v[1]
+        } for (k, v) in combined.items()],
+        'summary': summary
+    }
+
+    payload_json = json.dumps(payload)
+    resp = Response(payload_json)
+    resp.headers['Content-type'] = 'application/json'
+    return resp
 
 if __name__ == "__main__":
     app.run('0.0.0.0', 8000, debug=True)
