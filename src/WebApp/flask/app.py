@@ -17,11 +17,7 @@ from azure.storage.file.models import FilePermissions
 from azure.storage.blob.models import BlobPermissions
 from azure.storage.table import TableService, Entity, TablePermissions
 from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
-
-# TODO: Fix possible WebJob restarts because of this.
-simulator_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../App_Data/jobs/continuous/Simulator'))
-sys.path.append(simulator_path)
-from iot_hub import IoTHub
+from iot_hub_helpers import IoTHub
 
 app = Flask(__name__)
 app.debug = True
@@ -30,9 +26,10 @@ app.debug = True
 Breadcrumbs(app=app)
 
 STORAGE_ACCOUNT_SUFFIX = 'core.windows.net'
+TELEMETRY_CONTAINER_NAME = 'telemetry'
+
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
-TELEMETRY_CONTAINER_NAME = 'telemetry'
 IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 IOT_HUB_OWNER_KEY = os.environ['IOT_HUB_OWNER_KEY']
 DSVM_NAME = os.environ['DSVM_NAME']
