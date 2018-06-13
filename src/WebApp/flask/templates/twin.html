@@ -157,7 +157,7 @@
   Plotly.newPlot('sensor-stream', data, layout, {displayModeBar: false});
 
   function pollLatestData() {
-    $.get('/twin/{{device_id}}').done(function(twin) {
+    $.get('/api/devices/{{device_id}}').done(function(twin) {
       var timestamp = Date.parse(twin.properties.reported.$metadata.$lastUpdated); 
       var desiredProperties = twin.properties.desired;
       var reportedProperties = twin.properties.reported;      
@@ -203,7 +203,7 @@
   function setDesiredSpeed(speed) {
     $.ajax({
       type: "POST",
-      url: '/twin/{{device_id}}',
+      url: '/api/devices/{{device_id}}',
       data: {
         speed: speed
       }
@@ -213,7 +213,7 @@
   function setMode(mode) {
     return $.ajax({
       type: "POST",
-      url: '/twin/{{device_id}}',
+      url: '/api/devices/{{device_id}}',
       data: {
         mode: mode
       }

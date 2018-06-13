@@ -8,19 +8,11 @@
         production-grade Predictive Maintenance system.
     </Description>
     <EstimatedTime>20 Minutes</EstimatedTime>
-    <LocationsToExclude>
-        <Location>West Central US</Location>
-    </LocationsToExclude>
     <Owners>
-        <Owner displayname="Andrew Ivanov" email="anivan@microsoft.com"/>
-        <Owner displayname="Bolun Huang" email="bohuan@microsoft.com"/>
-        <Owner displayname="Ramkumar Krishnan" email="ramkri@microsoft.com"/>
+        <Owner displayname="Andrew Ivanov" email="anivan@microsoft.com" />
+        <Owner displayname="Lakshmanan Ramu Meenal" email="laramume@microsoft.com" />
+        <Owner displayname="Bolun Huang" email="bohuan@microsoft.com" />
     </Owners>
-    <RegisterResourceProviders>
-        <ResourceProvider name = "Microsoft.MachineLearningCompute"/>
-        <ResourceProvider name = "Microsoft.ContainerRegistry"/>
-        <ResourceProvider name = "Microsoft.ContainerService"/>
-    </RegisterResourceProviders>
     <ProvisioningSteps>
         <ArmDeployment title="Creating Azure Databricks workspace" autoResolveParameters="true" source="arm/databricks.json" />
         <Manual title="Configure Linux DSVM">
@@ -38,22 +30,6 @@
             <Instructions src="markdown\databricksAccessToken.md" format="markdown" />
         </Manual>
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
-        <ActiveDirectoryApplication displayName="PdM" replyUrls="https://{Outputs.webSiteName}.azurewebsites.net/.auth/login/aad/callback" title="Creating Azure Active Directory application">
-            <ResourceAccess>
-                <!-- Windows Azure Active Directory -->
-                <ResourceApp id="00000002-0000-0000-c000-000000000000">
-                    <Permissions>
-                        <Permission id="311a71cc-e848-46a1-bdf8-97ff7156d8e6" type= "Scope"/>
-                    </Permissions>
-                </ResourceApp>
-                <!-- Windows Azure Service Management API -->
-                <ResourceApp id="797f4846-ba00-4fd7-ba43-dac1f8f63013">
-                    <Permissions>
-                        <Permission id="41094075-9dad-400e-a0bd-54e686782033" type= "Scope"/>
-                    </Permissions>
-                </ResourceApp>
-            </ResourceAccess>
-        </ActiveDirectoryApplication>
         <ArmDeployment source="arm/iotHub.json" title="Creating IoT Hub" />
         <ArmDeployment source="arm/storageAccount.json" title="Creating storage account" />
         <ArmDeployment source="arm/demoDashboard.json" title="Deploying and setting up Demo Dashboard" autoResolveParameters="true">
@@ -86,7 +62,6 @@
                 <Parameter name="jobName" defaultValue="DatabricksSetup" />
             </Parameters>
         </WebJob>
-        <ArmDeployment source="arm/authSettings.json" title="Enabling Authentication/Authorization" autoResolveParameters="true" />
         <ArmDeployment source="arm/iotHubStorageRoute.json" title="Configuring IoT Hub endpoints and routes">
             <Parameters>
                 <Parameter name="storageAccountConnectionString" defaultValue="DefaultEndpointsProtocol=https;AccountName={Outputs.storageAccountName};AccountKey={Outputs.storageAccountKey}" hidden="true" />

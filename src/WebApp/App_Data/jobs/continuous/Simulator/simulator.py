@@ -12,7 +12,7 @@ import csv
 from multiprocessing import Pool, TimeoutError, cpu_count
 from multiprocessing.dummy import Pool as DummyPool
 from multiprocessing import Process
-from iot_hub import IoTHub, IoTHubDevice
+from iot_hub_helpers import IoTHub, IoTHubDevice
 from azure.storage.blob import AppendBlobService
 from devices import SimulatorFactory
 
