@@ -19,6 +19,7 @@
             <Parameters>
                 <Credential type="linuxvm" username="adminUsername" password="adminPassword" />
                 <VmSku name="vmSize" defaultValue="Standard_DS3_v2" description="Size for the Virtual Machine" allowedValues="{VirtualMachineSkus}" />
+                <VmSku name="databricksVmSize" defaultValue="Standard_D3_v2" usedFor="hdi" minCores="4" instanceCount="4" hidden="true"/>
             </Parameters>
             <Instructions src="markdown\ConfigureLinuxDSVM.md" format="markdown" />
         </Manual>
