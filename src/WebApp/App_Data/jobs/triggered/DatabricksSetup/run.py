@@ -77,7 +77,6 @@ if not list(databricks_cluster_details):
         "run_name": "featurization_task",
         "new_cluster" : payload,
         'libraries' : libraries,
-        'timeout_seconds' : 3600,
         'max_retries' : 1,
         'spark_jar_task' : spark_jar_task
     }
