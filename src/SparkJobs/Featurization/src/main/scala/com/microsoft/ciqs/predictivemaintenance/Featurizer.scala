@@ -11,7 +11,7 @@ object Featurizer {
 
     val spark = SparkSession
       .builder
-      .appName("PredictiveMaintenanceFeaturizer") //.master("local[2]")
+      .appName("PredictiveMaintenanceFeaturizer").master("local[2]")
       .getOrCreate()
 
     val sc = spark.sparkContext

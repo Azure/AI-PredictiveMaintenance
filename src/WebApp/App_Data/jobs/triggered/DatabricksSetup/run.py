@@ -9,35 +9,34 @@ from azure.storage.table import TableService, Entity, TablePermissions
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 
-databricks_url = os.environ['DATABRICKS_URL']
+DATABRICKS_WORKSPACE_URL = os.environ['DATABRICKS_WORKSPACE_URL']
 FEATURIZER_JAR_URL = os.environ['FEATURIZER_JAR_URL']
-access_token = os.environ['DATABRICKS_TOKEN']
+DATABRICKS_ACCESS_TOKEN = os.environ['DATABRICKS_TOKEN']
 IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 EVENT_HUB_ENDPOINT = os.environ['EVENT_HUB_ENDPOINT']
-StorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=" + STORAGE_ACCOUNT_NAME + ";AccountKey=" + STORAGE_ACCOUNT_KEY + ";EndpointSuffix=core.windows.net"
+STORAGE_ACCOUNT_CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=" + STORAGE_ACCOUNT_NAME + ";AccountKey=" + STORAGE_ACCOUNT_KEY + ";EndpointSuffix=core.windows.net"
 
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 databricks_cluster_details = table_service.query_entities('databricks', filter="PartitionKey eq 'pdm'")
 
-bearer_token = 'Bearer ' + access_token
-headers = { 'Authorization': bearer_token }
+headers = { 'Authorization': 'Bearer ' + DATABRICKS_ACCESS_TOKEN }
 
 if not list(databricks_cluster_details):
-    url = FEATURIZER_JAR_URL + '/featurizer_2.11-1.0.jar'
-    urllib.request.urlretrieve(url, 'D:/home/site/jars/featurizer_2.11-1.0.jar')
+    jar_local_path = 'D:/home/site/jars/featurizer_2.11-1.0.jar'
+    jar_dbfs_path = "/mnt/pdm/featurizer_2.11-1.0.jar"
+    
+    urllib.request.urlretrieve(FEATURIZER_JAR_URL, 'D:/home/site/jars/featurizer_2.11-1.0.jar')
 
     #upload jar
     dbfs_path = "/mnt/pdm/"
-    bdfs = "/mnt/pdm/featurizer_2.11-1.0.jar"
+    
     mkdirs_payload = { 'path': dbfs_path }
-    resp = requests.post('https://' + databricks_url + '/api/2.0/dbfs/mkdirs', headers=headers, json = mkdirs_payload).json()
-
-    file = 'D:/home/site/jars/featurizer_2.11-1.0.jar'
-    image = dbfs_path + file
+    resp = requests.post(DATABRICKS_WORKSPACE_URL + '/api/2.0/dbfs/mkdirs', headers=headers, json = mkdirs_payload).json()
+    
     files = {'file': open(file, 'rb')}
     put_payload = { 'path' : bdfs, 'overwrite' : 'true' }
     # push the images to DBFS
-    resp = requests.post('https://' + databricks_url + '/api/2.0/dbfs/put', headers=headers, data = put_payload, files = files).json()
+    resp = requests.post(DATABRICKS_WORKSPACE_URL '/api/2.0/dbfs/put', headers=headers, data = put_payload, files = files).json()
 
     sparkSpec= {
         'spark.speculation' : 'true'
@@ -81,7 +80,7 @@ if not list(databricks_cluster_details):
         'spark_jar_task' : spark_jar_task
     }
 
-    run_details = requests.post('https://' + databricks_url + '/api/2.0/jobs/runs/submit', headers=headers, json = payload).json()
+    run_details = requests.post(DATABRICKS_WORKSPACE_URL + '/api/2.0/jobs/runs/submit', headers=headers, json = payload).json()
     runid = run_details['run_id']
     databricks_details = {'PartitionKey': 'pdm', 'RowKey': 'pdm', 'run_id' : str(runid)}
     table_service.insert_entity('databricks', databricks_details)
@@ -89,10 +88,10 @@ if not list(databricks_cluster_details):
 else:
     runid = list(databricks_cluster_details)[0]['run_id']
 
-run_details = requests.get('https://' + databricks_url + '/api/2.0/jobs/runs/get?run_id=' + str(runid), headers=headers).json()
+run_details = requests.get(DATABRICKS_WORKSPACE_URL + '/api/2.0/jobs/runs/get?run_id=' + str(runid), headers=headers).json()
 run_state = run_details['state']['life_cycle_state']
 while run_state in ['PENDING', 'RESIZING']:
-    run_details = requests.get('https://' + databricks_url + '/api/2.0/jobs/runs/get?run_id=' + str(runid), headers=headers).json()
+    run_details = requests.get(DATABRICKS_WORKSPACE_URL + '/api/2.0/jobs/runs/get?run_id=' + str(runid), headers=headers).json()
     run_state = run_details['state']['life_cycle_state']
     time.sleep(10)
 

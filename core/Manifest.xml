@@ -39,7 +39,7 @@
                 <Parameter name="dsvmName" defaultValue="{Outputs.vmName}" hidden="true" />
                 <Parameter name="databricksWorkspaceUrl" defaultValue="{Outputs.databricksWorkspaceUrl}" hidden="true" />
                 <Parameter name="eventHubConnectionString" defaultValue="{Outputs.eventHubConnectionString}" hidden="true" />
-                <Parameter name="FEATURIZER_JAR_URL" defaultValue="{PatternAssetBaseUrl}" hidden="true" />
+                <Parameter name="featurizerJarUrl" defaultValue="{PatternAssetBaseUrl}/featurizer_2.11-1.0.jar" hidden="true" />
                 <Parameter name="databricksToken" defaultValue="{Inputs.DatabricksToken}" hidden="true" />
                 <Parameter name="scoreUrl" defaultValue="http://40.114.125.83:5001/score" hidden="true" />
             </Parameters>
