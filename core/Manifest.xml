@@ -53,7 +53,7 @@
                 <Parameter name="notebooksUrl" defaultValue="{PatternAssetBaseUrl}/Notebooks.zip" hidden="true" />
                 <Parameter name="databricksToken" defaultValue="{Inputs.DatabricksToken}" hidden="true" />
                 <Parameter name="scoreUrl" defaultValue="http://40.114.125.83:5001/score" hidden="true" />
-                <Parameter name="databricksworkspaceLoginUrl" defaultValue="{Outputs.databricksworkspaceLoginUrl}" hidden="true" /> 
+                <Parameter name="databricksWorkspaceLoginUrl" defaultValue="{Outputs.databricksworkspaceLoginUrl}" hidden="true" /> 
             </Parameters>
         </ArmDeployment>
         <WebJob title="Configuring Python 3.6" retriable="true" autoRetryCount = "2">
