@@ -68,7 +68,7 @@
         "description": "DSVM name"
       }
     },
-    "FEATURIZER_JAR_URL": {
+    "featurizerJarUrl": {
       "type": "string",
       "metadata": {
         "description": "DSVM name"
@@ -154,13 +154,13 @@
             "IOT_HUB_DEVICE_KEY": "[parameters('iotHubDeviceKey')]",
             "AML_ASSETS_URL": "[parameters('amlAssetsUrl')]",
             "DSVM_NAME": "[parameters('dsvmName')]",
-            "DATABRICKS_URL": "[parameters('databricksWorkspaceUrl')]",
+            "DATABRICKS_WORKSPACE_URL": "[parameters('databricksWorkspaceUrl')]",
             "EVENT_HUB_ENDPOINT": "[parameters('eventHubConnectionString')]",
-            "FEATURIZER_JAR_URL": "[parameters('FEATURIZER_JAR_URL')]",
+            "FEATURIZER_JAR_URL": "[parameters('featurizerJarUrl')]",
             "DATABRICKS_TOKEN": "[parameters('databricksToken')]",
             "SCORE_URL": "[parameters('scoreUrl')]",
             "WEBJOBS_IDLE_TIMEOUT": "3600",
-            "DATABRICKS_WORKSPACE_URL": "[parameters('databricksworkspaceCompleteUrl')]"
+            "DATABRICKS_WORKSPACE_LOGIN_URL": "[parameters('databricksworkspaceLoginUrl')]"
             
           }
         },

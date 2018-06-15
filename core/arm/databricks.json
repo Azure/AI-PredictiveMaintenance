@@ -40,7 +40,7 @@
     ],
     "outputs": {
         "databricksworkspaceUrl": { "type": "string", "value": "[concat(resourceGroup().location, '.azuredatabricks.net')]" },
-        "databricksworkspaceCompleteUrl": { "type": "string", "value": "[concat('https://',resourceGroup().location, '.azuredatabricks.net', '/aad/auth?has=\u0026Workspace=/subscriptions/', variables('subscriptionId'), '/resourceGroups/', variables('namePrefix'), '/providers/Microsoft.Databricks/workspaces/', variables('workspaceName'), '\u0026WorkspaceResourceGroupUri=/subscriptions/', variables('subscriptionId'), '/resourceGroups/', variables('managedResourceGroupName'))]" }
+        "databricksworkspaceLoginUrl": { "type": "string", "value": "[concat('https://',resourceGroup().location, '.azuredatabricks.net', '/aad/auth?has=\u0026Workspace=/subscriptions/', variables('subscriptionId'), '/resourceGroups/', variables('namePrefix'), '/providers/Microsoft.Databricks/workspaces/', variables('workspaceName'), '\u0026WorkspaceResourceGroupUri=/subscriptions/', variables('subscriptionId'), '/resourceGroups/', variables('managedResourceGroupName'))]" }
 
     }
 }

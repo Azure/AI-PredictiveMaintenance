@@ -34,7 +34,7 @@ STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 IOT_HUB_OWNER_KEY = os.environ['IOT_HUB_OWNER_KEY']
 DSVM_NAME = os.environ['DSVM_NAME']
-DATABRICKS_WORKSPACE = os.environ['DATABRICKS_WORKSPACE_URL']
+DATABRICKS_WORKSPACE = os.environ['DATABRICKS_WORKSPACE_LOGIN_URL']
 
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
@@ -192,7 +192,7 @@ def analytics():
 @app.route('/createDatabricksCluster', methods=['POST'])
 @login_required
 def createDatabricksCluster():
-    databricks_url = os.environ['DATABRICKS_URL']
+    databricks_url = os.environ['DATABRICKS_WORKSPACE_URL']
     access_token = os.environ['DATABRICKS_TOKEN'] 
 
     bearer_token = 'Bearer ' + access_token
