@@ -1,7 +1,7 @@
 import urllib
-import os, time
+import os
+import time
 import requests
-import json
 import uuid
 import json
 from azure.storage.table import TableService, Entity, TablePermissions
@@ -9,97 +9,109 @@ from azure.storage.table import TableService, Entity, TablePermissions
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 
-databricks_url = os.environ['DATABRICKS_URL']
-FEATURIZER_JAR_URL = os.environ['FEATURIZER_JAR_URL'] 
-access_token = os.environ['DATABRICKS_TOKEN'] 
+DATABRICKS_API_BASE_URL = os.environ['DATABRICKS_WORKSPACE_URL'] + '/api/'
+FEATURIZER_JAR_URL = os.environ['FEATURIZER_JAR_URL']
+DATABRICKS_TOKEN = os.environ['DATABRICKS_TOKEN']
 IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 EVENT_HUB_ENDPOINT = os.environ['EVENT_HUB_ENDPOINT']
-StorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=" + STORAGE_ACCOUNT_NAME + ";AccountKey=" + STORAGE_ACCOUNT_KEY + ";EndpointSuffix=core.windows.net"
+TMP = os.environ['TMP']
+STORAGE_ACCOUNT_CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=" + STORAGE_ACCOUNT_NAME + ";AccountKey=" + STORAGE_ACCOUNT_KEY + ";EndpointSuffix=core.windows.net"
 
-table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
-databricks_cluster_details = table_service.query_entities('databricks', filter="PartitionKey eq 'pdm'")
+def call_api(uri, method=requests.get, json=None, data=None, files=None):
+    headers = { 'Authorization': 'Bearer ' + DATABRICKS_TOKEN }
+    #TODO: add retries
+    response = method(DATABRICKS_API_BASE_URL + uri, headers=headers, json=json, data=data, files=files)
+    if response.status_code != 200:
+        raise Exception('Error when calling Databricks API {0}. Response:\n{1}'.format(uri, response.text))
+    return response
 
-bearer_token = 'Bearer ' + access_token
-json_data = { 'Authorization': bearer_token }
+def get_last_run_id():
+    table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
+    databricks_cluster_details_entries = table_service.query_entities('databricks', filter="PartitionKey eq 'pdm'")
+    databricks_cluster_details = list(databricks_cluster_details_entries)
+    if databricks_cluster_details:
+        return databricks_cluster_details[0]['run_id']
+    return None
 
-if not list(databricks_cluster_details):        
-    url = FEATURIZER_JAR_URL + '/featurizer_2.11-1.0.jar'  
-    urllib.request.urlretrieve(url, 'D:/home/site/jars/featurizer_2.11-1.0.jar') 
+def set_last_run_id(run_id):
+    table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
+    databricks_details = {'PartitionKey': 'pdm', 'RowKey': 'pdm', 'run_id' : str(run_id)}
+    table_service.insert_or_replace_entity('databricks', databricks_details)
 
-    #upload jar
-    dbfs_path = "/mnt/pdm/"
-    bdfs = "/mnt/pdm/featurizer_2.11-1.0.jar"
-    mkdirs_payload = { 'path': dbfs_path }
-    resp = requests.post('https://' + databricks_url + '/api/2.0/dbfs/mkdirs',headers=json_data, json = mkdirs_payload).json()
+def is_job_active(run_id):
+    run_state = 'PENDING'
+    while run_state in ['PENDING', 'RESIZING']:
+        run_details = call_api('2.0/jobs/runs/get?run_id=' + str(run_id)).json()
+        run_state = run_details['state']['life_cycle_state']
+        time.sleep(10)
 
-    file = 'D:/home/site/jars/featurizer_2.11-1.0.jar'
-    image = dbfs_path + file
-    files = {'file': open(file, 'rb')}
-    put_payload = { 'path' : bdfs, 'overwrite' : 'true' }
-    # push the images to DBFS
-    resp = requests.post('https://' + databricks_url + '/api/2.0/dbfs/put', headers=json_data,data = put_payload, files = files).json()
+    return run_state == 'RUNNING'
 
-    sparkSpec= {
-        'spark.speculation' : 'true'
-    }
-    payload = {
-        'spark_version' : '4.0.x-scala2.11',
-        'node_type_id' : 'Standard_D3_v2',
-        'spark_conf' : sparkSpec,
-        'num_workers' : 2
-    }
 
-    #run job
+last_run_id = get_last_run_id()
 
-    jar_path = "dbfs:" + bdfs
-    jar = {
-        'jar' : jar_path
-    }
+if last_run_id and is_job_active(last_run_id):
+    exit(0)
 
-    maven_coordinates = {
-        'coordinates' : 'com.microsoft.azure:azure-eventhubs-spark_2.11:2.3.1'
-    }
+jar_local_path = os.path.join(TMP, 'featurizer_2.11-1.0.jar')
 
-    maven = {
-        'maven' : maven_coordinates
-    }
+dbfs_path = '/predictive-maintenance/jars/'
+jar_dbfs_path = dbfs_path + 'featurizer_2.11-1.0.jar'
 
-    libraries = [jar, maven]
+urllib.request.urlretrieve(FEATURIZER_JAR_URL, jar_local_path)
 
-    jar_params = [EVENT_HUB_ENDPOINT,IOT_HUB_NAME,StorageConnectionString]
-        
-    spark_jar_task= {
-        'main_class_name' : 'com.microsoft.ciqs.predictivemaintenance.Featurizer',
-        'parameters' : jar_params
-    }
+mkdirs_payload = { 'path': dbfs_path }
+call_api('2.0/dbfs/mkdirs', method=requests.post, json=mkdirs_payload)
 
-    payload = {
-        "run_name": "featurization_task",
-        "new_cluster" : payload,
-        'libraries' : libraries,
-        'max_retries' : 1,
-        'spark_jar_task' : spark_jar_task
-    }
+files = {'file': open(jar_local_path, 'rb')}
+put_payload = { 'path' : jar_dbfs_path, 'overwrite' : 'true' }
 
-    run_details = requests.post('https://' + databricks_url + '/api/2.0/jobs/runs/submit', headers=json_data, json = payload).json()
-    runid = run_details['run_id']
-    databricks_details = {'PartitionKey': 'pdm', 'RowKey': 'pdm', 'run_id' : str(runid)}
-    table_service.insert_entity('databricks', databricks_details)
-    print(run_details)
-else:
-    runid = list(databricks_cluster_details)[0]['run_id']
+call_api('2.0/dbfs/put', method=requests.post, data=put_payload, files=files)
 
-run_details = requests.get('https://' + databricks_url + '/api/2.0/jobs/runs/get?run_id=' + str(runid), headers=json_data).json()
-run_state = run_details['state']['life_cycle_state']
-while run_state in ['PENDING', 'RESIZING']:
-    run_details = requests.get('https://' + databricks_url + '/api/2.0/jobs/runs/get?run_id=' + str(runid), headers=json_data).json()
-    run_state = run_details['state']['life_cycle_state']
-    time.sleep(10)
+sparkSpec= {
+    'spark.speculation' : 'true'
+}
+payload = {
+    'spark_version' : '4.1.x-scala2.11',
+    'node_type_id' : 'Standard_D3_v2',
+    'spark_conf' : sparkSpec,
+    'num_workers' : 2
+}
 
-if run_state in ['RUNNING']:
-    print("Success")
-else:
-    errorMessage = 'Run state:' + run_details['state']['life_cycle_state'] + " Reason:" + run_details['state']['state_message']
-    print(errorMessage)
-    table_service.delete_entity('databricks', 'pdm', 'pdm')
+#run job
+jar_path = "dbfs:" + jar_dbfs_path
+jar = {
+    'jar' : jar_path
+}
+
+maven_coordinates = {
+    'coordinates' : 'com.microsoft.azure:azure-eventhubs-spark_2.11:2.3.1'
+}
+
+maven = {
+    'maven' : maven_coordinates
+}
+
+libraries = [jar, maven]
+jar_params = [EVENT_HUB_ENDPOINT, IOT_HUB_NAME, STORAGE_ACCOUNT_CONNECTION_STRING]
+
+spark_jar_task= {
+    'main_class_name' : 'com.microsoft.ciqs.predictivemaintenance.Featurizer',
+    'parameters' : jar_params
+}
+
+payload = {
+    "run_name": "featurization_task",
+    "new_cluster" : payload,
+    'libraries' : libraries,
+    'max_retries' : 1,
+    'spark_jar_task' : spark_jar_task
+}
+
+run_details = call_api('2.0/jobs/runs/submit', method=requests.post, json=payload).json()
+run_id = run_details['run_id']
+set_last_run_id(run_id)
+
+if not is_job_active(run_id):
+    errorMessage = 'Unable to create Spark job. Run ID: {0}'.format(run_id)
     raise Exception(errorMessage)

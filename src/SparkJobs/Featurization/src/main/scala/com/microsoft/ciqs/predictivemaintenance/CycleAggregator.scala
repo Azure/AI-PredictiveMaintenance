@@ -106,18 +106,18 @@ class CycleAggregator(spark: SparkSession,
       //.withColumn("timestamp", col("enqueuedTime"))
       .withColumn("BodyJ", from_json($"body".cast(StringType), schemaTyped))
       .select("*", "BodyJ.*")
-      .withWatermark("timestamp", "1 days")
+      .withWatermark("timestamp", "2 hours")
       .as[TelemetryEvent]
 
-    val telemetryByDevice = telemetry.withWatermark("timestamp", "15 minutes").groupByKey(_.machineID)
+    val telemetryByDevice = telemetry.groupByKey(_.machineID)
 
-    val cycleIntervals = telemetryByDevice.
-      flatMapGroupsWithState(
+    val cycleIntervals = telemetryByDevice
+      .flatMapGroupsWithState(
         outputMode = OutputMode.Append,
-        timeoutConf = GroupStateTimeout.EventTimeTimeout)(func = CycleAggregator.getCycleIntervalsStateful).
-      withColumnRenamed("machineID", "renamed_machineID").
-      withWatermark("start", "1 days").
-      withWatermark("end", "1 days")
+        timeoutConf = GroupStateTimeout.EventTimeTimeout)(func = CycleAggregator.getCycleIntervalsStateful)
+      .withColumnRenamed("machineID", "renamed_machineID")
+      //.withWatermark("start", "1 days")
+      //.withWatermark("end", "1 days")
 
     var cycleAggregates = cycleIntervals.
       join(telemetry,
