@@ -86,7 +86,7 @@
         "description": "Azure ML Web service URL"
       }
     },
-    "databricksworkspaceCompleteUrl": {
+    "databricksworkspaceLoginUrl": {
       "type": "string",
       "metadata": {
         "description": "Azure ML Web service URL"
