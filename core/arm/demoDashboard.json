@@ -90,8 +90,12 @@
       "type": "string",
       "metadata": {
         "description": "Azure ML Web service URL"
-      }
-    }    
+      },
+    "notebooksUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure ML Web service URL"
+      }    
   },
   "variables": {
     "uniqueString": "[uniqueString(resourceGroup().id)]",
@@ -160,7 +164,8 @@
             "DATABRICKS_TOKEN": "[parameters('databricksToken')]",
             "SCORE_URL": "[parameters('scoreUrl')]",
             "WEBJOBS_IDLE_TIMEOUT": "3600",
-            "DATABRICKS_WORKSPACE_LOGIN_URL": "[parameters('databricksworkspaceLoginUrl')]"
+            "DATABRICKS_WORKSPACE_LOGIN_URL": "[parameters('databricksworkspaceLoginUrl')]",
+            "NOTEBOOKS_URL": "[parameters('notebooksUrl')]"
             
           }
         },

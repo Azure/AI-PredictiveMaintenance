@@ -53,13 +53,10 @@
                 You can access your Databricks Workspace <a href="{{databricks_workspace}}" target="_blank">here</a>
             </p>
             <p>
-                Featurization Notebooks are available in the Workspace tab <a href="{{databricks_workspace}}" target="_blank">here</a>. In order to run these notebooks you need to spinup a cluster which can be done by a single click below.
+                Featurization Notebooks are available in the Workspace tab <a href="{{databricks_workspace}}" target="_blank">here</a>. In order to run these notebooks you need to spinup a cluster which can be done by following these <a href="https://docs.databricks.com/user-guide/clusters/create.html" target="_blank">instructions</a>.
+                The configuration of the cluster should be as below
             </p>    
-            <form action = "/createDatabricksCluster" method = "POST">
-                <div>           
-                    <button type="submit" id="create-cluster-button" class="btn btn-primary">Create Databricks Cluster</button>
-                </div>
-            </form>        
+            <img src ="../static/databricks_cluster_creation.jpg" class="thumbnail" height="500" width="800" />       
         </div>
         <div class="tab-pane fade" id="pills-aztk" role="tabpanel" aria-labelledby="pills-contact-tab">
             <p>

@@ -50,6 +50,7 @@
                 <Parameter name="databricksWorkspaceUrl" defaultValue="{Inputs.databricksWorkspaceUrl}" hidden="true" />
                 <Parameter name="eventHubConnectionString" defaultValue="{Outputs.eventHubConnectionString}" hidden="true" />
                 <Parameter name="featurizerJarUrl" defaultValue="{PatternAssetBaseUrl}/featurizer_2.11-1.0.jar" hidden="true" />
+                <Parameter name="notebooksUrl" defaultValue="{PatternAssetBaseUrl}/Notebooks.zip" hidden="true" />
                 <Parameter name="databricksToken" defaultValue="{Inputs.DatabricksToken}" hidden="true" />
                 <Parameter name="scoreUrl" defaultValue="http://40.114.125.83:5001/score" hidden="true" />
                 <Parameter name="databricksworkspaceLoginUrl" defaultValue="{Outputs.databricksworkspaceLoginUrl}" hidden="true" /> 
@@ -81,7 +82,7 @@
         </ArmDeployment>
         <ArmDeployment source="arm/linuxDsvm.json" title="Provisioning Linux DSVM" autoResolveParameters="true">
             <Parameters>
-                <Parameter name="fileUris" hidden="true" defaultValue="{PatternAssetBaseUrl}/setup.sh {PatternAssetBaseUrl}/Notebooks.zip" />
+                <Parameter name="fileUris" hidden="true" defaultValue="{PatternAssetBaseUrl}/setup.sh {PatternAssetBaseUrl}/Notebooks.zip {Outputs.databricksWorkspaceUrl} {Outputs.databricksToken}" />
                 <Parameter name="commandToExecute" hidden="true" defaultValue="bash setup.sh" />
             </Parameters>
         </ArmDeployment>

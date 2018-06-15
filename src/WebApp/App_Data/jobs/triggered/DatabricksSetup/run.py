@@ -4,6 +4,7 @@ import time
 import requests
 import uuid
 import json
+import zipfile
 from azure.storage.table import TableService, Entity, TablePermissions
 
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
@@ -15,12 +16,13 @@ DATABRICKS_TOKEN = os.environ['DATABRICKS_TOKEN']
 IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 EVENT_HUB_ENDPOINT = os.environ['EVENT_HUB_ENDPOINT']
 TMP = os.environ['TMP']
+NOTEBOOKS_URL = os.environ['NOTEBOOKS_URL']
 STORAGE_ACCOUNT_CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=" + STORAGE_ACCOUNT_NAME + ";AccountKey=" + STORAGE_ACCOUNT_KEY + ";EndpointSuffix=core.windows.net"
 
 def call_api(uri, method=requests.get, json=None, data=None, files=None):
     headers = { 'Authorization': 'Bearer ' + DATABRICKS_TOKEN }
     #TODO: add retries
-    response = method(DATABRICKS_API_BASE_URL + uri, headers=headers, json=json, data=data, files=files)
+    response = method("https://" + DATABRICKS_API_BASE_URL + uri, headers=headers, json=json, data=data, files=files)
     if response.status_code != 200:
         raise Exception('Error when calling Databricks API {0}. Response:\n{1}'.format(uri, response.text))
     return response
@@ -49,23 +51,20 @@ def is_job_active(run_id):
 
 def upload_notebooks_databricks():
     #upload notebook to app service
-    url = FEATURIZER_JAR_URL + '/Notebooks.zip'
-    notebooks_root_folder = 'D:/home/site/'  
-    urllib.request.urlretrieve(url, notebooks_root_folder + 'Notebooks.zip')
+    notebooks_zip_local_path = os.path.join(TMP, 'Notebooks.zip') 
+    urllib.request.urlretrieve(NOTEBOOKS_URL, notebooks_zip_local_path)
     
-    zip_ref = zipfile.ZipFile(notebooks_root_folder + 'Notebooks.zip', 'r')
-    zip_ref.extractall('D:/home/site/Notebooks')
+    zip_ref = zipfile.ZipFile(notebooks_zip_local_path, 'r')
+    notebooks_local_path = os.path.join(TMP, 'Notebooks')
+    zip_ref.extractall(notebooks_local_path)
 
     #upload feature engineering notebook to databricks workspace
-
-    url = FEATURIZER_JAR_URL + '/Notebooks.zip'  
-    urllib.request.urlretrieve(url, notebooks_root_folder + 'Notebooks.zip')
-    
-    file = notebooks_root_folder + 'Notebooks/FeatureEngineering.ipynb'
-    files = {'file': open(file, 'rb')}
+    featureEngineering_local_path = os.path.join(notebooks_local_path, 'FeatureEngineering.ipynb')
+    print(featureEngineering_local_path)
+    files = {'file': open(featureEngineering_local_path, 'rb')}
     bdfs = "/FeatureEngineering"
     put_payload = { 'path' : bdfs, 'overwrite' : 'true', 'language':'PYTHON', 'format':'JUPYTER' }
-    resp = call_api('2.0/workspace/import', method=requests.post, json=put_payload, files = files).json()
+    resp = call_api('2.0/workspace/import', method=requests.post, data=put_payload, files = files).json()
 
 last_run_id = get_last_run_id()
 
