@@ -22,7 +22,7 @@ STORAGE_ACCOUNT_CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=
 def call_api(uri, method=requests.get, json=None, data=None, files=None):
     headers = { 'Authorization': 'Bearer ' + DATABRICKS_TOKEN }
     #TODO: add retries
-    response = method("https://" + DATABRICKS_API_BASE_URL + uri, headers=headers, json=json, data=data, files=files)
+    response = method(DATABRICKS_API_BASE_URL + uri, headers=headers, json=json, data=data, files=files)
     if response.status_code != 200:
         raise Exception('Error when calling Databricks API {0}. Response:\n{1}'.format(uri, response.text))
     return response
