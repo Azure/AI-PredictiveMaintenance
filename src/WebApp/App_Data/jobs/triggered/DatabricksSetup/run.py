@@ -4,6 +4,7 @@ import time
 import requests
 import uuid
 import json
+import zipfile
 from azure.storage.table import TableService, Entity, TablePermissions
 
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
@@ -15,6 +16,7 @@ DATABRICKS_TOKEN = os.environ['DATABRICKS_TOKEN']
 IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 EVENT_HUB_ENDPOINT = os.environ['EVENT_HUB_ENDPOINT']
 TMP = os.environ['TMP']
+NOTEBOOKS_URL = os.environ['NOTEBOOKS_URL']
 STORAGE_ACCOUNT_CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=" + STORAGE_ACCOUNT_NAME + ";AccountKey=" + STORAGE_ACCOUNT_KEY + ";EndpointSuffix=core.windows.net"
 
 def call_api(uri, method=requests.get, json=None, data=None, files=None):
@@ -47,8 +49,26 @@ def is_job_active(run_id):
 
     return run_state == 'RUNNING'
 
+def upload_notebooks_databricks():
+    #upload notebook to app service
+    notebooks_zip_local_path = os.path.join(TMP, 'Notebooks.zip') 
+    urllib.request.urlretrieve(NOTEBOOKS_URL, notebooks_zip_local_path)
+    
+    zip_ref = zipfile.ZipFile(notebooks_zip_local_path, 'r')
+    notebooks_local_path = os.path.join(TMP, 'Notebooks')
+    zip_ref.extractall(notebooks_local_path)
+
+    #upload feature engineering notebook to databricks workspace
+    featureEngineering_local_path = os.path.join(notebooks_local_path, 'FeatureEngineering.ipynb')
+    print(featureEngineering_local_path)
+    files = {'file': open(featureEngineering_local_path, 'rb')}
+    bdfs = "/FeatureEngineering"
+    put_payload = { 'path' : bdfs, 'overwrite' : 'true', 'language':'PYTHON', 'format':'JUPYTER' }
+    resp = call_api('2.0/workspace/import', method=requests.post, data=put_payload, files = files).json()
 
 last_run_id = get_last_run_id()
+
+upload_notebooks_databricks()
 
 if last_run_id and is_job_active(last_run_id):
     exit(0)

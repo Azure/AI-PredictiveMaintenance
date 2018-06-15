@@ -34,6 +34,7 @@ STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 IOT_HUB_OWNER_KEY = os.environ['IOT_HUB_OWNER_KEY']
 DSVM_NAME = os.environ['DSVM_NAME']
+DATABRICKS_WORKSPACE = os.environ['DATABRICKS_WORKSPACE_LOGIN_URL']
 
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
@@ -186,7 +187,7 @@ def parse_website_owner_name():
 @register_breadcrumb(app, '.modeling', 'Modeling')
 @login_required
 def analytics():
-    return render_template('modeling.html', dsvmName = DSVM_NAME)
+    return render_template('modeling.html', dsvmName = DSVM_NAME, databricks_workspace= DATABRICKS_WORKSPACE)
 
 @app.route('/intelligence')
 @register_breadcrumb(app, '.intelligence', 'Intelligence')
