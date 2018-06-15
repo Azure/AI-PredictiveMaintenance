@@ -89,13 +89,15 @@
     "databricksworkspaceLoginUrl": {
       "type": "string",
       "metadata": {
-        "description": "Azure ML Web service URL"
-      },
+        "description": "Databricks Workspace Login Url"
+      }
+    },
     "notebooksUrl": {
       "type": "string",
       "metadata": {
-        "description": "Azure ML Web service URL"
-      }    
+        "description": "Notebooks Url"
+      }
+    }    
   },
   "variables": {
     "uniqueString": "[uniqueString(resourceGroup().id)]",
