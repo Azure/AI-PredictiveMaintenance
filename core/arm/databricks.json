@@ -2,6 +2,15 @@
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "createDatabricksWorkspace": {
+            "type": "string",
+            "defaultValue": "Yes",
+            "allowedValues": [ "Yes", "No" ],
+            "metadata": {
+                "description": "Create databricks workspace",
+
+            }
+          }
     },
     "variables": {
         "namePrefix": "[resourceGroup().name]",
@@ -13,9 +22,10 @@
         "tier": "premium",
         "managedResourceGroupName": "[concat('databricks-rg-', variables('workspaceName'), '-', uniqueString(variables('workspaceName'), resourceGroup().id))]",
         "managedResourceGroupId": "[concat(subscription().id, '/resourceGroups/', variables('managedResourceGroupName'))]"
-    },   
+    },
     "resources": [
-    {
+        {
+            "condition": "[equals(parameters('createDatabricksWorkspace'), 'Yes')]",
             "apiVersion": "2018-04-01",
             "location": "[variables('location')]",
             "name": "[variables('workspaceName')]",
@@ -26,13 +36,28 @@
                 "ManagedResourceGroupId": "[variables('managedResourceGroupId')]"
             },
             "type": "Microsoft.Databricks/workspaces"
-    }
-],
-    "outputs": {
-        "databricksworkspaceUrl": { "type": "string", "value": "['https://', concat(resourceGroup().location, '.azuredatabricks.net')]" },
-        "managedResourceGroupName": { "type": "string", "value": "[variables('managedResourceGroupName')]" },
-        "resourceGroupName": { "type": "string", "value": "[variables('namePrefix')]" },
-        "workspaceName": { "type": "string", "value": "[variables('workspaceName')]" },
-        "subscriptionId": { "type": "string", "value": "[variables('subscriptionId')]" }
         }
+    ],
+    "outputs": {
+        "databricksWorkspaceUrl": {
+            "type": "string",
+            "value": "[concat('https://', resourceGroup().location, '.azuredatabricks.net')]"
+        },
+        "managedResourceGroupName": {
+            "type": "string",
+            "value": "[variables('managedResourceGroupName')]"
+        },
+        "resourceGroupName": {
+            "type": "string",
+            "value": "[variables('namePrefix')]"
+        },
+        "workspaceName": {
+            "type": "string",
+            "value": "[variables('workspaceName')]"
+        },
+        "subscriptionId": {
+            "type": "string",
+            "value": "[variables('subscriptionId')]"
+        }
+    }
 }

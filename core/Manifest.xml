@@ -14,20 +14,30 @@
         <Owner displayname="Bolun Huang" email="bohuan@microsoft.com" />
     </Owners>
     <ProvisioningSteps>
-        <ArmDeployment title="Creating Azure Databricks workspace" autoResolveParameters="true" source="arm/databricks.json" />
-        <Manual title="Configure Linux DSVM">
+        <Manual title="Initial configuration">
+            <Instructions src="markdown\InitialConfiguration.md" format="markdown" />
             <Parameters>
+                <VmSku name="vmSize" defaultValue="Standard_DS3_v2" description="Linux DSVM size" allowedValues="{VirtualMachineSkus}" />
                 <Credential type="linuxvm" username="adminUsername" password="adminPassword" />
-                <VmSku name="vmSize" defaultValue="Standard_DS3_v2" description="Size for the Virtual Machine" allowedValues="{VirtualMachineSkus}" />
-                <VmSku name="databricksVmSize" defaultValue="Standard_D3_v2" usedFor="hdi" minCores="4" instanceCount="4" hidden="true"/>
+                <VmSku name="databricksVmSize" defaultValue="Standard_D3_v2" usedFor="hdi" minCores="4" instanceCount="4" hidden="true" />
+                <Parameter name="createDatabricksWorkspace" description="Create Databricks workspace?" defaultValue="Yes" allowedValues="Yes; No" />
             </Parameters>
-            <Instructions src="markdown\ConfigureLinuxDSVM.md" format="markdown" />
         </Manual>
+        <ArmDeployment title="Creating Azure Databricks workspace" autoResolveParameters="true" source="arm/databricks.json" />
         <Manual title="Databricks authorization">
+            <Instructions src="markdown\DatabricksAuthorization.md" format="markdown" />
             <Parameters>
-                <Parameter name="DatabricksToken" description="DataBricks personal access token" />
+                <Parameter name="databricksWorkspaceUrl" description="Databricks workspace URL" defaultValue="{Outputs.databricksWorkspaceUrl}">
+                    <ExtraDescription>
+                        (e.g., https://southcentralus.azuredatabricks.net)
+                    </ExtraDescription>
+                </Parameter>
+                <Parameter name="databricksToken" description="Databricks personal access token">
+                    <ExtraDescription>
+                        **IMPORTANT**: If you have multiple workspaces, please make sure the token is generated for the one specified above.
+                    </ExtraDescription>
+                </Parameter>
             </Parameters>
-            <Instructions src="markdown\databricksAccessToken.md" format="markdown" />
         </Manual>
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
         <ArmDeployment source="arm/iotHub.json" title="Creating IoT Hub" />
@@ -37,7 +47,7 @@
                 <Parameter name="webAppUrl" defaultValue="{PatternAssetBaseUrl}/WebApp.zip" hidden="true" />
                 <Parameter name="amlAssetsUrl" defaultValue="{PatternAssetBaseUrl}/AML.zip" hidden="true" />
                 <Parameter name="dsvmName" defaultValue="{Outputs.vmName}" hidden="true" />
-                <Parameter name="databricksWorkspaceUrl" defaultValue="{Outputs.databricksWorkspaceUrl}" hidden="true" />
+                <Parameter name="databricksWorkspaceUrl" defaultValue="{Inputs.databricksWorkspaceUrl}" hidden="true" />
                 <Parameter name="eventHubConnectionString" defaultValue="{Outputs.eventHubConnectionString}" hidden="true" />
                 <Parameter name="featurizerJarUrl" defaultValue="{PatternAssetBaseUrl}/featurizer_2.11-1.0.jar" hidden="true" />
                 <Parameter name="databricksToken" defaultValue="{Inputs.DatabricksToken}" hidden="true" />
