@@ -49,18 +49,19 @@ def is_job_active(run_id):
 
 def upload_notebooks_databricks():
     #upload notebook to app service
-    url = FEATURIZER_JAR_URL + '/Notebooks.zip'  
-    urllib.request.urlretrieve(url, 'D:/home/site/Notebooks.zip')
+    url = FEATURIZER_JAR_URL + '/Notebooks.zip'
+    notebooks_root_folder = 'D:/home/site/'  
+    urllib.request.urlretrieve(url, notebooks_root_folder + 'Notebooks.zip')
     
-    zip_ref = zipfile.ZipFile('D:/home/site/Notebooks.zip', 'r')
+    zip_ref = zipfile.ZipFile(notebooks_root_folder + 'Notebooks.zip', 'r')
     zip_ref.extractall('D:/home/site/Notebooks')
 
     #upload feature engineering notebook to databricks workspace
 
     url = FEATURIZER_JAR_URL + '/Notebooks.zip'  
-    urllib.request.urlretrieve(url, 'D:/home/site/Notebooks.zip')
+    urllib.request.urlretrieve(url, notebooks_root_folder + 'Notebooks.zip')
     
-    file = 'D:/home/site/Notebooks/FeatureEngineering.ipynb'
+    file = notebooks_root_folder + 'Notebooks/FeatureEngineering.ipynb'
     files = {'file': open(file, 'rb')}
     bdfs = "/FeatureEngineering"
     put_payload = { 'path' : bdfs, 'overwrite' : 'true', 'language':'PYTHON', 'format':'JUPYTER' }
