@@ -50,8 +50,16 @@
         <div class="tab-pane fade" id="pills-databricks" role="tabpanel" aria-labelledby="pills-profile-tab">
             <img class="target-logo" src="https://azure.microsoft.com/svghandler/databricks/?width=130&height=130" />
             <p>
-                Integration with Databricks is currently under construction. Stay tuned.
+                You can access your Databricks Workspace <a href="{{databricks_workspace}}" target="_blank">here</a>
             </p>
+            <p>
+                Featurization Notebooks are available in the Workspace tab <a href="{{databricks_workspace}}" target="_blank">here</a>. In order to run these notebooks you need to spinup a cluster which can be done by a single click below.
+            </p>    
+            <form action = "/createDatabricksCluster" method = "POST">
+                <div>           
+                    <button type="submit" id="create-cluster-button" class="btn btn-primary">Create Databricks Cluster</button>
+                </div>
+            </form>        
         </div>
         <div class="tab-pane fade" id="pills-aztk" role="tabpanel" aria-labelledby="pills-contact-tab">
             <p>

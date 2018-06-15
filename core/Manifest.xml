@@ -52,6 +52,7 @@
                 <Parameter name="featurizerJarUrl" defaultValue="{PatternAssetBaseUrl}/featurizer_2.11-1.0.jar" hidden="true" />
                 <Parameter name="databricksToken" defaultValue="{Inputs.DatabricksToken}" hidden="true" />
                 <Parameter name="scoreUrl" defaultValue="http://40.114.125.83:5001/score" hidden="true" />
+                <Parameter name="databricksworkspaceCompleteUrl" defaultValue="{Outputs.databricksworkspaceCompleteUrl}" hidden="true" /> 
             </Parameters>
         </ArmDeployment>
         <WebJob title="Configuring Python 3.6" retriable="true" autoRetryCount = "2">

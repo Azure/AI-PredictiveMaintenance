@@ -47,8 +47,28 @@ def is_job_active(run_id):
 
     return run_state == 'RUNNING'
 
+def upload_notebooks_databricks():
+    #upload notebook to app service
+    url = FEATURIZER_JAR_URL + '/Notebooks.zip'  
+    urllib.request.urlretrieve(url, 'D:/home/site/Notebooks.zip')
+    
+    zip_ref = zipfile.ZipFile('D:/home/site/Notebooks.zip', 'r')
+    zip_ref.extractall('D:/home/site/Notebooks')
+
+    #upload feature engineering notebook to databricks workspace
+
+    url = FEATURIZER_JAR_URL + '/Notebooks.zip'  
+    urllib.request.urlretrieve(url, 'D:/home/site/Notebooks.zip')
+    
+    file = 'D:/home/site/Notebooks/FeatureEngineering.ipynb'
+    files = {'file': open(file, 'rb')}
+    bdfs = "/FeatureEngineering"
+    put_payload = { 'path' : bdfs, 'overwrite' : 'true', 'language':'PYTHON', 'format':'JUPYTER' }
+    resp = call_api('2.0/workspace/import', method=requests.post, json=put_payload, files = files).json()
 
 last_run_id = get_last_run_id()
+
+upload_notebooks_databricks()
 
 if last_run_id and is_job_active(last_run_id):
     exit(0)

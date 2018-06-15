@@ -34,6 +34,7 @@ STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 IOT_HUB_OWNER_KEY = os.environ['IOT_HUB_OWNER_KEY']
 DSVM_NAME = os.environ['DSVM_NAME']
+DATABRICKS_WORKSPACE = os.environ['DATABRICKS_WORKSPACE_URL']
 
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
@@ -186,7 +187,35 @@ def parse_website_owner_name():
 @register_breadcrumb(app, '.modeling', 'Modeling')
 @login_required
 def analytics():
-    return render_template('modeling.html', dsvmName = DSVM_NAME)
+    return render_template('modeling.html', dsvmName = DSVM_NAME, databricks_workspace= DATABRICKS_WORKSPACE)
+
+@app.route('/createDatabricksCluster', methods=['POST'])
+@login_required
+def createDatabricksCluster():
+    databricks_url = os.environ['DATABRICKS_URL']
+    access_token = os.environ['DATABRICKS_TOKEN'] 
+
+    bearer_token = 'Bearer ' + access_token
+    json_data = { 'Authorization': bearer_token }
+    sparkSpec= {
+        'spark.speculation' : 'true'
+    }
+
+    spark_env_vars = {
+        'PYSPARK_PYTHON': '/databricks/python3/bin/python3'
+    }
+
+    payload = {
+        "cluster_name": "pdm-cluster"
+        'spark_version' : '4.0.x-scala2.11',
+        'node_type_id' : 'Standard_D3_v2',
+        'spark_conf' : sparkSpec,
+        'num_workers' : 2,
+        'spark_env_vars': spark_env_vars
+    }
+
+    requests.post('https://' + databricks_url + '/api/2.0/clusters/create', headers=json_data,json = payload)
+    return render_template('modeling.html', dsvmName = DSVM_NAME, databricks_workspace= DATABRICKS_WORKSPACE)
 
 @app.route('/intelligence')
 @register_breadcrumb(app, '.intelligence', 'Intelligence')
