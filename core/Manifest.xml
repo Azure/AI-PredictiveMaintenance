@@ -82,8 +82,8 @@
         </ArmDeployment>
         <ArmDeployment source="arm/linuxDsvm.json" title="Provisioning Linux DSVM" autoResolveParameters="true">
             <Parameters>
-                <Parameter name="fileUris" hidden="true" defaultValue="{PatternAssetBaseUrl}/setup.sh {PatternAssetBaseUrl}/Notebooks.zip {Outputs.databricksWorkspaceUrl} {Outputs.databricksToken}" />
-                <Parameter name="commandToExecute" hidden="true" defaultValue="bash setup.sh" />
+                <Parameter name="fileUris" hidden="true" defaultValue="{PatternAssetBaseUrl}/setup.sh {PatternAssetBaseUrl}/Notebooks.zip" />
+                <Parameter name="commandToExecute" hidden="true" defaultValue="bash setup.sh {Outputs.databricksWorkspaceUrl} {Outputs.databricksToken}" />
             </Parameters>
         </ArmDeployment>
         <Manual title="Done">
