@@ -122,7 +122,7 @@ class IoTHub:
 
             if 'simulated' not in twin_tags or not twin_tags['simulated']:
                 continue
-            
+
             if 'simulator' not in twin_tags:
                 continue
 

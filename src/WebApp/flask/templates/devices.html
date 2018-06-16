@@ -1,14 +1,19 @@
 {% extends "layout.html" %}
 {% block body %}
-  <div class="row">
-    <div class="col-lg-12 table-responsive">
-      {% if assets|length %}
+<div class="row">
+  <div class="col-lg-12">
+    <form>
+      <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exampleModal" >Add device</button>
+    </form>
+    {% if assets|length %}
+    <div class="table-responsive">
       <table class="table table-hover">
         <thead>
           <tr>
             <th>Device ID</th>
             <th>Last activity</th>
             <th>Connection state</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -17,28 +22,58 @@
             <td><a href="/devices/{{ asset.deviceId }}">{{ asset.deviceId }}</a></td>
             <td>{{ asset.lastActivityTime }}</td>
             <td>{{ asset.connectionState }}</td>
+            <td><button class="btn btn-light"><i class="fa fa-times" aria-hidden="true"></i></button></td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
-      {% else %}
-      <div class="jumbotron">
-        <p class="lead">Create IoTHub devices to generate data for model training.</p>
-        <hr class="my-4">
-        <p>Looks like no devices are currently present in the identity registry.</p>
-        <p class="lead">
-          <form action="/createDevices" method="POST">
-            <button class="btn btn-primary btn-lg" href="#" role="button">Create devices</button>
-          </form>
-        </p>
-      </div>
-      {% endif %}
     </div>
+    {% else %}
+    <div class="jumbotron">
+      <p class="lead">Create IoTHub devices to generate data for model training.</p>
+      <hr class="my-4">
+      <p>Looks like no devices are currently present in the identity registry.</p>
+      <p class="lead">
+        <form action="/createDevices" method="POST">
+          <button class="btn btn-primary btn-lg" href="#" role="button">Create devices</button>
+        </form>
+      </p>
+    </div>
+    {% endif %}
+  </div>
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Create new simulated IoT device</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="form-group">
+                <label for="recipient-name" class="control-label">Device ID:</label>
+                <input type="text" class="form-control" id="recipient-name">
+              </div>
+              <div class="form-group">
+                <label for="message-text" class="control-label">Simulation parameters (JSON):</label>
+                <textarea class="form-control" id="message-text">{
+                        'simulator': 'devices.engines.Engine',
+                        'health': [0.8, 0.6]
+                }</textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Create</button>
+          </div>
+        </div>
+      </div>
   </div>
 </div>
 {% endblock %}
 {% block script %}
 <script>
 
-</script>  
+</script>
 {% endblock %}

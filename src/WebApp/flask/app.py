@@ -38,7 +38,7 @@ DATABRICKS_WORKSPACE = os.environ['DATABRICKS_WORKSPACE_LOGIN_URL']
 
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
-def login_required(f):    
+def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'x-ms-token-aad-refresh-token' not in request.headers:
@@ -75,44 +75,27 @@ def devices():
     devices.sort(key = lambda x: x.deviceId)
     return render_template('devices.html', assets = devices)
 
-@app.route('/createDevices', methods=['POST'])
+@app.route('/api/devices', methods=['PUT'])
 @login_required
-def create_devices():
+def create_device():
+    device_id = request.form['device_id']
     iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
-    iot_device_count = 10
-
-    devices = []
-    for i in range(iot_device_count):
-        device_id = 'MACHINE-{0:03d}'.format(i)
-        device = iot_hub.create_device(device_id)
-        devices.append(device)
-
-    rotor_imbalance_device_id = devices[-1].deviceId
-    low_pressure_device_id = devices[-2].deviceId
-
-    def failure_onset(device_id):
-        if device_id == rotor_imbalance_device_id:
-            return 'F01'
-        if device_id == low_pressure_device_id:
-            return 'F02'
-        return None
-
-    for device in devices:
-        twin_properties = {
-            'tags': {
-                'simulated': True,
-                'simulator': 'devices.engines.Engine'
-            },
-            'properties': {
-                'desired': {
-                    'speed': random.randint(600, 1500),
-                    'mode': 'auto',
-                    'failureOnset': failure_onset(device.deviceId)
-                }
+    device = iot_hub.create_device(device_id)
+    twin_properties = {
+        'tags': {
+            'simulated': True,
+            'simulator': 'devices.engines.Engine'
+        },
+        'properties': {
+            'desired': {
+                'speed': random.randint(600, 1500),
+                'mode': 'auto',
+                'failureOnset': failure_onset(device.deviceId)
             }
         }
+    }
 
-        iot_hub.update_twin(device.deviceId, json.dumps(twin_properties))
+    iot_hub.update_twin(device_id, json.dumps(twin_properties))
 
     return redirect(url_for('devices'))
 
@@ -177,7 +160,7 @@ def get_access_token():
     return access_token
 
 
-def parse_website_owner_name():    
+def parse_website_owner_name():
     owner_name = os.environ['WEBSITE_OWNER_NAME']
     subscription, resource_group_location = owner_name.split('+', 1)
     resource_group, location = resource_group_location.split('-', 1)
@@ -203,7 +186,7 @@ def get_intelligence():
     device_ids = [d.deviceId for d in devices]
 
     latest_predictions = table_service.query_entities('predictions', filter="PartitionKey eq '_INDEX_'")
-    
+
     predictions_by_machine = dict([(p.RowKey, (p.Prediction, p.Date)) for p in  latest_predictions])
     unknown_predictions = dict([(device_id, ('Unknown', None)) for device_id in device_ids if device_id not in predictions_by_machine])
     combined = {**predictions_by_machine, **unknown_predictions}
