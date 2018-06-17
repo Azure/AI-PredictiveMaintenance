@@ -79,25 +79,33 @@ def devices():
 @login_required
 def create_device():
     device_id = request.form['device_id']
+    simulation_properties = json.loads(request.form['simulation_properties'])
+
     iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
     device = iot_hub.create_device(device_id)
+
+    tags = {
+        'simulated': True
+    }
+
+    tags.update(simulation_properties)
+
     twin_properties = {
-        'tags': {
-            'simulated': True,
-            'simulator': 'devices.engines.Engine'
-        },
-        'properties': {
-            'desired': {
-                'speed': random.randint(600, 1500),
-                'mode': 'auto',
-                'failureOnset': failure_onset(device.deviceId)
-            }
-        }
+        'tags': tags
     }
 
     iot_hub.update_twin(device_id, json.dumps(twin_properties))
+    resp = Response()
+    return resp
 
-    return redirect(url_for('devices'))
+@app.route('/api/devices/<device_id>', methods=['DELETE'])
+@login_required
+def delete_device(device_id):
+    iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
+    iot_hub.delete_device(device_id)
+
+    resp = Response()
+    return resp
 
 def view_asset_dlc(*args, **kwargs):
     device_id = request.view_args['device_id']

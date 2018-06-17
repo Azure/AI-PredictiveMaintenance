@@ -3,7 +3,7 @@
 <div class="row">
   <div class="col-lg-12">
     <form>
-      <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exampleModal" >Add device</button>
+      <button type="button" class="btn btn-default" data-toggle="modal" data-target="#new-device-modal" >Add device</button>
     </form>
     {% if assets|length %}
     <div class="table-responsive">
@@ -22,7 +22,7 @@
             <td><a href="/devices/{{ asset.deviceId }}">{{ asset.deviceId }}</a></td>
             <td>{{ asset.lastActivityTime }}</td>
             <td>{{ asset.connectionState }}</td>
-            <td><button class="btn btn-light"><i class="fa fa-times" aria-hidden="true"></i></button></td>
+            <td><button class="btn btn-light delete-device-button" data-device="{{ asset.deviceId }}"><i class="fa fa-times" aria-hidden="true"></i></button></td>
           </tr>
           {% endfor %}
         </tbody>
@@ -41,25 +41,22 @@
     </div>
     {% endif %}
   </div>
-  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+  <div class="modal fade" id="new-device-modal" tabindex="-1" role="dialog" aria-labelledby="new-device-modal-label">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Create new simulated IoT device</h5>
+            <h5 class="modal-title" id="new-device-modal-label">Create new simulated IoT device</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
           </div>
           <div class="modal-body">
             <form>
               <div class="form-group">
-                <label for="recipient-name" class="control-label">Device ID:</label>
-                <input type="text" class="form-control" id="recipient-name">
+                <label for="device-id" class="control-label">Device ID:</label>
+                <input type="text" class="form-control" id="device-id">
               </div>
               <div class="form-group">
-                <label for="message-text" class="control-label">Simulation parameters (JSON):</label>
-                <textarea class="form-control" id="message-text">{
-                        'simulator': 'devices.engines.Engine',
-                        'health': [0.8, 0.6]
-                }</textarea>
+                <label for="simulation-properties" class="control-label">Simulation parameters (JSON):</label>
+                <textarea rows=5 class="form-control" id="simulation-properties"></textarea>
               </div>
             </form>
           </div>
@@ -74,6 +71,43 @@
 {% endblock %}
 {% block script %}
 <script>
+$('#new-device-modal').on('show.bs.modal', function (event) {
+  var modal = $(this);
+  var defaultParameters = {
+    'simulator': 'devices.engines.Engine',
+    'h1': 0.85,
+    'h2': 0.82
+  };
+  modal.find('textarea').text(JSON.stringify(defaultParameters, null, 2));
+});
+
+$('#new-device-modal .btn-primary').click(function() {
+  $("#new-device-modal form").submit();
+});
+
+$("#new-device-modal form").on('submit', function(event) {
+  event.preventDefault();
+  $.ajax({
+    url: '/api/devices',
+    method: 'PUT',
+    data: {
+        device_id: $('#device-id').val(),
+        simulation_properties: $('#simulation-properties').val()
+    }
+  }).done(function(response){
+    // refresh
+  });
+});
+
+$('.delete-device-button').click(function() {
+  var deviceId = $(this).attr('data-device');
+  $.ajax({
+    url: '/api/devices/' + deviceId,
+    method: 'DELETE'
+  }).done(function(response) {
+    // refresh
+  });
+});
 
 </script>
 {% endblock %}
