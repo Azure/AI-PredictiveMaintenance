@@ -59,6 +59,7 @@
   </nav>
   <div class="content-wrapper">
     <div class="container-fluid">
+      <div id="alert-container"></div>
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
       {%- for breadcrumb in breadcrumbs -%}
@@ -67,7 +68,6 @@
        </li>
       {%- endfor -%}
       </ol>
-
       {% block body %}{% endblock %}
 
     </div>
@@ -79,20 +79,22 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   </div>
+  <script>
+    function displayAlert(message, alertClass) {
+      var alertNode = $($('#alert-template').html());
+      alertNode.addClass(alertClass);
+      alertNode.children().first().html(message);
+      alertNode.appendTo($('#alert-container'));
+    }
+  </script>
+  {% block script %}{% endblock %}
+  <div id="alert-template">
+    <div class="alert alert-dismissible fade show" role="alert">
+      <span></span>
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  </div>
 </body>
 </html>
-
-<style>
-  #data {
-    text-align: center;
-  }
-  #spinner {
-      font-size: 50px;
-  }
-  #clusterspinner {
-      font-size: 25px;
-  }
-
-</style>
-
-{% block script %}{% endblock %}

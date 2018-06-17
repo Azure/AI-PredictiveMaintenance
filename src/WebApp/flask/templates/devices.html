@@ -4,10 +4,10 @@
   <div class="col-lg-12">
     <form>
       <button type="button" class="btn btn-default" data-toggle="modal" data-target="#new-device-modal" >Add device</button>
+      <button type="button" class="btn btn-default pull-right" id="refresh-button"><i class="fa fa-refresh"></i></button>
     </form>
-    {% if assets|length %}
     <div class="table-responsive">
-      <table class="table table-hover">
+      <table id="devices-table" class="table table-hover">
         <thead>
           <tr>
             <th>Device ID</th>
@@ -17,46 +17,28 @@
           </tr>
         </thead>
         <tbody>
-          {% for asset in assets %}
-          <tr>
-            <td><a href="/devices/{{ asset.deviceId }}">{{ asset.deviceId }}</a></td>
-            <td>{{ asset.lastActivityTime }}</td>
-            <td>{{ asset.connectionState }}</td>
-            <td><button class="btn btn-light delete-device-button" data-device="{{ asset.deviceId }}"><i class="fa fa-times" aria-hidden="true"></i></button></td>
-          </tr>
-          {% endfor %}
         </tbody>
       </table>
     </div>
-    {% else %}
-    <div class="jumbotron">
-      <p class="lead">Create IoTHub devices to generate data for model training.</p>
-      <hr class="my-4">
-      <p>Looks like no devices are currently present in the identity registry.</p>
-      <p class="lead">
-        <form action="/createDevices" method="POST">
-          <button class="btn btn-primary btn-lg" href="#" role="button">Create devices</button>
-        </form>
-      </p>
-    </div>
-    {% endif %}
   </div>
   <div class="modal fade" id="new-device-modal" tabindex="-1" role="dialog" aria-labelledby="new-device-modal-label">
-      <div class="modal-dialog" role="document">
+      <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="new-device-modal-label">Create new simulated IoT device</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
           </div>
           <div class="modal-body">
-            <form>
-              <div class="form-group">
+            <form novalidate>
+              <div class="form-group" id="device-id-group">
                 <label for="device-id" class="control-label">Device ID:</label>
-                <input type="text" class="form-control" id="device-id">
+                <input type="text" class="form-control" id="device-id" required>
+                <div class="invalid-feedback"></div>
               </div>
-              <div class="form-group">
+              <div class="form-group" id="simulation-parameters-group">
                 <label for="simulation-properties" class="control-label">Simulation parameters (JSON):</label>
                 <textarea rows=5 class="form-control" id="simulation-properties"></textarea>
+                <div class="invalid-feedback"></div>
               </div>
             </form>
           </div>
@@ -71,43 +53,95 @@
 {% endblock %}
 {% block script %}
 <script>
-$('#new-device-modal').on('show.bs.modal', function (event) {
-  var modal = $(this);
-  var defaultParameters = {
-    'simulator': 'devices.engines.Engine',
-    'h1': 0.85,
-    'h2': 0.82
-  };
-  modal.find('textarea').text(JSON.stringify(defaultParameters, null, 2));
-});
+$(document).ready(function() {
+  function reloadDevices() {
+    return $.get('/api/devices').done(function(response) {
+      var devicesTable = $('#devices-table');
+      var devicesTbody = devicesTable.find('tbody');
+      devicesTbody.empty();
+      $.each(response, function(i, device) {
+        child = $('<tr>')
+          .append($('<td><a href="/devices/' + device.deviceId + '">' + device.deviceId + '</a></td>'))
+          .append($('<td>' + device.lastActivityTime + '</td>'))
+          .append($('<td>' + device.connectionState + '</td>'))
+          .append($('<td><button class="btn btn-light delete-device-button" data-device="' + device.deviceId + '"><i class="fa fa-times" aria-hidden="true"></i></button></td>'))
+        devicesTbody.append(child);
+      });
 
-$('#new-device-modal .btn-primary').click(function() {
-  $("#new-device-modal form").submit();
-});
+      $('.delete-device-button').click(function() {
+        var deviceId = $(this).attr('data-device');
+        $.ajax({
+          url: '/api/devices/' + deviceId,
+          method: 'DELETE'
+        }).done(function(response) {
+          reloadDevices().done(function(){
+            displayAlert('Device <strong>' + deviceId + '</strong> was successfully deleted.', 'alert-success');
+          });
+        }).fail(function(response) {
+        })
+      });
 
-$("#new-device-modal form").on('submit', function(event) {
-  event.preventDefault();
-  $.ajax({
-    url: '/api/devices',
-    method: 'PUT',
-    data: {
-        device_id: $('#device-id').val(),
-        simulation_properties: $('#simulation-properties').val()
-    }
-  }).done(function(response){
-    // refresh
+    });
+  }
+
+  reloadDevices();
+
+  function clearValidationErrors(modal) {
+    var modal = $('#new-device-modal');
+    modal.find('input, textarea').removeClass('is-invalid');
+  }
+
+  $('#new-device-modal').on('show.bs.modal', function (event) {
+    var modal = $(this);
+    var defaultParameters = {
+      'simulator': 'devices.engines.Engine',
+      'h1': 0.85,
+      'h2': 0.82
+    };
+    clearValidationErrors();
+    modal.find('textarea').text(JSON.stringify(defaultParameters, null, 2));
+  });
+
+  $('#new-device-modal .btn-primary').click(function() {
+    $("#new-device-modal form").submit();
+  });
+
+  $("#new-device-modal form").on('submit', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    var deviceId = $('#device-id').val();
+    $.ajax({
+      url: '/api/devices',
+      method: 'PUT',
+      data: {
+          deviceId: deviceId,
+          simulationProperties: $('#simulation-properties').val()
+      }
+    }).done(function(response){
+      reloadDevices().done(function() {
+        displayAlert('Device <strong>' + deviceId + '</strong> was successfully created.', 'alert-success');
+        $('#new-device-modal .close').click();
+      });
+    }).fail(function(response) {
+      clearValidationErrors();
+      var responseObj = response.responseJSON;
+      switch (responseObj.code) {
+        case 'INVALID_ID':
+          var deviceIdGroup = $('#device-id-group');
+          deviceIdGroup.find('div.invalid-feedback').text(responseObj.message);
+          deviceIdGroup.find('input').addClass('is-invalid');
+          break;
+        case 'INVALID_PARAMETERS':
+          var deviceIdGroup = $('#simulation-parameters-group');
+          deviceIdGroup.find('div.invalid-feedback').text(responseObj.message);
+          deviceIdGroup.find('textarea').addClass('is-invalid');
+          break;
+      }
+    });
+  });
+  $('#refresh-button').click(function() {
+    reloadDevices();
   });
 });
-
-$('.delete-device-button').click(function() {
-  var deviceId = $(this).attr('data-device');
-  $.ajax({
-    url: '/api/devices/' + deviceId,
-    method: 'DELETE'
-  }).done(function(response) {
-    // refresh
-  });
-});
-
 </script>
 {% endblock %}

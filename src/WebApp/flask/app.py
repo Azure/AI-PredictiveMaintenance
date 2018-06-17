@@ -19,6 +19,7 @@ from azure.storage.blob.models import BlobPermissions
 from azure.storage.table import TableService, Entity, TablePermissions
 from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 from iot_hub_helpers import IoTHub
+from http import HTTPStatus
 
 app = Flask(__name__)
 app.debug = True
@@ -34,7 +35,7 @@ STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 IOT_HUB_OWNER_KEY = os.environ['IOT_HUB_OWNER_KEY']
 DSVM_NAME = os.environ['DSVM_NAME']
-DATABRICKS_WORKSPACE = os.environ['DATABRICKS_WORKSPACE_LOGIN_URL']
+DATABRICKS_WORKSPACE_LOGIN_URL = os.environ['DATABRICKS_WORKSPACE_LOGIN_URL']
 
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
@@ -70,33 +71,64 @@ def home():
 @register_breadcrumb(app, '.devices', 'IoT Devices')
 @login_required
 def devices():
+    return render_template('devices.html')
+
+def error_response(error_code, message, http_status_code):
+    data = {
+        'code': error_code,
+        'message': message
+    }
+
+    return Response(json.dumps(data), http_status_code, mimetype='application/json')
+
+@app.route('/api/devices', methods=['GET'])
+@login_required
+def get_devices():
     iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
     devices = iot_hub.get_device_list()
     devices.sort(key = lambda x: x.deviceId)
-    return render_template('devices.html', assets = devices)
+    device_properties = json.dumps([{
+        'deviceId': device.deviceId,
+        'lastActivityTime': device.lastActivityTime,
+        'connectionState':str(device.connectionState) } for device in devices])
+    return Response(device_properties, mimetype='application/json')
 
 @app.route('/api/devices', methods=['PUT'])
 @login_required
 def create_device():
-    device_id = request.form['device_id']
-    simulation_properties = json.loads(request.form['simulation_properties'])
+    device_id = str.strip(request.form['deviceId'])
+ 
+    if not device_id:
+        return error_response('INVALID_ID', 'Device ID cannot be empty.', HTTPStatus.BAD_REQUEST)
+        
+    try:
+        simulation_properties = json.loads(request.form['simulationProperties'])
+    except Exception as e:
+        return error_response('INVALID_PARAMETERS', str(e), HTTPStatus.BAD_REQUEST)
 
     iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
-    device = iot_hub.create_device(device_id)
+
+    try:
+        iot_hub.create_device(device_id)
+    except Exception as e:
+        return error_response('INVALID_ID', str(e), HTTPStatus.BAD_REQUEST)
 
     tags = {
         'simulated': True
     }
-
     tags.update(simulation_properties)
 
     twin_properties = {
         'tags': tags
     }
 
-    iot_hub.update_twin(device_id, json.dumps(twin_properties))
-    resp = Response()
-    return resp
+    try:
+        iot_hub.update_twin(device_id, json.dumps(twin_properties))
+    except Exception as e:
+        return error_response('INVALID_PARAMETERS', str(e), HTTPStatus.BAD_REQUEST)
+
+    return Response()
+
 
 @app.route('/api/devices/<device_id>', methods=['DELETE'])
 @login_required
@@ -178,7 +210,7 @@ def parse_website_owner_name():
 @register_breadcrumb(app, '.modeling', 'Modeling')
 @login_required
 def analytics():
-    return render_template('modeling.html', dsvmName = DSVM_NAME, databricks_workspace= DATABRICKS_WORKSPACE)
+    return render_template('modeling.html', dsvmName = DSVM_NAME, databricks_workspace= DATABRICKS_WORKSPACE_LOGIN_URL)
 
 @app.route('/intelligence')
 @register_breadcrumb(app, '.intelligence', 'Intelligence')
