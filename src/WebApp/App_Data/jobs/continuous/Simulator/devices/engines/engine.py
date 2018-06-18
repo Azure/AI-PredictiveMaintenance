@@ -30,7 +30,7 @@ class Engine(SimulatedDevice):
 
         h1 = h_generator(ttf1, d, a, b)
         h2 = h_generator(ttf2, d, a, b)
-        
+
         self.digital_twin = RotationalMachine(device_id, h1, h2)
         return True
 
@@ -49,18 +49,18 @@ class Engine(SimulatedDevice):
 
         cycle_length_min = 1
         cycle_length_max = 5
-        
+
         while True: # cycle
-            l = random.randint(cycle_length_min, cycle_length_max)        
+            l = random.randint(cycle_length_min, cycle_length_max)
             duration = l * 60
             cooldown_point = duration - 20
-            
+
             self.digital_twin.set_speed(1000)
-            
+
             for i in range(duration):
                 if i == cooldown_point:
                     self.digital_twin.set_speed(0)
-                                
+
                 try:
                     interval_start = time.time()
                     state = self.digital_twin.next_state()
@@ -82,7 +82,7 @@ class Engine(SimulatedDevice):
 
                     time_elapsed = time.time() - interval_start
                     time.sleep(max(1 - time_elapsed, 0))
-                    
+
                     if not state['speed']:
                         break
                 except Exception as e:

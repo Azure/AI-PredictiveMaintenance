@@ -19,6 +19,7 @@ from azure.storage.blob.models import BlobPermissions
 from azure.storage.table import TableService, Entity, TablePermissions
 from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 from iot_hub_helpers import IoTHub
+from http import HTTPStatus
 
 app = Flask(__name__)
 app.debug = True
@@ -34,11 +35,11 @@ STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 IOT_HUB_OWNER_KEY = os.environ['IOT_HUB_OWNER_KEY']
 DSVM_NAME = os.environ['DSVM_NAME']
-DATABRICKS_WORKSPACE = os.environ['DATABRICKS_WORKSPACE_LOGIN_URL']
+DATABRICKS_WORKSPACE_LOGIN_URL = os.environ['DATABRICKS_WORKSPACE_LOGIN_URL']
 
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
-def login_required(f):    
+def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'x-ms-token-aad-refresh-token' not in request.headers:
@@ -70,51 +71,73 @@ def home():
 @register_breadcrumb(app, '.devices', 'IoT Devices')
 @login_required
 def devices():
+    return render_template('devices.html')
+
+def error_response(error_code, message, http_status_code):
+    data = {
+        'code': error_code,
+        'message': message
+    }
+
+    return Response(json.dumps(data), http_status_code, mimetype='application/json')
+
+@app.route('/api/devices', methods=['GET'])
+@login_required
+def get_devices():
     iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
     devices = iot_hub.get_device_list()
     devices.sort(key = lambda x: x.deviceId)
-    return render_template('devices.html', assets = devices)
+    device_properties = json.dumps([{
+        'deviceId': device.deviceId,
+        'lastActivityTime': device.lastActivityTime,
+        'connectionState':str(device.connectionState) } for device in devices])
+    return Response(device_properties, mimetype='application/json')
 
-@app.route('/createDevices', methods=['POST'])
+@app.route('/api/devices', methods=['PUT'])
 @login_required
-def create_devices():
+def create_device():
+    device_id = str.strip(request.form['deviceId'])
+ 
+    if not device_id:
+        return error_response('INVALID_ID', 'Device ID cannot be empty.', HTTPStatus.BAD_REQUEST)
+        
+    try:
+        simulation_properties = json.loads(request.form['simulationProperties'])
+    except Exception as e:
+        return error_response('INVALID_PARAMETERS', str(e), HTTPStatus.BAD_REQUEST)
+
     iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
-    iot_device_count = 10
 
-    devices = []
-    for i in range(iot_device_count):
-        device_id = 'MACHINE-{0:03d}'.format(i)
-        device = iot_hub.create_device(device_id)
-        devices.append(device)
+    try:
+        iot_hub.create_device(device_id)
+    except Exception as e:
+        return error_response('INVALID_ID', str(e), HTTPStatus.BAD_REQUEST)
 
-    rotor_imbalance_device_id = devices[-1].deviceId
-    low_pressure_device_id = devices[-2].deviceId
+    tags = {
+        'simulated': True
+    }
+    tags.update(simulation_properties)
 
-    def failure_onset(device_id):
-        if device_id == rotor_imbalance_device_id:
-            return 'F01'
-        if device_id == low_pressure_device_id:
-            return 'F02'
-        return None
+    twin_properties = {
+        'tags': tags
+    }
 
-    for device in devices:
-        twin_properties = {
-            'tags': {
-                'simulated': True,
-                'simulator': 'devices.engines.Engine'
-            },
-            'properties': {
-                'desired': {
-                    'speed': random.randint(600, 1500),
-                    'mode': 'auto',
-                    'failureOnset': failure_onset(device.deviceId)
-                }
-            }
-        }
+    try:
+        iot_hub.update_twin(device_id, json.dumps(twin_properties))
+    except Exception as e:
+        return error_response('INVALID_PARAMETERS', str(e), HTTPStatus.BAD_REQUEST)
 
-        iot_hub.update_twin(device.deviceId, json.dumps(twin_properties))
+    return Response()
 
-    return redirect(url_for('devices'))
+
+@app.route('/api/devices/<device_id>', methods=['DELETE'])
+@login_required
+def delete_device(device_id):
+    iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
+    iot_hub.delete_device(device_id)
+
+    resp = Response()
+    return resp
 
 def view_asset_dlc(*args, **kwargs):
     device_id = request.view_args['device_id']
@@ -177,7 +200,7 @@ def get_access_token():
     return access_token
 
 
-def parse_website_owner_name():    
+def parse_website_owner_name():
     owner_name = os.environ['WEBSITE_OWNER_NAME']
     subscription, resource_group_location = owner_name.split('+', 1)
     resource_group, location = resource_group_location.split('-', 1)
@@ -187,7 +210,7 @@ def parse_website_owner_name():
 @register_breadcrumb(app, '.modeling', 'Modeling')
 @login_required
 def analytics():
-    return render_template('modeling.html', dsvmName = DSVM_NAME, databricks_workspace= DATABRICKS_WORKSPACE)
+    return render_template('modeling.html', dsvmName = DSVM_NAME, databricks_workspace= DATABRICKS_WORKSPACE_LOGIN_URL)
 
 @app.route('/intelligence')
 @register_breadcrumb(app, '.intelligence', 'Intelligence')
@@ -203,7 +226,7 @@ def get_intelligence():
     device_ids = [d.deviceId for d in devices]
 
     latest_predictions = table_service.query_entities('predictions', filter="PartitionKey eq '_INDEX_'")
-    
+
     predictions_by_machine = dict([(p.RowKey, (p.Prediction, p.Date)) for p in  latest_predictions])
     unknown_predictions = dict([(device_id, ('Unknown', None)) for device_id in device_ids if device_id not in predictions_by_machine])
     combined = {**predictions_by_machine, **unknown_predictions}

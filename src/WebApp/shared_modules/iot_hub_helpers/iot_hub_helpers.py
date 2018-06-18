@@ -26,6 +26,9 @@ class IoTHub:
     def create_device(self, device_id, primary_key = '', secondary_key = ''):
         return self.registry_manager.create_device(device_id, primary_key, secondary_key, IoTHubRegistryManagerAuthMethod.SHARED_PRIVATE_KEY)
 
+    def delete_device(self, device_id):
+        return self.registry_manager.delete_device(device_id)
+
     def get_device_list(self):
         return self.registry_manager.get_device_list(1000)  # NOTE: this API is marked as deprecated,
                                                             # but Python SDK doesn't seem to offer
@@ -84,7 +87,9 @@ class IoTHub:
         payload= json.dumps(payload_json)
 
         r = requests.patch(twin_url, data=payload, headers=headers)
-        assert r.status_code == HTTPStatus.OK
+
+        if r.status_code != HTTPStatus.OK:
+            raise Exception(r.text)
 
         return r.text
 
@@ -122,7 +127,7 @@ class IoTHub:
 
             if 'simulated' not in twin_tags or not twin_tags['simulated']:
                 continue
-            
+
             if 'simulator' not in twin_tags:
                 continue
 

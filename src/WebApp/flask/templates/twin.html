@@ -2,7 +2,7 @@
 {% block body %}
   <div class="row">
     <div class="col-sm-12">
-      <div id="sensor-cards" class="card-group">            
+      <div id="sensor-cards" class="card-group">
         <div class="card">
           <div class="card-body">
             <div class="btn-group btn-group-toggle pull-right" data-toggle="buttons">
@@ -12,7 +12,7 @@
               <label class="btn btn-light btn-sm">
                 <input type="radio" name="options" id="manual-mode" autocomplete="off"> Manual
               </label>
-            </div>            
+            </div>
             <h6 class="card-title">Speed</h6>
             <div>
               <p>
@@ -22,7 +22,7 @@
             <form id="set-speed-form" class="form-inline">
               <div class="form-group">
                 <label id="desired-speed-label" for="desired-speed-range"><i>Set speed</i>: </label>
-                  <input id="desired-speed-range" type="range" min="60" max="1500">                
+                  <input id="desired-speed-range" type="range" min="60" max="1500">
               </div>
             </form>
           </div>
@@ -47,7 +47,7 @@
             </div>
           </div>
         </div>
-      </div>     
+      </div>
     </div>
   </div>
   <div class="row">
@@ -57,16 +57,16 @@
   </div>
 {% endblock %}
 {% block script %}
-<script>  
+<script>
   var yAxisTitleFont = {
     family: 'Arial, sans-serif',
     size: 18
   };
 
   var xAxisTickFont = {
-    size: 10    
+    size: 10
   };
-  
+
   var yAxisTickFont = {
     size: 8
   };
@@ -74,13 +74,13 @@
 
   var layout = {
     title: 'Real-time sensor data',
-    autosize: true,    
+    autosize: true,
     height: 800,
-    showlegend: false, 
+    showlegend: false,
     xaxis: {
       type: 'date',
       fixedrange: true,
-      tickfont: xAxisTickFont      
+      tickfont: xAxisTickFont
     },
     yaxis: {
       title: 'Speed (RPM)',
@@ -110,14 +110,14 @@
       tickfont: yAxisTickFont
     },
     legend: {
-      "orientation": "h", 
+      "orientation": "h",
       y: 100
     },
     xaxis2: {
       anchor: 'y2',
       type: 'date',
       fixedrange: true,
-      showticklabels: false      
+      showticklabels: false
     },
     xaxis3: {
       anchor: 'y3',
@@ -128,21 +128,21 @@
   };
 
   var trace1 = {
-    name: 'Speed (RPM)',    
+    name: 'Speed (RPM)',
     x: [],
     y: [],
     mode: 'lines'
   };
-  
+
   var trace2 = {
     name: 'Temperature (°C)',
     x: [],
     y: [],
-    xaxis: 'x2',    
+    xaxis: 'x2',
     yaxis: 'y2',
     mode: 'lines'
   };
-  
+
   var trace3 = {
     name: 'Pressure (kPa)',
     x: [],
@@ -158,22 +158,22 @@
 
   function pollLatestData() {
     $.get('/api/devices/{{device_id}}').done(function(twin) {
-      var timestamp = Date.parse(twin.properties.reported.$metadata.$lastUpdated); 
+      var timestamp = Date.parse(twin.properties.reported.$metadata.$lastUpdated);
       var desiredProperties = twin.properties.desired;
-      var reportedProperties = twin.properties.reported;      
-      
+      var reportedProperties = twin.properties.reported;
+
       var time = new Date();
-      
+
       var update = {
         x: [[timestamp],[timestamp],[timestamp]],
         y: [[reportedProperties.speed],[reportedProperties.temperature],[reportedProperties.pressure]]
       };
-      
+
       if (!$('#desired-speed').text()) {
         $('#desired-speed').text(desiredProperties.speed);
         $('#desired-speed-range').val(desiredProperties.speed);
       }
-      
+
       var autoPilotMode = desiredProperties.mode === 'auto';
       $('#desired-speed-range').prop('disabled', autoPilotMode);
       if (autoPilotMode) {
@@ -183,15 +183,15 @@
         $('#autopilot-mode').parent().removeClass('active');
         $('#manual-mode').parent().addClass('active');
       }
-      
+
       $('#ambient-temperature').text(reportedProperties.ambientTemperature);
       $('#ambient-pressure').text(reportedProperties.ambientPressure);
-    
+
       var rangeMin = new Date(time.getTime() - 30000);
-    
+
       layout.xaxis.range = layout.xaxis2.range = layout.xaxis3.range = [rangeMin, time];
       Plotly.relayout('sensor-stream', layout);
-      
+
       Plotly.extendTraces('sensor-stream', update, [0, 1, 2]);
     }).always(function() {
       window.setTimeout(pollLatestData, 1000);
@@ -199,7 +199,7 @@
   }
 
   pollLatestData();
-  
+
   function setDesiredSpeed(speed) {
     $.ajax({
       type: "POST",
@@ -209,7 +209,7 @@
       }
     });
   }
-  
+
   function setMode(mode) {
     return $.ajax({
       type: "POST",
@@ -219,19 +219,19 @@
       }
     });
   }
-  
+
   var timeoutHandle = 0;
   $('#desired-speed-range').on('input', function(val) {
     var value = $(this).val();
     $('#desired-speed').text(value);
     window.clearTimeout(timeoutHandle);
-    timeoutHandle = window.setTimeout(setDesiredSpeed, 300, value);    
+    timeoutHandle = window.setTimeout(setDesiredSpeed, 300, value);
   });
-  
+
   $('#autopilot-mode').on('change', function() {
     setMode('auto');
   });
-  
+
   $('#manual-mode').on('change', function() {
     setMode('manual');
   });

@@ -478,3 +478,7 @@ div.modeling img.target-logo {
 div.modeling .tab-content p {
   max-width: 600px;
 }
+
+#alert-template {
+  display: none;
+}
