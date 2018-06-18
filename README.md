@@ -17,14 +17,14 @@ This open-source solution template showcases a complete Azure infrastructure cap
 
 ## Requirements
 
-* You will need an [Azure subscription](https://azure.microsoft.com/en-us/pricing/) to get started.
-* Deploying the solution will provision a resource group in your subscription, and instances of each of the following resources in that resource group:
-  * an [Azure Storage](https://docs.microsoft.com/en-us/azure/storage/) account for staging of real-time and stationary data,
-  * a [Data Science Virtual Machine (DSVM)](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/) for orchestrating the modeling workflow,
-  * an [Azure Machine Learning v2.0](https://docs.microsoft.com/en-us/azure/machine-learning/service/) account for model management and operationalization of the model, 
-  * an [Azure Databricks](https://docs.microsoft.com/en-us/azure/azure-databricks/) workspace for feature engineering,
-  * an [Azure IoT Hub](https://docs.microsoft.com/en-us/azure/iot-hub/) for ingestion of real-time data,
-  * and an [Azure Container Instances (ACI)](https://docs.microsoft.com/en-us/azure/container-instances/) cluster for real-time scoring.
+You will need an [Azure subscription](https://azure.microsoft.com/en-us/pricing/) to get started.
+
+Deploying the solution will create a resource group in your subscription and populate it with the following resources:
+  * [Azure Storage](https://docs.microsoft.com/en-us/azure/storage/) account
+  * [Data Science Virtual Machine (DSVM)](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/)
+  * [Azure Databricks](https://docs.microsoft.com/en-us/azure/azure-databricks/) workspace and cluster
+  * [Azure IoT Hub](https://docs.microsoft.com/en-us/azure/iot-hub/)
+  * [Azure Container Instances (ACI)](https://docs.microsoft.com/en-us/azure/container-instances/) application
 
 ## Reporting Issues and Feedback
 
