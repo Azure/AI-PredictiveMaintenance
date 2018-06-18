@@ -24,8 +24,7 @@ This open-source solution template showcases a complete Azure infrastructure cap
   * an [Azure Machine Learning v2.0](https://docs.microsoft.com/en-us/azure/machine-learning/service/) account for model management and operationalization of the model, 
   * an [Azure Databricks](https://docs.microsoft.com/en-us/azure/azure-databricks/) workspace for feature engineering,
   * an [Azure IoT Hub](https://docs.microsoft.com/en-us/azure/iot-hub/) for ingestion of real-time data,
-  * an [Azure Service Bus](https://docs.microsoft.com/en-us/azure/service-bus-messaging/) to orchestrate the scoring workflow,
-  * and an [Azure Kubernetes Service (AKS)](https://docs.microsoft.com/en-us/azure/aks/) cluster for real-time scoring.
+  * and an [Azure Container Instances (ACI)](https://docs.microsoft.com/en-us/azure/container-instances/) cluster for real-time scoring.
 
 ## Reporting Issues and Feedback
 
