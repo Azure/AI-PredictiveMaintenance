@@ -23,20 +23,27 @@ class Engine(SimulatedDevice):
         # the inverse of the health function
         ttf = lambda h: math.pow((math.log(1 - d - h) / a), 1 / b)
 
-        ttf1 = ttf(float(tags['h1']))
-        ttf2 = ttf(float(tags['h2']))
+        h1_initial = float(tags['h1'])
+        h2_initial = float(tags['h2'])
+
+        if 'h1' in properties_reported and 'h2' in properties_reported:
+            h1_initial = float(properties_reported['h1'])
+            h2_initial = float(properties_reported['h2'])
+        
+        ttf1 = ttf(h1_initial)
+        ttf2 = ttf(h2_initial)
 
         def h_generator(ttf, d, a, b, th = 0):
-            for t in range(ttf, -1, -1):
+            for t in range(int(ttf), -1, -1):
                 h = 1 - d - math.exp(a*t**b)
                 if h < th:
                     break
                 yield t, h
 
-        h1 = h_generator(ttf1, d, a, b)
-        h2 = h_generator(ttf2, d, a, b)
+        h1_gen = h_generator(ttf1, d, a, b)
+        h2_gen = h_generator(ttf2, d, a, b)
 
-        self.digital_twin = RotationalMachine(device_id, h1, h2)
+        self.digital_twin = RotationalMachine(device_id, h1_gen, h2_gen)
         return True
 
     def on_update(self, update_state, properties_json):
@@ -48,6 +55,12 @@ class Engine(SimulatedDevice):
             mode = properties_json['mode']
             self.log(mode, 'MODE_CHANGE')
             self.auto_pilot = mode == 'auto'
+
+    def report_health(self):
+        self.report_state({
+            'h1': self.digital_twin.h1,
+            'h2': self.digital_twin.h2
+        })
 
     def run(self):
         self.log('Simulation started.')
@@ -77,18 +90,15 @@ class Engine(SimulatedDevice):
                     telemetry_json = json.dumps(state)
                     self.send_telemetry(telemetry_json)
 
-                    # self.report_state({
-                    #     'h1': self.digital_twin.h1,
-                    #     'h2': self.digital_twin.h2
-                    # })
-
                     time_elapsed = time.time() - interval_start
                     time.sleep(max(1 - time_elapsed, 0))
 
                     if not state['speed']:
                         break
                 except Exception as e:
+                    self.report_health()
                     self.log('failure', str(e), logging.CRITICAL)
                     return
-
+            
+            self.report_health()
             time.sleep(60)

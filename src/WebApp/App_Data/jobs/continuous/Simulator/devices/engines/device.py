@@ -51,7 +51,6 @@ class RotationalMachine:
     ambient_pressure = 101 # kPa
 
     def __init__(self, name, h1, h2):
-        print(name)
         self.W = [1/2, 1, 2, 3, 5, 7, 12, 18]
         self.A = [1, 5, 80, 2/3, 8, 2, 14, 50]
         self.t = 0

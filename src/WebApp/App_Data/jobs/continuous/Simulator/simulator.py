@@ -26,7 +26,6 @@ IOT_HUB_DEVICE_KEY = os.environ['IOT_HUB_DEVICE_KEY']
 def claim_and_run_device(driver_id):
     iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
     device, device_twin = iot_hub.claim_device(driver_id)
-
     device_twin_json = json.loads(device_twin)
     device_id = device_twin_json['deviceId']
 
