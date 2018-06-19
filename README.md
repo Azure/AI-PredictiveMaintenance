@@ -21,6 +21,7 @@ You will need an [Azure subscription](https://azure.microsoft.com/en-us/pricing/
 
 Deploying the solution will create a resource group in your subscription and populate it with the following resources:
   * [Azure Storage](https://docs.microsoft.com/en-us/azure/storage/) account
+  * [Azure App Service](https://azure.microsoft.com/en-us/services/app-service/)
   * [Data Science Virtual Machine (DSVM)](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/)
   * [Azure Databricks](https://docs.microsoft.com/en-us/azure/azure-databricks/) workspace and cluster
   * [Azure IoT Hub](https://docs.microsoft.com/en-us/azure/iot-hub/)

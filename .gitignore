@@ -1,3 +1,4 @@
 *.zip
 *.pyc
 assets/*.sh
+version.info
