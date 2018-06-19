@@ -11,6 +11,7 @@ from .device import RotationalMachine
 class Engine(SimulatedDevice):
     def initialize(self, device_info):
         device_id = device_info['deviceId']
+        tags = device_info['tags']
         properties_desired = device_info['properties']['desired']
         properties_reported = device_info['properties']['reported']
 
@@ -18,8 +19,12 @@ class Engine(SimulatedDevice):
         a = -0.3
         b = 0.2
         th = 0.45
-        ttf1 = random.randint(5000, 50000)
-        ttf2 = random.randint(5000, 90000)
+
+        # the inverse of the health function
+        ttf = lambda h: math.pow((math.log(1 - d - h) / a), 1 / b)
+
+        ttf1 = ttf(float(tags['h1']))
+        ttf2 = ttf(float(tags['h2']))
 
         def h_generator(ttf, d, a, b, th = 0):
             for t in range(ttf, -1, -1):
@@ -73,12 +78,9 @@ class Engine(SimulatedDevice):
                     self.send_telemetry(telemetry_json)
 
                     # self.report_state({
-                    #     'speed': state['speed'],
-                    #     'temperature': state['temperature'],
-                    #     'pressure': state['pressure'],
-                    #     'ambientTemperature': state['ambient_temperature'],
-                    #     'ambientPressure': state['ambient_pressure']
-                    #     })
+                    #     'h1': self.digital_twin.h1,
+                    #     'h2': self.digital_twin.h2
+                    # })
 
                     time_elapsed = time.time() - interval_start
                     time.sleep(max(1 - time_elapsed, 0))
