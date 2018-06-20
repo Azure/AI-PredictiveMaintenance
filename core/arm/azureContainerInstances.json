@@ -1,0 +1,54 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+    },
+    "variables": {        
+        "namePrefix": "[resourceGroup().name]",
+        "unique": "[uniqueString(resourceGroup().id)]",
+        "containerName": "[concat('pdm', variables('unique'))]",
+        "location": "[resourceGroup().location]"
+    },
+    "resources": [
+        {
+            "comments": "Generalized from resource: '/subscriptions/786d6510-8f1e-4ae7-b55b-5178716e6ac8/resourceGroups/lakspdm/providers/Microsoft.ContainerInstance/containerGroups/lakspdm'.",
+            "type": "Microsoft.ContainerInstance/containerGroups",
+            "name": "[variables('containerName')]",
+            "apiVersion": "2018-04-01",
+            "location": "[variables('location')]",
+            "scale": null,
+            "properties": {
+                "containers": [
+                    {
+                        "name": "[variables('containerName')]",
+                        "properties": {
+                            "image": "predictivemaintenance/pdm-scoring-image",
+                            "command": [],
+                            "ports": [
+                                {
+                                    "protocol": "TCP",
+                                    "port": 5001
+                                }
+                            ],
+                            "environmentVariables": []
+                        }
+                    }
+                ],
+                "ipAddress": {
+                    "ports": [
+                        {
+                            "protocol": "TCP",
+                            "port": 5001
+                        }
+                    ],
+                    "type": "Public",
+                    "dnsNameLabel": "[variables('containerName')]"
+                }
+            },
+            "dependsOn": []
+        }
+    ],
+    "outputs": {
+        "azureContainerDNS": { "type": "string", "value": "[concat('http://', variables('containerName'), '/score')]" }
+    }
+}

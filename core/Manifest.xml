@@ -39,6 +39,7 @@
                 </Parameter>
             </Parameters>
         </Manual>
+        <ArmDeployment title="Creating Azure Container Instances" autoResolveParameters="true" source="arm/azureContainerInstances.json" />
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
         <ArmDeployment source="arm/iotHub.json" title="Creating IoT Hub" />
         <ArmDeployment source="arm/storageAccount.json" title="Creating storage account" />
@@ -89,7 +90,7 @@
         <ArmDeployment source="arm/linuxDsvm.json" title="Provisioning Linux DSVM" autoResolveParameters="true">
             <Parameters>
                 <Parameter name="fileUris" hidden="true" defaultValue="{PatternAssetBaseUrl}/setup.sh {PatternAssetBaseUrl}/Notebooks.zip" />
-                <Parameter name="commandToExecute" hidden="true" defaultValue="bash setup.sh {Outputs.databricksWorkspaceUrl} {Outputs.databricksToken}" />
+                <Parameter name="commandToExecute" hidden="true" defaultValue="bash setup.sh {Outputs.azureContainerDNS} {Outputs.databricksWorkspaceUrl} {Inputs.databricksToken}" />
             </Parameters>
         </ArmDeployment>
         <Manual title="Done">
