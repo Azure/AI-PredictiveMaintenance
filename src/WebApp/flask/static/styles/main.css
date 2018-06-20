@@ -482,3 +482,14 @@ div.modeling .tab-content p {
 #alert-template {
   display: none;
 }
+
+#version-info {
+  position: absolute;
+  bottom: -55px;
+  padding: 1em;
+  font-size: 8px;
+  color: darksalmon;
+  font-family: monospace;
+  width: 100%;
+  text-align: center;
+}

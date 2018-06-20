@@ -36,6 +36,7 @@ IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 IOT_HUB_OWNER_KEY = os.environ['IOT_HUB_OWNER_KEY']
 DSVM_NAME = os.environ['DSVM_NAME']
 DATABRICKS_WORKSPACE_LOGIN_URL = os.environ['DATABRICKS_WORKSPACE_LOGIN_URL']
+VERSION_INFO = open(os.path.join(os.path.dirname(__file__), 'version.info')).readlines()[0]
 
 table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
 
@@ -52,9 +53,11 @@ def get_identity():
     id_token = request.headers['x-ms-token-aad-id-token']
     return jwt.decode(id_token, verify=False)
 
-#@app.context_processor
+@app.context_processor
 def context_processor():
-    return dict(user_name=get_identity()['name'])
+    return dict(
+        #user_name=get_identity()['name']
+        version_info = VERSION_INFO)
 
 @app.route('/')
 @register_breadcrumb(app, '.', 'Home')

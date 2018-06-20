@@ -55,6 +55,7 @@
 <script>
 $(document).ready(function() {
   function reloadDevices() {
+    $('#refresh-button>i').addClass('fa-spin');
     return $.get('/api/devices').done(function(response) {
       var devicesTable = $('#devices-table');
       var devicesTbody = devicesTable.find('tbody');
@@ -80,7 +81,8 @@ $(document).ready(function() {
         }).fail(function(response) {
         })
       });
-
+    }).always(function() {
+      $('#refresh-button>i').removeClass('fa-spin');
     });
   }
 
