@@ -30,7 +30,13 @@
                                     "port": 5001
                                 }
                             ],
-                            "environmentVariables": []
+                            "environmentVariables": [],
+                            "resources": {
+                                "requests": {
+                                    "memoryInGB": 1,
+                                    "cpu": 1
+                                }
+                            }
                         }
                     }
                 ],
@@ -43,7 +49,8 @@
                     ],
                     "type": "Public",
                     "dnsNameLabel": "[variables('containerName')]"
-                }
+                },
+                "osType": "Linux"
             },
             "dependsOn": []
         }

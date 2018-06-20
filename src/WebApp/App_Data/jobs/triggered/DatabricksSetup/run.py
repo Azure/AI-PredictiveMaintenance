@@ -73,9 +73,7 @@ last_run_id = get_last_run_id()
 
 upload_notebooks_databricks()
 
-run_details = get_run(last_run_id)
-
-if last_run_id and is_job_active(run_details):
+if last_run_id and is_job_active(get_run(last_run_id)):
     exit(0)
 
 jar_local_path = os.path.join(TMP, 'featurizer_2.11-1.0.jar')
