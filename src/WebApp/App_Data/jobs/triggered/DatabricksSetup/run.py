@@ -71,6 +71,8 @@ def upload_notebooks_databricks():
 
 upload_notebooks_databricks()
 
+last_run_id = get_last_run_id()
+
 if last_run_id and is_job_active(get_run(last_run_id)):
     exit(0)
 
