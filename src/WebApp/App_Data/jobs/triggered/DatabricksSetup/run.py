@@ -69,8 +69,6 @@ def upload_notebooks_databricks():
     put_payload = { 'path' : bdfs, 'overwrite' : 'true', 'language':'PYTHON', 'format':'JUPYTER' }
     resp = call_api('2.0/workspace/import', method=requests.post, data=put_payload, files = files).json()
 
-last_run_id = get_last_run_id()
-
 upload_notebooks_databricks()
 
 if last_run_id and is_job_active(get_run(last_run_id)):
