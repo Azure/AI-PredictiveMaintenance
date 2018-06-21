@@ -34,10 +34,6 @@ pip install databricks-cli
 touch $homedir/.databrickscfg
 cat << EOF > $homedir/.databrickscfg
 [DEFAULT]
-host = $3
-token = $4
+host = $2
+token = $3
 EOF
-
-echo "os.environ['PDM_SCORING_URL']=\"$2\"" >> /etc/jupyterhub/jupyterhub_config.py
-echo 'c.Spawner.env_keep.extend(["PDM_SCORING_URL"])' >> /etc/jupyterhub/jupyterhub_config.py
-systemctl restart jupyterhub

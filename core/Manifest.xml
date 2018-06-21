@@ -89,8 +89,8 @@
         </ArmDeployment>
         <ArmDeployment source="arm/linuxDsvm.json" title="Provisioning Linux DSVM" autoResolveParameters="true">
             <Parameters>
-                <Parameter name="fileUris" hidden="true" defaultValue="{PatternAssetBaseUrl}/setup.sh {PatternAssetBaseUrl}/Notebooks.zip" />
-                <Parameter name="commandToExecute" hidden="true" defaultValue="bash setup.sh {Outputs.azureContainerDNS} {Outputs.databricksWorkspaceUrl} {Inputs.databricksToken}" />
+                <Parameter name="fileUris" hidden="true" defaultValue="{PatternAssetBaseUrl}/setup.sh {PatternAssetBaseUrl}/Notebooks.zip {PatternAssetBaseUrl}/spark-avro_2.11-4.0.0.jar" />
+                <Parameter name="commandToExecute" hidden="true" defaultValue="bash setup.sh {Outputs.databricksWorkspaceUrl} {Inputs.databricksToken}" />
             </Parameters>
         </ArmDeployment>
         <Manual title="Done">

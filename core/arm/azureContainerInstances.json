@@ -11,7 +11,6 @@
     },
     "resources": [
         {
-            "comments": "Generalized from resource: '/subscriptions/786d6510-8f1e-4ae7-b55b-5178716e6ac8/resourceGroups/lakspdm/providers/Microsoft.ContainerInstance/containerGroups/lakspdm'.",
             "type": "Microsoft.ContainerInstance/containerGroups",
             "name": "[variables('containerName')]",
             "apiVersion": "2018-04-01",
@@ -22,11 +21,10 @@
                     {
                         "name": "[variables('containerName')]",
                         "properties": {
-                            "image": "predictivemaintenance/pdm-scoring-image",
+                            "image": "predictivemaintenance/pdm-scoring-image:latest",
                             "command": [],
                             "ports": [
                                 {
-                                    "protocol": "TCP",
                                     "port": 5001
                                 }
                             ],
@@ -43,7 +41,6 @@
                 "ipAddress": {
                     "ports": [
                         {
-                            "protocol": "TCP",
                             "port": 5001
                         }
                     ],
@@ -56,6 +53,6 @@
         }
     ],
     "outputs": {
-        "azureContainerDNS": { "type": "string", "value": "[concat('http://', variables('containerName'), '/score')]" }
+        "azureContainerName": { "type": "string", "value": "[variables('containerName')]" }
     }
 }
