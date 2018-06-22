@@ -1,6 +1,14 @@
 {% extends "layout.html" %}
 {% block body %}
   <div class="row">
+    <div class="col-md-12 col-sm-12">
+      <form>
+        <button type="button" class="btn btn-default" data-toggle="modal" id="view-device-logs" >View device logs</button>
+        <button type="button" class="btn btn-default pull-right" id="refresh-button"><i class="fa fa-refresh"></i></button>
+      </form>     
+    </div>
+  </div>
+  <div class="row">
     <div class="col-lg-8 col-md-12 col-sm-12">
       <div id="health-degradation"></div>
     </div>
@@ -10,8 +18,8 @@
 <script>
 
   function pollLatestData() {
+    $('#refresh-button>i').addClass('fa-spin');
     $.get('/api/devices/{{device_id}}').done(function(data) {
-      
       var data = $.map(data.health_history, function(v, index) {
         return {
           type: "scatter",
@@ -22,7 +30,7 @@
         }
       });
       var layout = {
-        title: 'Health indices',
+        title: 'Health degradation',
         xaxis: {
           zeroline: false
         },
@@ -34,46 +42,20 @@
       };
 
       Plotly.newPlot('health-degradation', data, layout, {displayModeBar: false});
+    }).always(function() {
+      $('#refresh-button>i').removeClass('fa-spin');
     });
   }
 
   pollLatestData();
 
-  function setDesiredSpeed(speed) {
-    $.ajax({
-      type: "POST",
-      url: '/api/devices/{{device_id}}',
-      data: {
-        speed: speed
-      }
-    });
-  }
-
-  function setMode(mode) {
-    return $.ajax({
-      type: "POST",
-      url: '/api/devices/{{device_id}}',
-      data: {
-        mode: mode
-      }
-    });
-  }
-
-  var timeoutHandle = 0;
-  $('#desired-speed-range').on('input', function(val) {
-    var value = $(this).val();
-    $('#desired-speed').text(value);
-    window.clearTimeout(timeoutHandle);
-    timeoutHandle = window.setTimeout(setDesiredSpeed, 300, value);
+  $('#refresh-button').click(function() {
+    pollLatestData();
   });
 
-  $('#autopilot-mode').on('change', function() {
-    setMode('auto');
+  $('#view-device-logs').click(function() {
+    var win = window.open('/api/devices/{{ device_id }}/logs', '_blank');
+    win.focus();
   });
-
-  $('#manual-mode').on('change', function() {
-    setMode('manual');
-  });
-
 </script>
 {% endblock %}

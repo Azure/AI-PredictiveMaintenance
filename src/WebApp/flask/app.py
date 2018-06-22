@@ -7,6 +7,8 @@ import json
 import random
 import markdown
 import jwt
+import io
+import csv
 import collections
 from datetime import datetime, timedelta
 from functools import wraps
@@ -152,6 +154,30 @@ def view_asset_dlc(*args, **kwargs):
 @login_required
 def device(device_id):
     return render_template('device.html', device_id = device_id)
+
+@app.route('/api/devices/<device_id>/logs', methods=['GET'])
+@login_required
+def get_device_logs(device_id):
+    query_filter = "PartitionKey eq '{0}'".format(device_id)
+    log_entities = table_service.query_entities('logs', filter=query_filter)
+    
+    output = io.StringIO()
+    writer = csv.writer(output, quoting=csv.QUOTE_MINIMAL)
+
+    for entity in sorted(log_entities, key=lambda e: e.Timestamp):
+        level = entity.Level if 'Level' in entity else None
+        code = entity.Code if 'Code' in entity else None
+        message = entity.Message if 'Message' in entity else None
+        if code == 'SIM_HEALTH':
+            continue
+        row = (str(entity.Timestamp), entity.PartitionKey, level, code, message)
+        writer.writerow(row)
+    
+    log_output = output.getvalue()
+
+    resp = Response(log_output)
+    resp.headers['Content-type'] = 'text/plain'
+    return resp
 
 @app.route('/api/devices/<device_id>', methods=['GET'])
 @login_required
