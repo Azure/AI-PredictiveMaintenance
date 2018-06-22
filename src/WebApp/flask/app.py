@@ -155,10 +155,38 @@ def device(device_id):
 
 @app.route('/api/devices/<device_id>', methods=['GET'])
 @login_required
-def get_device_twin(device_id):
+def get_device(device_id):
     iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
     twin_data = iot_hub.get_device_twin(device_id)
-    resp = Response(twin_data)
+    query_filter = "PartitionKey eq '{0}' and Code eq '{1}'".format(device_id, 'SIM_HEALTH')
+    health_history_entities = table_service.query_entities('logs', filter=query_filter)
+    
+    health_history = []
+    for entity in health_history_entities:
+        timestamp = entity.Timestamp
+        message_json = json.loads(entity.Message)
+        #indices = [x[1] for x in sorted(message_json.items())]
+        health_history.append((timestamp, message_json))
+
+    health_history.sort()
+
+    health_history_by_index = {}
+    for entry in health_history:
+        timestamp = str(entry[0])
+        indices_json = entry[1]
+        for k, v in indices_json.items():
+            if k not in health_history_by_index:
+                health_history_by_index[k] = {'t': [], 'h': []}
+            health_history_by_index[k]['t'].append(timestamp)
+            health_history_by_index[k]['h'].append(v)
+
+
+    response_json = {
+        'twin': json.loads(twin_data),
+        'health_history': health_history_by_index
+    }
+
+    resp = Response(json.dumps(response_json))
     resp.headers['Content-type'] = 'application/json'
     return resp
 

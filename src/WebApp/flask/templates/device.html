@@ -1,56 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
   <div class="row">
-    <div class="col-sm-12">
-      <div id="sensor-cards" class="card-group">
-        <div class="card">
-          <div class="card-body">
-            <div class="btn-group btn-group-toggle pull-right" data-toggle="buttons">
-              <label class="btn btn-light btn-sm active">
-                <input type="radio" name="options" id="autopilot-mode" autocomplete="off" checked> Autopilot
-              </label>
-              <label class="btn btn-light btn-sm">
-                <input type="radio" name="options" id="manual-mode" autocomplete="off"> Manual
-              </label>
-            </div>
-            <h6 class="card-title">Speed</h6>
-            <div>
-              <p>
-                <span id="desired-speed"></span> RPM
-              </p>
-            </div>
-            <form id="set-speed-form" class="form-inline">
-              <div class="form-group">
-                <label id="desired-speed-label" for="desired-speed-range"><i>Set speed</i>: </label>
-                  <input id="desired-speed-range" type="range" min="60" max="1500">
-              </div>
-            </form>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-body">
-            <h6 class="card-title">Ambient temperature</h6>
-            <div>
-              <p>
-                <span id="ambient-temperature"></span> °C
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-body">
-            <h6 class="card-title">Ambient pressure</h6>
-            <div>
-              <p>
-                <span id="ambient-pressure"></span> kPa
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="row">
     <div class="col-lg-8 col-md-12 col-sm-12">
       <div id="health-degradation"></div>
     </div>
@@ -59,77 +9,31 @@
 {% block script %}
 <script>
 
-Plotly.d3.csv("https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv", function(err, rows) {
-  function unpack(rows, key) {
-    return rows.map(function(row) { return row[key]; });
-  }
-
-  var trace1 = {
-    type: "scatter",
-    mode: "lines",
-    name: 'AAPL High',
-    x: unpack(rows, 'Date'),
-    y: unpack(rows, 'AAPL.High'),
-    line: {color: '#17BECF'}
-  }
-
-  var trace2 = {
-    type: "scatter",
-    mode: "lines",
-    name: 'AAPL Low',
-    x: unpack(rows, 'Date'),
-    y: unpack(rows, 'AAPL.Low'),
-    line: {color: '#7F7F7F'}
-  }
-
-  var data = [trace1,trace2];
-
-  var layout = {
-    title: 'Basic Time Series',
-  };
-
-  Plotly.newPlot('health-degradation', data, layout);
-})
-
   function pollLatestData() {
-    $.get('/api/devices/{{device_id}}').done(function(twin) {
-      var timestamp = Date.parse(twin.properties.reported.$metadata.$lastUpdated);
-      var desiredProperties = twin.properties.desired;
-      var reportedProperties = twin.properties.reported;
-
-      var time = new Date();
-
-      var update = {
-        x: [[timestamp],[timestamp],[timestamp]],
-        y: [[reportedProperties.speed],[reportedProperties.temperature],[reportedProperties.pressure]]
+    $.get('/api/devices/{{device_id}}').done(function(data) {
+      
+      var data = $.map(data.health_history, function(v, index) {
+        return {
+          type: "scatter",
+          mode: "lines",
+          name: index,
+          x: v.t,
+          y: v.h
+        }
+      });
+      var layout = {
+        title: 'Health indices',
+        xaxis: {
+          zeroline: false
+        },
+        yaxis: {          
+          range: [0, 1],
+          type: 'linear',
+          zeroline: false          
+        }
       };
 
-      if (!$('#desired-speed').text()) {
-        $('#desired-speed').text(desiredProperties.speed);
-        $('#desired-speed-range').val(desiredProperties.speed);
-      }
-
-      var autoPilotMode = desiredProperties.mode === 'auto';
-      $('#desired-speed-range').prop('disabled', autoPilotMode);
-      if (autoPilotMode) {
-        $('#autopilot-mode').parent().addClass('active');
-        $('#manual-mode').parent().removeClass('active');
-      } else {
-        $('#autopilot-mode').parent().removeClass('active');
-        $('#manual-mode').parent().addClass('active');
-      }
-
-      $('#ambient-temperature').text(reportedProperties.ambientTemperature);
-      $('#ambient-pressure').text(reportedProperties.ambientPressure);
-
-      var rangeMin = new Date(time.getTime() - 30000);
-
-      layout.xaxis.range = layout.xaxis2.range = layout.xaxis3.range = [rangeMin, time];
-      Plotly.relayout('sensor-stream', layout);
-
-      Plotly.extendTraces('sensor-stream', update, [0, 1, 2]);
-    }).always(function() {
-      window.setTimeout(pollLatestData, 1000);
+      Plotly.newPlot('health-degradation', data, layout, {displayModeBar: false});
     });
   }
 
