@@ -44,7 +44,7 @@ def claim_and_run_device(driver_id):
         level_name = logging.getLevelName(level)
         log_entity = {
             'PartitionKey': device_id,
-            'RowKey': '{0}_{1}_{2}'.format(level_name, code, uuid.uuid4().hex),
+            'RowKey': uuid.uuid4().hex,
             'Level': level_name,
             'Code': code,
             'Message': message
