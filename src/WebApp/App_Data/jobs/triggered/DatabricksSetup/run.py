@@ -46,7 +46,7 @@ def get_run(run_id):
         run_details = call_api('2.0/jobs/runs/get?run_id=' + str(run_id)).json()
         run_state = run_details['state']['life_cycle_state']
         time.sleep(10)
-    return run_details    
+    return run_details
 
 def is_job_active(run_details):
     run_state = run_details['state']['life_cycle_state']
@@ -54,9 +54,9 @@ def is_job_active(run_details):
 
 def upload_notebooks_databricks():
     #upload notebook to app service
-    notebooks_zip_local_path = os.path.join(TMP, 'Notebooks.zip') 
+    notebooks_zip_local_path = os.path.join(TMP, 'Notebooks.zip')
     urllib.request.urlretrieve(NOTEBOOKS_URL, notebooks_zip_local_path)
-    
+
     zip_ref = zipfile.ZipFile(notebooks_zip_local_path, 'r')
     notebooks_local_path = os.path.join(TMP, 'Notebooks')
     zip_ref.extractall(notebooks_local_path)
@@ -95,10 +95,10 @@ sparkSpec= {
     'spark.speculation' : 'true'
 }
 payload = {
-    'spark_version' : '4.1.x-scala2.11',
+    'spark_version' : '4.2.x-scala2.11',
     'node_type_id' : 'Standard_D3_v2',
     'spark_conf' : sparkSpec,
-    'num_workers' : 2
+    'num_workers' : 1
 }
 
 #run job

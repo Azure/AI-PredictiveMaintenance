@@ -6,7 +6,8 @@
         "location": "[resourceGroup().location]",
         "resourceGroupName": "[resourceGroup().name]",
         "subscriptionId": "[subscription().subscriptionId]",
-        "iotHubName": "[toLower(concat('iothub-', uniqueString(resourceGroup().id)))]"
+        "iotHubName": "[toLower(concat('iothub-', uniqueString(resourceGroup().id)))]",
+        "sparkConsumerGroupName": "SparkConsumerGroup"
     },
     "resources": [
         {
@@ -95,6 +96,19 @@
                 },
                 "features": "None"
             },
+            "resources": [
+                {
+                    "apiVersion": "[variables('iotHubVersion')]",
+                    "name": "[concat(variables('iotHubName'), '/events/', variables('sparkConsumerGroupName'))]",
+                    "type": "Microsoft.Devices/Iothubs/eventhubEndpoints/ConsumerGroups",
+                    "dependsOn": [
+                        "[concat('Microsoft.Devices/Iothubs/', variables('iotHubName'))]"
+                    ],
+                    "tags": {
+                      "displayName": "Spark Consumer Group"
+                    }
+                  }
+            ],
             "dependsOn": []
         }
     ],

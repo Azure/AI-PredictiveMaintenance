@@ -29,6 +29,9 @@ class IoTHub:
     def delete_device(self, device_id):
         return self.registry_manager.delete_device(device_id)
 
+    def disable_device(self, device_id):
+        self.registry_manager.update_device(device_id, None, None, IoTHubDeviceStatus.DISABLED)
+
     def get_device_list(self):
         return self.registry_manager.get_device_list(1000)  # NOTE: this API is marked as deprecated,
                                                             # but Python SDK doesn't seem to offer
