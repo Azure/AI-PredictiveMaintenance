@@ -50,6 +50,9 @@ def claim_and_run_device(driver_id):
             'Message': message
         }
         table_service.insert_or_replace_entity('logs', log_entity)
+        if level == logging.CRITICAL:
+            # disable device
+            iot_hub.disable_device(device_id)
 
     device_simulator = SimulatorFactory.create('devices.engines.Engine', report_state, send_telemetry, log)
     if not device_simulator.initialize(device_twin_json):
