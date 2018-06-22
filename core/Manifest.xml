@@ -39,7 +39,7 @@
                 </Parameter>
             </Parameters>
         </Manual>
-        <ArmDeployment title="Creating Azure Container Instances" autoResolveParameters="true" source="arm/azureContainerInstances.json" />
+        <ArmDeployment title="Deploying ML web service" autoResolveParameters="true" source="arm/deployMLWebService.json" />
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
         <ArmDeployment source="arm/iotHub.json" title="Creating IoT Hub" />
         <ArmDeployment source="arm/storageAccount.json" title="Creating storage account" />
@@ -53,7 +53,7 @@
                 <Parameter name="featurizerJarUrl" defaultValue="{PatternAssetBaseUrl}/featurizer_2.11-1.0.jar" hidden="true" />
                 <Parameter name="notebooksUrl" defaultValue="{PatternAssetBaseUrl}/Notebooks.zip" hidden="true" />
                 <Parameter name="databricksToken" defaultValue="{Inputs.DatabricksToken}" hidden="true" />
-                <Parameter name="scoreUrl" defaultValue="{Outputs.azureContainerName}" hidden="true" />
+                <Parameter name="scoreUrl" defaultValue="http://{Outputs.azureContainerName}.azurecontainer.io:5001/score" hidden="true" />
                 <Parameter name="databricksWorkspaceLoginUrl" defaultValue="{Outputs.databricksworkspaceLoginUrl}" hidden="true" /> 
             </Parameters>
         </ArmDeployment>

@@ -53,6 +53,6 @@
         }
     ],
     "outputs": {
-        "azureContainerName": { "type": "string", "value": "[concat('http://', variables('containerName'),'.', resourceGroup().location, '.azurecontainer.io:5001/score')]" }
+        "azureContainerName": { "type": "string", "value": "[concat(variables('containerName'),'.', resourceGroup().location)]" }
     }
 }
