@@ -13,8 +13,8 @@ from multiprocessing import Pool, TimeoutError, cpu_count
 from multiprocessing.dummy import Pool as DummyPool
 from multiprocessing import Process
 from iot_hub_helpers import IoTHub, IoTHubDevice
-from azure.storage.blob import AppendBlobService
 from devices import SimulatorFactory
+from azure.storage.table import TableService, Entity, TablePermissions
 
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
@@ -30,10 +30,9 @@ def claim_and_run_device(driver_id):
     device_id = device_twin_json['deviceId']
 
     iothub_device = IoTHubDevice(IOT_HUB_NAME, device_id, device.primaryKey)
-    append_blob_service = AppendBlobService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
-    logs_container_name = 'logs'
-    append_blob_service.create_container(logs_container_name, fail_on_exist=False)
-    log_blob_name = '{0}.log'.format(device_id)
+
+    table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
+    table_service.create_table('logs', fail_on_exist=False)
 
     def report_state(state):
         iothub_device.send_reported_state(state)
@@ -42,17 +41,15 @@ def claim_and_run_device(driver_id):
         iothub_device.send_message(data)
 
     def log(message, code, level):
-        if not append_blob_service.exists(logs_container_name, log_blob_name):
-            append_blob_service.create_blob(logs_container_name, log_blob_name, if_none_match='*', )
-
         level_name = logging.getLevelName(level)
-
-        output = io.StringIO()
-        entry_data = [str(datetime.datetime.utcnow()) + 'Z', level_name, device_id, code, message]
-        writer = csv.writer(output, quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(entry_data)
-        entry_text = output.getvalue()
-        append_blob_service.append_blob_from_text(logs_container_name, log_blob_name, entry_text)
+        log_entity = {
+            'PartitionKey': device_id,
+            'RowKey': '{0}_{1}_{2}'.format(level_name, code, uuid.uuid4().hex),
+            'Level': level_name,
+            'Code': code,
+            'Message': message
+        }
+        table_service.insert_or_replace_entity('logs', log_entity)
 
     device_simulator = SimulatorFactory.create('devices.engines.Engine', report_state, send_telemetry, log)
     if not device_simulator.initialize(device_twin_json):

@@ -52,109 +52,44 @@
   </div>
   <div class="row">
     <div class="col-lg-8 col-md-12 col-sm-12">
-      <div id="sensor-stream"></div>
+      <div id="health-degradation"></div>
     </div>
   </div>
 {% endblock %}
 {% block script %}
 <script>
-  var yAxisTitleFont = {
-    family: 'Arial, sans-serif',
-    size: 18
-  };
 
-  var xAxisTickFont = {
-    size: 10
-  };
-
-  var yAxisTickFont = {
-    size: 8
-  };
-
-
-  var layout = {
-    title: 'Real-time sensor data',
-    autosize: true,
-    height: 800,
-    showlegend: false,
-    xaxis: {
-      type: 'date',
-      fixedrange: true,
-      tickfont: xAxisTickFont
-    },
-    yaxis: {
-      title: 'Speed (RPM)',
-      titlefont: yAxisTitleFont,
-      domain: [0, 0.30],
-      side: 'left',
-      zeroline: false,
-      tickfont: yAxisTickFont
-    },
-    legend: {
-      traceorder: 'reversed'
-    },
-    yaxis2: {
-      title: 'Temperature (°C)',
-      titlefont: yAxisTitleFont,
-      domain: [0.35, 0.65],
-      side: 'left',
-      zeroline: false,
-      tickfont: yAxisTickFont
-    },
-    yaxis3: {
-      title: 'Pressure (kPa)',
-      titlefont: yAxisTitleFont,
-      domain: [0.70, 1],
-      side: 'left',
-      zeroline: false,
-      tickfont: yAxisTickFont
-    },
-    legend: {
-      "orientation": "h",
-      y: 100
-    },
-    xaxis2: {
-      anchor: 'y2',
-      type: 'date',
-      fixedrange: true,
-      showticklabels: false
-    },
-    xaxis3: {
-      anchor: 'y3',
-      type: 'date',
-      fixedrange: true,
-      showticklabels: false
-    },
-  };
+Plotly.d3.csv("https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv", function(err, rows) {
+  function unpack(rows, key) {
+    return rows.map(function(row) { return row[key]; });
+  }
 
   var trace1 = {
-    name: 'Speed (RPM)',
-    x: [],
-    y: [],
-    mode: 'lines'
-  };
+    type: "scatter",
+    mode: "lines",
+    name: 'AAPL High',
+    x: unpack(rows, 'Date'),
+    y: unpack(rows, 'AAPL.High'),
+    line: {color: '#17BECF'}
+  }
 
   var trace2 = {
-    name: 'Temperature (°C)',
-    x: [],
-    y: [],
-    xaxis: 'x2',
-    yaxis: 'y2',
-    mode: 'lines'
+    type: "scatter",
+    mode: "lines",
+    name: 'AAPL Low',
+    x: unpack(rows, 'Date'),
+    y: unpack(rows, 'AAPL.Low'),
+    line: {color: '#7F7F7F'}
+  }
+
+  var data = [trace1,trace2];
+
+  var layout = {
+    title: 'Basic Time Series',
   };
 
-  var trace3 = {
-    name: 'Pressure (kPa)',
-    x: [],
-    y: [],
-    xaxis: 'x3',
-    yaxis: 'y3',
-    mode: 'lines'
-  };
-
-  var data = [trace1, trace2, trace3];
-
-  Plotly.newPlot('sensor-stream', data, layout, {displayModeBar: false});
+  Plotly.newPlot('health-degradation', data, layout);
+})
 
   function pollLatestData() {
     $.get('/api/devices/{{device_id}}').done(function(twin) {

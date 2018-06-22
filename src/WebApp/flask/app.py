@@ -71,7 +71,7 @@ def home():
     return render_template('home.html', content = html)
 
 @app.route('/devices')
-@register_breadcrumb(app, '.devices', 'IoT Devices')
+@register_breadcrumb(app, '.devices', 'Simulated IoT Devices')
 @login_required
 def devices():
     return render_template('devices.html')
@@ -100,10 +100,10 @@ def get_devices():
 @login_required
 def create_device():
     device_id = str.strip(request.form['deviceId'])
- 
+
     if not device_id:
         return error_response('INVALID_ID', 'Device ID cannot be empty.', HTTPStatus.BAD_REQUEST)
-        
+
     try:
         simulation_properties = json.loads(request.form['simulationProperties'])
     except Exception as e:
@@ -147,11 +147,11 @@ def view_asset_dlc(*args, **kwargs):
     return [
         {'text': device_id, 'url': '/devices/{0}'.format(device_id)}]
 
-@register_breadcrumb(app, '.devices.twin', '', dynamic_list_constructor=view_asset_dlc)
+@register_breadcrumb(app, '.devices.device', '', dynamic_list_constructor=view_asset_dlc)
 @app.route('/devices/<device_id>')
 @login_required
 def device(device_id):
-    return render_template('twin.html', device_id = device_id)
+    return render_template('device.html', device_id = device_id)
 
 @app.route('/api/devices/<device_id>', methods=['GET'])
 @login_required
