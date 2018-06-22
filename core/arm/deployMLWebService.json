@@ -53,6 +53,6 @@
         }
     ],
     "outputs": {
-        "azureContainerName": { "type": "string", "value": "[variables('containerName')]" }
+        "azureContainerName": { "type": "string", "value": "[concat(variables('containerName'),'.', resourceGroup().location)]" }
     }
 }

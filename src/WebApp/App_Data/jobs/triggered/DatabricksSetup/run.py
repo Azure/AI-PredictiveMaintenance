@@ -73,7 +73,7 @@ upload_notebooks_databricks()
 
 last_run_id = get_last_run_id()
 
-if last_run_id and is_job_active(get_run(last_run_id)):
+if last_run_id is not None and is_job_active(get_run(last_run_id)):
     exit(0)
 
 jar_local_path = os.path.join(TMP, 'featurizer_2.11-1.0.jar')
@@ -134,7 +134,7 @@ payload = {
 run_details = call_api('2.0/jobs/runs/submit', method=requests.post, json=payload).json()
 run_id = run_details['run_id']
 set_last_run_id(run_id)
-run_details = get_run(last_run_id)
+run_details = get_run(run_id)
 
 if not is_job_active(run_details):
     errorMessage = 'Unable to create Spark job. Run ID: {0}. Failure Details: {1}'.format(run_id, run_details['state']['state_message'])
