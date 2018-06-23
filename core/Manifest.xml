@@ -19,7 +19,7 @@
             <Parameters>
                 <VmSku name="vmSize" defaultValue="Standard_DS3_v2" description="Linux DSVM size" allowedValues="{VirtualMachineSkus}" />
                 <Credential type="linuxvm" username="adminUsername" password="adminPassword" />
-                <VmSku name="databricksVmSize" defaultValue="Standard_D3_v2" usedFor="hdi" minCores="4" instanceCount="4" hidden="true" />
+                <VmSku name="databricksVmSize" defaultValue="Standard_D3_v2" minCores="4" instanceCount="3" hidden="true" configureDynamicSku="false"/>
                 <Parameter name="createDatabricksWorkspace" description="Create Databricks workspace?" defaultValue="Yes" allowedValues="Yes; No" />
             </Parameters>
         </Manual>
