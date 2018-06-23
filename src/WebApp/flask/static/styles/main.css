@@ -74,7 +74,7 @@ body.fixed-nav {
 #mainNav .navbar-collapse .navbar-nav .nav-item .nav-link {
   cursor: pointer;
 }
-  
+
 #mainNav .navbar-collapse .navbar-sidenav .sidenav-second-level,
 #mainNav .navbar-collapse .navbar-sidenav .sidenav-third-level {
   padding-left: 0;
@@ -108,14 +108,14 @@ body.fixed-nav {
   position: relative;
   min-width: 45px;
 }
-  
+
 #mainNav .navbar-collapse .navbar-nav > .nav-item.dropdown > .nav-link .indicator {
   position: absolute;
   top: 5px;
   left: 21px;
   font-size: 10px;
 }
-  
+
 #mainNav .navbar-collapse .navbar-nav > .nav-item.dropdown .dropdown-menu > .dropdown-item > .dropdown-message {
   overflow: hidden;
   max-width: none;
@@ -492,4 +492,11 @@ div.modeling .tab-content p {
   font-family: monospace;
   width: 100%;
   text-align: center;
+}
+
+div.markdown img {
+  width: 50%;
+  min-width: 100px;
+  display: block;
+  margin: 10px auto;
 }

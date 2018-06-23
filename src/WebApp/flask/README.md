@@ -1,3 +1,1 @@
-# Introduction (coming soon)
-
-![](static/engines.jpg)
+![](static/data_flow.svg)
