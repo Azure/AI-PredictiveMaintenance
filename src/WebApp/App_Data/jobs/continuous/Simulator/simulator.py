@@ -49,6 +49,7 @@ def claim_and_run_device(driver_id):
             'Code': code,
             'Message': message
         }
+        print(', '.join([device_id, str(level_name), str(code), str(message)]))
         table_service.insert_or_replace_entity('logs', log_entity)
         if level == logging.CRITICAL:
             # disable device

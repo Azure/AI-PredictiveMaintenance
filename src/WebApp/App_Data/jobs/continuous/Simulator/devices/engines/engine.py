@@ -48,13 +48,8 @@ class Engine(SimulatedDevice):
 
     def on_update(self, update_state, properties_json):
         if update_state == 'COMPLETE':
-            properties_json = properties_json['desired']
-        if 'speed' in properties_json:
-            self.target_speed = properties_json['speed']
-        if 'mode' in properties_json:
-            mode = properties_json['mode']
-            self.log(mode, 'MODE_CHANGE')
-            self.auto_pilot = mode == 'auto'
+            properties_json = properties_json['desired'] if 'desired' in properties_json else {}
+        # update internal state based on the desired properties here
 
     def report_health(self):
         health = {

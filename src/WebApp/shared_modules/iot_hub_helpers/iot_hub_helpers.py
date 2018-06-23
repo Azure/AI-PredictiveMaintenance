@@ -30,7 +30,7 @@ class IoTHub:
         return self.registry_manager.delete_device(device_id)
 
     def disable_device(self, device_id):
-        self.registry_manager.update_device(device_id, None, None, IoTHubDeviceStatus.DISABLED)
+        self.registry_manager.update_device(device_id, '', '', IoTHubDeviceStatus.DISABLED, IoTHubRegistryManagerAuthMethod.SHARED_PRIVATE_KEY)
 
     def get_device_list(self):
         return self.registry_manager.get_device_list(1000)  # NOTE: this API is marked as deprecated,
@@ -101,7 +101,7 @@ class IoTHub:
             claimed_device = self.try_claim_device(client_id)
             if claimed_device:
                 return claimed_device
-            sleep(5)
+            sleep(random.randint(5, 10))
 
     def try_claim_device(self, client_id):
         try:
@@ -111,7 +111,12 @@ class IoTHub:
 
         random.shuffle(devices)
         for device in devices:
-            if device.connectionState == IoTHubDeviceConnectionState.CONNECTED:
+            current_time = datetime.datetime.utcnow().replace(tzinfo=None)
+            last_activity_time = dateutil.parser.parse(device.lastActivityTime).replace(tzinfo=None)
+
+            # it seems that sometimes devices remain in a CONNECTED state long after the connection is lost,
+            # so claiming CONNECTED devices that have been inactive for at least 10 minutes
+            if device.connectionState == IoTHubDeviceConnectionState.CONNECTED and (current_time - last_activity_time).total_seconds() < 600:
                 continue
 
             if device.status == IoTHubDeviceStatus.DISABLED:
@@ -133,8 +138,6 @@ class IoTHub:
 
             if 'simulator' not in twin_tags:
                 continue
-
-            current_time = datetime.datetime.now().replace(tzinfo=None)
 
             if '_claim' in twin_tags:
                 simulator_data = twin_tags['_claim']
