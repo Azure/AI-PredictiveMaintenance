@@ -500,3 +500,11 @@ div.markdown img {
   display: block;
   margin: 10px auto;
 }
+
+.delete-device-button:hover {
+  color: red;
+}
+
+#devices-table {
+  display: none;
+}

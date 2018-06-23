@@ -160,7 +160,7 @@ def device(device_id):
 def get_device_logs(device_id):
     query_filter = "PartitionKey eq '{0}'".format(device_id)
     log_entities = table_service.query_entities('logs', filter=query_filter)
-    
+
     output = io.StringIO()
     writer = csv.writer(output, quoting=csv.QUOTE_MINIMAL)
 
@@ -172,7 +172,7 @@ def get_device_logs(device_id):
             continue
         row = (str(entity.Timestamp), entity.PartitionKey, level, code, message)
         writer.writerow(row)
-    
+
     log_output = output.getvalue()
 
     resp = Response(log_output)
@@ -186,7 +186,7 @@ def get_device(device_id):
     twin_data = iot_hub.get_device_twin(device_id)
     query_filter = "PartitionKey eq '{0}' and Code eq '{1}'".format(device_id, 'SIM_HEALTH')
     health_history_entities = table_service.query_entities('logs', filter=query_filter)
-    
+
     health_history = []
     for entity in health_history_entities:
         timestamp = entity.Timestamp
@@ -198,7 +198,7 @@ def get_device(device_id):
 
     health_history_by_index = {}
     for entry in health_history:
-        timestamp = str(entry[0])
+        timestamp = entry[0].replace(tzinfo=None).isoformat()
         indices_json = entry[1]
         for k, v in indices_json.items():
             if k not in health_history_by_index:

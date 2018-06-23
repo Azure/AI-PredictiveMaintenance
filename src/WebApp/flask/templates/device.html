@@ -4,13 +4,13 @@
     <div class="col-md-12 col-sm-12">
       <form>
         <button type="button" class="btn btn-default" data-toggle="modal" id="view-device-logs" >View device logs</button>
-        <button type="button" class="btn btn-default pull-right" id="refresh-button"><i class="fa fa-refresh"></i></button>
-      </form>     
+        <button type="button" class="btn btn-default" id="refresh-button"><i class="fa fa-refresh"></i> Refresh</button>
+      </form>
     </div>
   </div>
   <div class="row">
     <div class="col-lg-8 col-md-12 col-sm-12">
-      <div id="health-degradation"></div>
+      <div id="health-degradation-chart"></div>
     </div>
   </div>
 {% endblock %}
@@ -18,14 +18,17 @@
 <script>
 
   function pollLatestData() {
+    $('#health-degradation-chart').hide();
     $('#refresh-button>i').addClass('fa-spin');
     $.get('/api/devices/{{device_id}}').done(function(data) {
       var data = $.map(data.health_history, function(v, index) {
         return {
           type: "scatter",
-          mode: "lines",
+          //mode: "lines",
           name: index,
-          x: v.t,
+          x: $.map(v.t, function(d) {
+            return renderDate(d, true);
+          }),
           y: v.h
         }
       });
@@ -34,15 +37,16 @@
         xaxis: {
           zeroline: false
         },
-        yaxis: {          
+        yaxis: {
           range: [0, 1],
           type: 'linear',
-          zeroline: false          
+          zeroline: false
         }
       };
 
-      Plotly.newPlot('health-degradation', data, layout, {displayModeBar: false});
+      Plotly.newPlot('health-degradation-chart', data, layout, {displayModeBar: false});
     }).always(function() {
+      $('#health-degradation-chart').show();
       $('#refresh-button>i').removeClass('fa-spin');
     });
   }

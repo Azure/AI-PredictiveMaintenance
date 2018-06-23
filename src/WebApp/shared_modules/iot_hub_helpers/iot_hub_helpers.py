@@ -4,6 +4,7 @@ import requests
 import random
 import datetime
 import dateutil.parser
+import logging
 from base64 import b64encode, b64decode
 from hashlib import sha256
 from time import time, sleep
@@ -125,6 +126,7 @@ class IoTHub:
             # attempt to acquire lock using device twin's optimistic concurrency
             twin_data = self.get_device_twin(device.deviceId)
             twin_data_json = json.loads(twin_data)
+            random.randint(5, 10)
             etag = twin_data_json['etag']
 
             twin_tags = None
@@ -143,7 +145,7 @@ class IoTHub:
                 simulator_data = twin_tags['_claim']
                 if 'lastClaimed' in simulator_data:
                     last_claimed = dateutil.parser.parse(simulator_data['lastClaimed']).replace(tzinfo=None)
-                    if (current_time - last_claimed).total_seconds() < 30:
+                    if (current_time - last_claimed).total_seconds() < 600:
                         continue
 
             twin_tags['_claim'] = {
@@ -157,6 +159,7 @@ class IoTHub:
 
             try:
                 updated_twin_data = self.update_twin(device.deviceId, json.dumps(updated_properties), etag)
+                logging.log(logging.INFO, 'Claimed device %s.', device.deviceId)
                 return device, updated_twin_data
             except:
                 continue

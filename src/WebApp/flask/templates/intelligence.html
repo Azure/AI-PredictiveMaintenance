@@ -8,7 +8,6 @@
 {% block script %}
 <script>
     $.get('/api/intelligence').done(function(intelligence) {
-        console.log(intelligence);
         var data = [{
             values: Object.values(intelligence.summary),
             labels: Object.keys(intelligence.summary),
@@ -22,7 +21,7 @@
             hoverinfo: 'label+value',
             hole: .4,
             type: 'pie'}];
-            
+
             var layout = {
                 title: 'Fleet health',
                 annotations: [
