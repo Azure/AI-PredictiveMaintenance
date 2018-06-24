@@ -10,6 +10,7 @@ import jwt
 import io
 import csv
 import collections
+from urllib.parse import urlparse
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import Flask, render_template, Response, request,  redirect, url_for
@@ -144,16 +145,17 @@ def delete_device(device_id):
     resp = Response()
     return resp
 
-def view_asset_dlc(*args, **kwargs):
+def view_device_dlc(*args, **kwargs):
     device_id = request.view_args['device_id']
-    return [
-        {'text': device_id, 'url': '/devices/{0}'.format(device_id)}]
+    url = urlparse(request.url)
+    base_path = os.path.split(url.path)[0]
+    return [{'text': device_id, 'url': '{0}/{1}'.format(base_path, device_id)}]
 
-@register_breadcrumb(app, '.devices.device', '', dynamic_list_constructor=view_asset_dlc)
+@register_breadcrumb(app, '.devices.device', '', dynamic_list_constructor=view_device_dlc)
 @app.route('/devices/<device_id>')
 @login_required
-def device(device_id):
-    return render_template('device.html', device_id = device_id)
+def devices_device(device_id):
+    return render_template('devices_device.html', device_id = device_id)
 
 @app.route('/api/devices/<device_id>/logs', methods=['GET'])
 @login_required
@@ -274,6 +276,12 @@ def analytics():
 @login_required
 def intelligence():
     return render_template('intelligence.html')
+
+@register_breadcrumb(app, '.intelligence.device', '', dynamic_list_constructor=view_device_dlc)
+@app.route('/intelligence/<device_id>')
+@login_required
+def intelligence_device(device_id):
+    return render_template('intelligence_device.html', device_id = device_id)
 
 @app.route('/api/intelligence')
 @login_required
