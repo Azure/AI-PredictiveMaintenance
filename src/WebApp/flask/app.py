@@ -284,17 +284,17 @@ def get_intelligence():
 
     latest_predictions = table_service.query_entities('predictions', filter="PartitionKey eq '_INDEX_'")
 
-    predictions_by_machine = dict([(p.RowKey, (p.Prediction, p.Date)) for p in  latest_predictions])
-    unknown_predictions = dict([(device_id, ('Unknown', None)) for device_id in device_ids if device_id not in predictions_by_machine])
-    combined = {**predictions_by_machine, **unknown_predictions}
+    predictions_by_device = dict([(p.RowKey, (p.Prediction, p.Date)) for p in  latest_predictions])
+    unknown_predictions = dict([(device_id, ('Unknown', None)) for device_id in device_ids if device_id not in predictions_by_device])
+    combined = {**predictions_by_device, **unknown_predictions}
 
     summary = collections.Counter(['Need maintenance' if v[0].startswith('F') else v[0] for v in combined.values()])
 
     payload = {
         'predictions': [{
-            'machineID': k,
+            'deviceId': k,
             'prediction': v[0],
-            'date': v[1]
+            'lastUpdated': v[1]
         } for (k, v) in combined.items()],
         'summary': summary
     }

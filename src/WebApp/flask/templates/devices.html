@@ -54,7 +54,7 @@
 {% block script %}
 <script>
 $(document).ready(function() {
-  function reloadDevices() {
+  function reload() {
     var devicesTable = $('#devices-table');
     devicesTable.hide();
     $('#refresh-button>i').addClass('fa-spin');
@@ -77,7 +77,7 @@ $(document).ready(function() {
           url: '/api/devices/' + deviceId,
           method: 'DELETE'
         }).done(function(response) {
-          reloadDevices().done(function() {
+          reload().done(function() {
             displayAlert('Device <strong>' + deviceId + '</strong> was successfully deleted.', 'alert-success');
           });
         }).fail(function(response) {
@@ -90,7 +90,7 @@ $(document).ready(function() {
     });
   }
 
-  reloadDevices();
+  reload();
 
   function clearValidationErrors(modal) {
     var modal = $('#new-device-modal');
@@ -124,7 +124,7 @@ $(document).ready(function() {
           simulationProperties: $('#simulation-properties').val()
       }
     }).done(function(response){
-      reloadDevices().done(function() {
+      reload().done(function() {
         displayAlert('Device <strong>' + deviceId + '</strong> was successfully created.', 'alert-success');
         $('#new-device-modal .close').click();
       });
@@ -146,7 +146,7 @@ $(document).ready(function() {
     });
   });
   $('#refresh-button').click(function() {
-    reloadDevices();
+    reload();
   });
 });
 </script>

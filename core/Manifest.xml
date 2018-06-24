@@ -39,10 +39,10 @@
                 </Parameter>
             </Parameters>
         </Manual>
-        <ArmDeployment title="Deploying ML web service" autoResolveParameters="true" source="arm/deployMLWebService.json" />
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
         <ArmDeployment source="arm/iotHub.json" title="Creating IoT Hub" />
         <ArmDeployment source="arm/storageAccount.json" title="Creating storage account" />
+        <ArmDeployment source="arm/deployMLWebService.json" title="Deploying Machine Learning Web service image to Azure Container Instances (ACI)" />
         <ArmDeployment source="arm/demoDashboard.json" title="Deploying and setting up Demo Dashboard" autoResolveParameters="true">
             <Parameters>
                 <Parameter name="webAppUrl" defaultValue="{PatternAssetBaseUrl}/WebApp.zip" hidden="true" />
@@ -54,7 +54,7 @@
                 <Parameter name="notebooksUrl" defaultValue="{PatternAssetBaseUrl}/Notebooks.zip" hidden="true" />
                 <Parameter name="databricksToken" defaultValue="{Inputs.DatabricksToken}" hidden="true" />
                 <Parameter name="scoreUrl" defaultValue="http://{Outputs.azureContainerName}.azurecontainer.io:5001/score" hidden="true" />
-                <Parameter name="databricksWorkspaceLoginUrl" defaultValue="{Outputs.databricksworkspaceLoginUrl}" hidden="true" /> 
+                <Parameter name="databricksWorkspaceLoginUrl" defaultValue="{Outputs.databricksworkspaceLoginUrl}" hidden="true" />
             </Parameters>
         </ArmDeployment>
         <WebJob title="Configuring Python 3.6" retriable="true" autoRetryCount = "2">

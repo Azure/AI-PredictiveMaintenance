@@ -1,62 +1,92 @@
 {% extends "layout.html" %}
 {% block body %}
-    <div id="health-donut"></div>
-    <h5>Failure predictions</h5>
-    <table id="predictions" data-pagination="true" data-search="true"></table>
+<div class="row">
+    <form>
+        <div class="col-sm-12">
+            <button type="button" class="btn btn-default" id="refresh-button"><i class="fa fa-refresh"></i> Refresh</button>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="col-md-6 col-sm-6">
+        <div id="health-donut"></div>
+    </div>
+    <div class="col-md-6 col-sm-6">
+        <div class="table-responsive">
+            <table id="devices-table" class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Device ID</th>
+                    <th>Last prediction</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block script %}
 <script>
-    $.get('/api/intelligence').done(function(intelligence) {
-        var data = [{
-            values: Object.values(intelligence.summary),
-            labels: Object.keys(intelligence.summary),
-            domain: {
-                x: [0, 1]
-            },
-            marker: {
-                colors: ['rgb(34,139,34)', 'rgb(255,165,0)', 'rgb(255,69,0)']
-            },
-            name: 'Fleet health',
-            hoverinfo: 'label+value',
-            hole: .4,
-            type: 'pie'}];
+$(document).ready(function() {
+    function reload() {
+        $('#refresh-button>i').addClass('fa-spin');
+        $.get('/api/intelligence').done(function(intelligence) {
+            var data = [{
+                values: Object.values(intelligence.summary),
+                labels: Object.keys(intelligence.summary),
+                domain: {
+                    x: [0, 1]
+                },
+                marker: {
+                    colors: ['rgb(34,139,34)', 'rgb(255,165,0)', 'rgb(255,69,0)']
+                },
+                name: 'Fleet health',
+                hoverinfo: 'label+value',
+                hole: .4,
+                type: 'pie'}];
 
-            var layout = {
-                title: 'Fleet health',
-                annotations: [
-                    {
-                        font: {
-                            size: 20
-                        },
-                        showarrow: false,
-                        text: '',
-                        x: 0.5,
-                        y: 0.5
-                    }
-                ],
-                height: 400,
-                width: 500
-            };
-            Plotly.newPlot('health-donut', data, layout, {displayModeBar: false});
+                var layout = {
+                    title: 'Fleet health',
+                    annotations: [
+                        {
+                            font: {
+                                size: 20
+                            },
+                            showarrow: false,
+                            text: '',
+                            x: 0.5,
+                            y: 0.5
+                        }
+                    ],
+                    height: 400,
+                    width: 500
+                };
+                Plotly.newPlot('health-donut', data, layout, {displayModeBar: false});
 
+                var devicesTable = $('#devices-table');
+                var devicesTbody = devicesTable.find('tbody');
+                devicesTbody.empty();
 
-            $('#predictions').bootstrapTable({
-                columns: [{
-                    field: 'machineID',
-                    title: 'Machine ID'
-                }, {
-                    field: 'prediction',
-                    title: 'Prediction'
-                }, {
-                    field: 'date',
-                    title: 'Last updated'
-                }, {
-                    field: 'actions',
-                    title: 'Actions'
-                }],
-                data: intelligence.predictions
+                $.each(intelligence.predictions, function(i, device) {
+                    child = $('<tr>')
+                    .append($('<td><a href="/intelligence/' + device.deviceId + '">' + device.deviceId + '</a></td>'))
+                    .append($('<td><span>' + device.prediction + '</span><span class="last-updated">' + device.lastUpdated + '</span></td>'))
+                    devicesTbody.append(child);
+                });
+                devicesTable.show();
+            }).always(function() {
+                $('#refresh-button>i').removeClass('fa-spin');
             });
-        });
+    }
+
+    reload();
+
+    $('#refresh-button').click(function() {
+        reload();
+    });
+});
 </script>
 {% endblock %}

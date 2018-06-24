@@ -508,3 +508,8 @@ div.markdown img {
 #devices-table {
   display: none;
 }
+
+#devices-table span.last-updated {
+  display: block;
+  font-size: 0.7rem;
+}
