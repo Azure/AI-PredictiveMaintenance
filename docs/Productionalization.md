@@ -1,7 +1,12 @@
 # Objectives
-# Source control
-# Infrastructure as code
-# Environments - Test, staging, prod
+# Concepts and fundamentals
+## Source control
+Git, GitHub, VSTS - TODO
+## Infrastructure as code (IaC)
+This solution template includes a set of Azure Resource Manager (ARM) templates to provision Azure resources for the PdM demo scenario.  As you modify and extend the solution to meet your production needs, modeling your infrastructure as code will enable you to avoid environment drift between your testing, qualification, and production environments.  Familiarize yourself with [Microsoft's best practices for infrastructure as code](https://docs.microsoft.com/en-us/azure/devops/what-is-infrastructure-as-code).
+## Environments - Dev-test and production
+In order to reduce the risk of promoting code into production, the best practices guidance from Azure is to create isolated environments to enable development, quality assurance (QA), and production.  You can explore the reference architecture guides for [Platform as a Service (PaaS)](https://azure.microsoft.com/en-us/solutions/architecture/dev-test-paas/) and [microservices](https://azure.microsoft.com/en-us/solutions/architecture/dev-test-microservice/).
+## Continuous integration and continuous delivery - CICD
 # Modeling + retraining
 ## Device manufacturer device telemetry guidance, parts maintenance schedule
 ## Long term storage of maintenance records, security
