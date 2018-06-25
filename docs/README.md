@@ -43,6 +43,7 @@ Ultimately, all the logical services listed above cumulatively represent a cloud
 Predictive maintenance has wide applicability in many industries, as most companies utilize long-term assets that are core to delivering on their business model. There are also many industry-specific ISV solutions that more narrowly target these challenges by industry.
 
 <div class="github-only">
+
 ---
 
 Please refer to the [Solution Design](Solution-Design.md) document for an in-depth overview of the solution's architecture and technical trade-offs.
