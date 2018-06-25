@@ -513,3 +513,7 @@ div.markdown img {
   display: block;
   font-size: 0.7rem;
 }
+
+div.markdown .github-only {
+  display: none;
+}

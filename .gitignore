@@ -6,3 +6,4 @@ src/Notebooks/.ipynb_checkpoints/*
 src/Notebooks/*.pkl
 src/Notebooks/*.json
 src/Notebooks/*.py
+src/WebApp/flask/static/docs/img/*

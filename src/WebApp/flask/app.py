@@ -30,9 +30,6 @@ app.debug = True
 # Initialize Flask-Breadcrumbs
 Breadcrumbs(app=app)
 
-STORAGE_ACCOUNT_SUFFIX = 'core.windows.net'
-TELEMETRY_CONTAINER_NAME = 'telemetry'
-
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
