@@ -1,5 +1,5 @@
 # Objectives
-The purpose of this document is to first define the basics of operating a production solution in Azure, provide references to the best practices documents for each of those concepts, then describe how those concepts should be applied to each component of a Predictive Maintenance solution.
+The purpose of this document is to define the basics of operating a production solution in Azure, provide references to the best practices documents for each of those concepts, then describe how those concepts should be applied to each component of a Predictive Maintenance solution.
 # Definitions and best practices
 ## Source control
 [Visual Studio Team Services (VSTS)](https://docs.microsoft.com/en-us/vsts/index?view=vsts) provides a [new user guide](https://docs.microsoft.com/en-us/vsts/user-guide/?view=vsts) to get started with VSTS and Git.
@@ -26,6 +26,7 @@ In order to produce useful predictions from your model you will need to have a s
 
 # Modeling
 ## Small scale modeling on the DSVM
+The DSVM is not considered to be part of the production predictive maintenance solution.  That said, it is still important to handle your data securely on the DSVM.  First, you need to be familiar with the [security best practices for IaaS](https://docs.microsoft.com/en-us/azure/security/azure-security-iaas) and apply the recommendations as appropriate.  You can monitor your VM security state by installing the [VM Agent](https://docs.microsoft.com/en-us/azure/security-center/security-center-enable-vm-agent) on your DSVM via [Azure Security Center](https://docs.microsoft.com/en-us/azure/security-center/).
 ## Large scale modeling featurization - Infrastructure guidance, on-demand cluster provisioning, data pump, velocity monitoring
 ## Large scale model training - Infrastructure guidance, on-demand cluster provisioning, data pump, velocity monitoring
 ## Model accuracy
