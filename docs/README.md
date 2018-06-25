@@ -1,4 +1,4 @@
-# INTRODUCTION
+# Introduction
 
 For years, applying Artificial Intelligence to business problems has been possible, but not practical for mainstream organizations. Over the last few years, access to cheap storage at massive scale, combined with nearly limitless on-demand compute, has changed that. The cloud has enabled an environment where Artificial Intelligence is accessible to nearly all organizations. It has made returns and the cost model compelling not only for high-value endeavors, but also for more common scenarios.
 
@@ -9,9 +9,19 @@ Predictive Maintenance is emerging as one of the most demanded applications of p
 * Second, Predictive Maintenance has nearly universal applicability: almost every industry possesses highly capitalized assets, and the returns from their better utilization make it to the bottom line. The applicability in discrete manufacturing is obvious, but process manufacturing, energy, transportation, oil and gas, consumer goods, health care, and many other industries utilize long term assets that daily affect their competitiveness.
 * Third, unlike in many other AI domains, the concepts, approaches and algorithms employed in Predictive Maintenance are more relatable and intuitive.  Detecting anomalies in equipment performance, predicting when failures may occur, identifying the cause of the failure, and estimating the remaining useful life are relatively clearly understood; answers can often be obtained using simple, mature and widely utilized regression or classification methods.
 
-This solution describes the logical services that can be delivered to a customer – or leveraged if those logical services already exist – and then combined to deliver business impact through a production predictive maintenance deployment.  An important design goal is modularity: the service functions provide utility on their own, and can be re-used in different scenarios to solve many problems over time.  In the end, a more flexible and modular approach allows us to provide value faster, and to re-use existing services to solve other business problems at a lower incremental cost.
+# Motivation behind this solution template
+
+Several other Predictive Maintenance samples and solution templates existed prior to this one. The most notable examples are:
+
+* [Advanced Scenario: General Predictive Maintenance](https://github.com/Azure/MachineLearningSamples-PredictiveMaintenance)
+* [Predictive Maintenance in Aerospace](https://gallery.azure.ai/Solution/Predictive-Maintenance-10)
+* [Predictive Maintenance Modeling Guide](https://gallery.azure.ai/Collection/Predictive-Maintenance-Implementation-Guide-1)
+
+The intent of this solution template is to showcase Machine Learning modeling backed by appropriate, scalable and modern cloud architecture. We felt that the existing high-quality Machine Learning samples provided little guidance as to what an end-to-end production Predictive Maintenance system would look like, whereas the solution templates didn't expose enough information about the data and models they used. Understanding, customizing and scaling these solution templates proved to be difficult due to the lack of adequate documentation and their unintentionally closed-source nature.
 
 ![](img/data_flow.png)
+
+This solution describes the logical services that can be delivered to a customer – or leveraged if those logical services already exist – and then combined to deliver business impact through a production predictive maintenance deployment.  An important design goal is modularity: the service functions provide utility on their own, and can be re-used in different scenarios to solve many problems over time.  In the end, a more flexible and modular approach allows us to provide value faster, and to re-use existing services to solve other business problems at a lower incremental cost.
 
 ## Data Ingress and Storage
 
