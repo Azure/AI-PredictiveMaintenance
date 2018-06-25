@@ -293,7 +293,15 @@ def get_intelligence():
     unknown_predictions = dict([(device_id, ('Unknown', None)) for device_id in device_ids if device_id not in predictions_by_device])
     combined = {**predictions_by_device, **unknown_predictions}
 
-    summary = collections.Counter(['Need maintenance' if v[0].startswith('F') else v[0] for v in combined.values()])
+    summary = {
+        'Failure predicted': 0,
+        'Healthy': 0,
+        'Need maintenance': 0,
+        'Unknown': 0
+    }
+
+    summary_computed = collections.Counter(['Failure predicted' if v[0].startswith('F') else v[0] for v in combined.values()])
+    summary.update(summary_computed)
 
     payload = {
         'predictions': [{

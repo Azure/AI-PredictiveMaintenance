@@ -33,7 +33,7 @@
 $(document).ready(function() {
     function reload() {
         $('#refresh-button>i').addClass('fa-spin');
-        $.get('/api/intelligence').done(function(intelligence) {
+        $.get('/api/intelligence').done(function(intelligence) {            
             var data = [{
                 values: Object.values(intelligence.summary),
                 labels: Object.keys(intelligence.summary),
@@ -41,7 +41,7 @@ $(document).ready(function() {
                     x: [0, 1]
                 },
                 marker: {
-                    colors: ['rgb(34,139,34)', 'rgb(255,165,0)', 'rgb(255,69,0)']
+                    colors: ['rgb(255,165,0)', 'rgb(34,139,34)', 'rgb(255,69,0)', 'rgb(128,128,128)']
                 },
                 name: 'Fleet health',
                 hoverinfo: 'label+value',
@@ -73,7 +73,7 @@ $(document).ready(function() {
                 $.each(intelligence.predictions, function(i, device) {
                     child = $('<tr>')
                     .append($('<td><a href="/intelligence/' + device.deviceId + '">' + device.deviceId + '</a></td>'))
-                    .append($('<td><span>' + device.prediction + '</span><span class="last-updated">' + device.lastUpdated + '</span></td>'))
+                    .append($('<td><span>' + device.prediction + '</span><span class="last-updated">' + (device.lastUpdated || '') + '</span></td>'))
                     devicesTbody.append(child);
                 });
                 devicesTable.show();
