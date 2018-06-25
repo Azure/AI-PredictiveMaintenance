@@ -47,9 +47,10 @@ def claim_and_run_device(driver_id):
             'RowKey': uuid.uuid4().hex,
             'Level': level_name,
             'Code': code,
-            'Message': message
+            'Message': message,
+            '_Driver': driver_id
         }
-        print(', '.join([device_id, str(level_name), str(code), str(message)]))
+        print(', '.join([driver_id, device_id, str(level_name), str(code), str(message)]))
         table_service.insert_or_replace_entity('logs', log_entity)
         if level == logging.CRITICAL:
             # disable device
@@ -69,7 +70,13 @@ def claim_and_run_device(driver_id):
 def device_driver():
     driver_unique_id = str(uuid.uuid4())
     while True:
-        claim_and_run_device(driver_unique_id)
+        try:
+            claim_and_run_device(driver_unique_id)
+            logging.log(logging.WARNING, 'Driver {0} finished execution.'.format(driver_unique_id))
+        except Exception as e:
+            logging.log(logging.ERROR, 'Driver {0} threw an exception: {1}.'.format(driver_unique_id, str(e)))
+        except:
+            logging.log(logging.ERROR, 'Driver {0} threw an exception.')
 
 if __name__ == '__main__':
     device_driver_count = 20

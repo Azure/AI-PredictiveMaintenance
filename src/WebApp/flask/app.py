@@ -10,6 +10,7 @@ import jwt
 import io
 import csv
 import collections
+from urllib.parse import urlparse
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import Flask, render_template, Response, request,  redirect, url_for
@@ -28,9 +29,6 @@ app.debug = True
 
 # Initialize Flask-Breadcrumbs
 Breadcrumbs(app=app)
-
-STORAGE_ACCOUNT_SUFFIX = 'core.windows.net'
-TELEMETRY_CONTAINER_NAME = 'telemetry'
 
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
@@ -144,23 +142,24 @@ def delete_device(device_id):
     resp = Response()
     return resp
 
-def view_asset_dlc(*args, **kwargs):
+def view_device_dlc(*args, **kwargs):
     device_id = request.view_args['device_id']
-    return [
-        {'text': device_id, 'url': '/devices/{0}'.format(device_id)}]
+    url = urlparse(request.url)
+    base_path = os.path.split(url.path)[0]
+    return [{'text': device_id, 'url': '{0}/{1}'.format(base_path, device_id)}]
 
-@register_breadcrumb(app, '.devices.device', '', dynamic_list_constructor=view_asset_dlc)
+@register_breadcrumb(app, '.devices.device', '', dynamic_list_constructor=view_device_dlc)
 @app.route('/devices/<device_id>')
 @login_required
-def device(device_id):
-    return render_template('device.html', device_id = device_id)
+def devices_device(device_id):
+    return render_template('devices_device.html', device_id = device_id)
 
 @app.route('/api/devices/<device_id>/logs', methods=['GET'])
 @login_required
 def get_device_logs(device_id):
     query_filter = "PartitionKey eq '{0}'".format(device_id)
     log_entities = table_service.query_entities('logs', filter=query_filter)
-    
+
     output = io.StringIO()
     writer = csv.writer(output, quoting=csv.QUOTE_MINIMAL)
 
@@ -172,7 +171,7 @@ def get_device_logs(device_id):
             continue
         row = (str(entity.Timestamp), entity.PartitionKey, level, code, message)
         writer.writerow(row)
-    
+
     log_output = output.getvalue()
 
     resp = Response(log_output)
@@ -186,7 +185,7 @@ def get_device(device_id):
     twin_data = iot_hub.get_device_twin(device_id)
     query_filter = "PartitionKey eq '{0}' and Code eq '{1}'".format(device_id, 'SIM_HEALTH')
     health_history_entities = table_service.query_entities('logs', filter=query_filter)
-    
+
     health_history = []
     for entity in health_history_entities:
         timestamp = entity.Timestamp
@@ -198,7 +197,7 @@ def get_device(device_id):
 
     health_history_by_index = {}
     for entry in health_history:
-        timestamp = str(entry[0])
+        timestamp = entry[0].replace(tzinfo=None).isoformat()
         indices_json = entry[1]
         for k, v in indices_json.items():
             if k not in health_history_by_index:
@@ -275,6 +274,12 @@ def analytics():
 def intelligence():
     return render_template('intelligence.html')
 
+@register_breadcrumb(app, '.intelligence.device', '', dynamic_list_constructor=view_device_dlc)
+@app.route('/intelligence/<device_id>')
+@login_required
+def intelligence_device(device_id):
+    return render_template('intelligence_device.html', device_id = device_id)
+
 @app.route('/api/intelligence')
 @login_required
 def get_intelligence():
@@ -284,17 +289,25 @@ def get_intelligence():
 
     latest_predictions = table_service.query_entities('predictions', filter="PartitionKey eq '_INDEX_'")
 
-    predictions_by_machine = dict([(p.RowKey, (p.Prediction, p.Date)) for p in  latest_predictions])
-    unknown_predictions = dict([(device_id, ('Unknown', None)) for device_id in device_ids if device_id not in predictions_by_machine])
-    combined = {**predictions_by_machine, **unknown_predictions}
+    predictions_by_device = dict([(p.RowKey, (p.Prediction, p.Date)) for p in  latest_predictions])
+    unknown_predictions = dict([(device_id, ('Unknown', None)) for device_id in device_ids if device_id not in predictions_by_device])
+    combined = {**predictions_by_device, **unknown_predictions}
 
-    summary = collections.Counter(['Need maintenance' if v[0].startswith('F') else v[0] for v in combined.values()])
+    summary = {
+        'Failure predicted': 0,
+        'Healthy': 0,
+        'Need maintenance': 0,
+        'Unknown': 0
+    }
+
+    summary_computed = collections.Counter(['Failure predicted' if v[0].startswith('F') else v[0] for v in combined.values()])
+    summary.update(summary_computed)
 
     payload = {
         'predictions': [{
-            'machineID': k,
+            'deviceId': k,
             'prediction': v[0],
-            'date': v[1]
+            'lastUpdated': v[1]
         } for (k, v) in combined.items()],
         'summary': summary
     }
