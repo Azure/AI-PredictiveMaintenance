@@ -27,7 +27,23 @@ In order to produce useful predictions from your model you will need to have a s
 # Modeling
 ## Small scale modeling on the DSVM
 The DSVM is not considered to be part of the production predictive maintenance solution.  That said, it is still important to handle your data securely on the DSVM.  First, you need to be familiar with the [security best practices for IaaS](https://docs.microsoft.com/en-us/azure/security/azure-security-iaas) and apply the recommendations as appropriate.  You can monitor your VM security state by installing the [VM Agent](https://docs.microsoft.com/en-us/azure/security-center/security-center-enable-vm-agent) on your DSVM via [Azure Security Center](https://docs.microsoft.com/en-us/azure/security-center/).
-## Large scale modeling featurization - Infrastructure guidance, on-demand cluster provisioning, data pump, velocity monitoring
+## Large scale modeling featurization
+The recommended large scale featurization platform is [Databricks](https://docs.microsoft.com/en-us/azure/azure-databricks/).  Familiarize yourself with the [Databricks getting started guide](https://databricks.com/product/getting-started-guide) and the [gentle introduction to Apache Spark on Databricks](https://docs.databricks.com/spark/latest/gentle-introduction/gentle-intro.html).
+### Infrastructure guidance
+The parameters to consider while provisioning your feature engineering cluster are
+*  Memory requirements
+*  CPU requirements
+*  Disk requirements
+*  GPU
+The documentation for [pricing details of Databricks node types](https://azure.microsoft.com/en-us/pricing/details/databricks/) and [Azure VM series](https://azure.microsoft.com/en-us/pricing/details/virtual-machines/series/) explains the options available.
+### On-demand cluster provisioning
+By default, your databricks cluser is provisioned as transient.  If your cluster is idle for 120 minutes then the cluster will be released.  There is no need to retain an idle cluster because you can create a new one in seconds.
+### Data pump
+TODO - How to connect the source data to the notebooks securely?
+### Monitoring
+You can [monitor your Spark cluster](https://spark.apache.org/docs/latest/monitoring.html) with the built in [web UI](https://jaceklaskowski.gitbooks.io/mastering-apache-spark/spark-webui.html).
+### Security
+Databricks ships with [enterprise grade security](https://databricks.com/databricks-enterprise-security) built in.
 ## Large scale model training - Infrastructure guidance, on-demand cluster provisioning, data pump, velocity monitoring
 ## Model accuracy
 ## Model management
