@@ -20,10 +20,43 @@ Several other Predictive Maintenance samples and solution templates existed prio
 
 The intent of this solution template is to showcase Machine Learning modeling backed by appropriate, scalable and modern cloud architecture. We felt that the existing high-quality Machine Learning samples provided little guidance as to what an end-to-end production Predictive Maintenance system would look like, whereas the solution templates didn't expose enough information about the data and models they used. Understanding, customizing and scaling these solution templates proved to be difficult due to the lack of adequate documentation and their unintentionally closed-source nature.
 
+The diagram below presents the logical tasks, processes and components implemented in this solution template. The *Demo Dashboard* (not shown on the diagram) provides easy access to all the tasks and available customizations.
+
 ![](img/data_flow.png)
 
-This solution describes the logical services that can be delivered to a customer – or leveraged if those logical services already exist – and then combined to deliver business impact through a production predictive maintenance deployment.  An important design goal is modularity: the service functions provide utility on their own, and can be re-used in different scenarios to solve many problems over time.  In the end, a more flexible and modular approach allows us to provide value faster, and to re-use existing services to solve other business problems at a lower incremental cost.
+As per the [Team Data Science Process (TDSP)](https://docs.microsoft.com/en-us/azure/machine-learning/team-data-science-process/), the activities on the left side of the diagram would typically be associated with the role of the Data Scientist, whereas the processes and components on the right side would be designed and implemented by Solution Architects and Software Engineers. The combination of Data Science and Engineering project tasks within a single solution template allows enacting the full [TDSP lifecycle](https://docs.microsoft.com/en-us/azure/machine-learning/team-data-science-process/lifecycle) consisting of the following stages:
 
+1. Business understanding
+2. Data acquisition
+3. Modeling
+4. Deployment
+5. Customer acceptance
+
+
+
+An important design goal is modularity: the components provide utility on their own, and can be re-used in different scenarios to solve other problems at a lower incremental cost.
+
+# Scenario (business understanding)
+
+TBD
+
+# Data acquisition and understanding
+
+![](img/data_collection.png)
+
+# Modeling
+
+![](img/modeling.png)
+
+# Deployment
+
+## Model operationalization
+## Featurization
+![](img/productionalization_feature_engineering.png)
+## Scoring, visualization and actions
+![](img/productionalization_scoring.png)
+
+<div class="github-only">
 ## Data Ingress and Storage
 
 Solving any business problem with AI starts with data. The question you are trying to answer will affect what data you need, and in what format, quantities, and time horizons.  Most predictive maintenance problems are based on the desire to understand the behavior and operational health of distributed devices with embedded sensors. A message ingestion service supports ingesting real-time operational data from those sensors and saving it to long term (cold) cloud storage.  For most predictive maintenance scenarios, this message ingestion substrate also provides two-way communication back to remote devices to configure and manage those devices over time.
@@ -41,8 +74,6 @@ The dashboard is used to present the near-real-time status of the business data 
 
 Ultimately, all the logical services listed above cumulatively represent a cloud AI platform that can support solving not just predictive maintenance business challenges, but other industry-specific or general business challenges.
 Predictive maintenance has wide applicability in many industries, as most companies utilize long-term assets that are core to delivering on their business model. There are also many industry-specific ISV solutions that more narrowly target these challenges by industry.
-
-<div class="github-only">
 
 ---
 

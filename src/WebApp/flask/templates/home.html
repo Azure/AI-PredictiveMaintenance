@@ -1,8 +1,17 @@
 {% extends "layout.html" %}
 {% block body %}
 <base href="{{ url_for('static', filename='docs/') }}">
-<div class="markdown">
-    {{ content|safe }}
+<div class="row">
+    <div class="col-lg-10 col-md-12 col-sm-12">
+        <div class="markdown">
+            {{ content|safe }}
+        </div>
+    </div>
 </div>
 {% endblock %}
-
+{% block script %}
+<script>
+$(document).ready(function() {
+});
+</script>
+{% endblock %}

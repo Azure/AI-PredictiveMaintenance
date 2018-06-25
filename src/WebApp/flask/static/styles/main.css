@@ -494,11 +494,20 @@ div.modeling .tab-content p {
   text-align: center;
 }
 
+/*
 div.markdown img {
   width: 50%;
   min-width: 100px;
   display: block;
   margin: 10px auto;
+}
+*/
+
+div.markdown img {
+  width:auto;
+  height:auto;
+  max-width:100%;
+  max-height:80vh;
 }
 
 .delete-device-button:hover {
