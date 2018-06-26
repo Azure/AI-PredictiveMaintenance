@@ -35,6 +35,7 @@ The parameters to consider while provisioning your feature engineering cluster a
 *  CPU requirements
 *  Disk requirements
 *  GPU
+
 The documentation for [pricing details of Databricks node types](https://azure.microsoft.com/en-us/pricing/details/databricks/) and [Azure VM series](https://azure.microsoft.com/en-us/pricing/details/virtual-machines/series/) explains the options available.
 ### On-demand cluster provisioning
 By default, your databricks cluser is provisioned as transient.  If your cluster is idle for 120 minutes then the cluster will be released.  There is no need to retain an idle cluster because you can create a new one in seconds.
