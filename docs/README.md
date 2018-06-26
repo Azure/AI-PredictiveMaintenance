@@ -1,6 +1,6 @@
 # Introduction
 
-For years, applying Artificial Intelligence to business problems has been possible, but not practical for mainstream organizations. Over the last few years, access to cheap storage at massive scale, combined with nearly limitless on-demand compute, has changed that. The cloud has enabled an environment where Artificial Intelligence is accessible to nearly all organizations. It has made returns and the cost model compelling not only for high-value endeavors, but also for more common scenarios.
+For a long time, applying Artificial Intelligence to business problems had been possible, but not practical for mainstream organizations. Over the last few years, access to cheap storage at massive scale, combined with nearly limitless on-demand compute, has changed that. The cloud has enabled an environment where Artificial Intelligence is accessible to nearly all organizations. It has made returns and the cost model compelling not only for high-value endeavors, but also for more common scenarios.
 
 Still, many organizations struggle with where to start in AI. What scenarios are most accessible, appealing and, at the same time, impactful initial project candidates?
 
@@ -20,7 +20,7 @@ Several other Predictive Maintenance samples and solution templates existed prio
 
 The intent of this solution template is to showcase Machine Learning modeling backed by appropriate, scalable and modern cloud architecture. We felt that the existing high-quality Machine Learning samples provided little guidance as to what an end-to-end production Predictive Maintenance system would look like, whereas the solution templates didn't expose enough information about the data and models they used. Understanding, customizing and scaling these solution templates proved to be difficult due to the lack of adequate documentation and their unintentionally closed-source nature.
 
-The diagram below presents the logical tasks, processes and components implemented in this solution template. The *Demo Dashboard* (not shown on the diagram) provides easy access to all the tasks and available customizations.
+The diagram below presents the logical tasks, processes and components implemented in this solution template. The *Demo Dashboard* (not shown in the diagram) provides easy access to all the tasks and available customizations.
 
 ![](img/data_flow.png)
 
@@ -36,19 +36,52 @@ As per the [Team Data Science Process (TDSP)](https://docs.microsoft.com/en-us/a
 
 An important design goal is modularity: the components provide utility on their own, and can be re-used in different scenarios to solve other problems at a lower incremental cost.
 
-# Scenario (business understanding)
+# Scenario
 
-TBD
+The solution deals with an imaginary IoT-enabled manufacturing environment comprised of generalized rotational equipment, which may include pumps, turbines, gearboxes, compressors, and engines. 
 
-# Data acquisition and understanding
+The machines are equipped with sensors from which telemetry is regularly transmitted to the cloud in near real time. Maintenance logs are also available and, among other things, contain records of failure events indicating exact points in time when a machine had a critical failure of a particular type.
+
+The main business objective of Predictive Maintenance is preempting these events in the future by raising alarms in advance, so that appropriate preventive activities can be carried out.
+
+# Data acquisition
+
+To enable modeling, data has to be ingested into the target analytic environment.
+
+The solution provides two data acquisition options:
+
+1. Generation of static seed data
+2. Ingestion of IoT telemetry and enterprise data (maintenance logs)
+
+As shown in the diagram below, both options produce a data set of the same format. Option #1 is available as a "shortcut" for quickly (in a matter of minutes) generating an arbitrarily large input data set, whereas option #2 emulates a realistic production situation where incoming telemetry is staged over an extended period of time in storage blobs, and maintenance logs are accumulated in some other data store (exemplified as a SQL database in the diagram).
 
 ![](img/data_collection.png)
 
+The data generator included with the solution is capable of both generating static seed data (option #1) and emitting real-time telemetry (option #2).
+
 # Modeling
+
+Having acquired an input data set, one can proceed to the [modeling stage of TDSP](https://docs.microsoft.com/en-us/azure/machine-learning/team-data-science-process/lifecycle-modeling).
 
 ![](img/modeling.png)
 
-# Deployment
+Modeling is an iterative process consisting of the following procedures:
+
+* Feature engineering
+* Training
+* Model evaluation
+
+Once it is confirmed (through evaluation) that the model is suitable for production, a data pipeline with scoring can be deployed to a production or production-like environment for final customer acceptance.
+
+In this solution, modeling procedures are implemented as annotated Python 3 Jupyter Notebooks. To enable scenarios with arbitrarily large input data sets (and also facilitate code/infrastructure reuse when implementing featurization in production), feature engineering is performed using Spark.
+
+The Notebooks can run on various compute targets; the ones supported out-of-the-box are:
+
+* Linux Data Science Virtual Machine (DSVM)
+* Azure Databricks (feature engineering only)
+
+
+# Productionalization
 
 ## Model operationalization
 ## Featurization
