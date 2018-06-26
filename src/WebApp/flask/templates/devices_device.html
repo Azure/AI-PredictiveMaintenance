@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div class="row">
+    <div class="col-md-12 col-sm-12">
+      <form>
+        <button type="button" class="btn btn-default" data-toggle="modal" id="view-device-logs" >View device logs</button>
+        <button type="button" class="btn btn-default" id="refresh-button"><i class="fa fa-refresh"></i> Refresh</button>
+      </form>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-8 col-md-12 col-sm-12">
+      <div id="health-degradation-chart"></div>
+    </div>
+  </div>
+{% endblock %}
+{% block script %}
+<script>
+
+  function pollLatestData() {
+    $('#health-degradation-chart').hide();
+    $('#refresh-button>i').addClass('fa-spin');
+    $.get('/api/devices/{{device_id}}').done(function(data) {
+      var data = $.map(data.health_history, function(v, index) {
+        return {
+          type: "scatter",
+          //mode: "lines",
+          name: index,
+          x: $.map(v.t, function(d) {
+            return renderDate(d, true);
+          }),
+          y: v.h
+        }
+      });
+      var layout = {
+        title: 'Health degradation',
+        xaxis: {
+          zeroline: false
+        },
+        yaxis: {
+          range: [0, 1],
+          type: 'linear',
+          zeroline: false
+        }
+      };
+
+      Plotly.newPlot('health-degradation-chart', data, layout, {displayModeBar: false});
+    }).always(function() {
+      $('#health-degradation-chart').show();
+      $('#refresh-button>i').removeClass('fa-spin');
+    });
+  }
+
+  pollLatestData();
+
+  $('#refresh-button').click(function() {
+    pollLatestData();
+  });
+
+  $('#view-device-logs').click(function() {
+    var win = window.open('/api/devices/{{ device_id }}/logs', '_blank');
+    win.focus();
+  });
+</script>
+{% endblock %}

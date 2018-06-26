@@ -19,7 +19,7 @@
             <Parameters>
                 <VmSku name="vmSize" defaultValue="Standard_DS3_v2" description="Linux DSVM size" allowedValues="{VirtualMachineSkus}" />
                 <Credential type="linuxvm" username="adminUsername" password="adminPassword" />
-                <VmSku name="databricksVmSize" defaultValue="Standard_D3_v2" usedFor="hdi" minCores="4" instanceCount="4" hidden="true" />
+                <VmSku name="databricksVmSize" defaultValue="Standard_D3_v2" minCores="4" instanceCount="3" hidden="true" configureDynamicSku="false"/>
                 <Parameter name="createDatabricksWorkspace" description="Create Databricks workspace?" defaultValue="Yes" allowedValues="Yes; No" />
             </Parameters>
         </Manual>
@@ -39,10 +39,10 @@
                 </Parameter>
             </Parameters>
         </Manual>
-        <ArmDeployment title="Creating Azure Container Instances" autoResolveParameters="true" source="arm/azureContainerInstances.json" />
         <ArmDeployment source="arm/resourceNames.json" title="Generating unique resource names" />
         <ArmDeployment source="arm/iotHub.json" title="Creating IoT Hub" />
         <ArmDeployment source="arm/storageAccount.json" title="Creating storage account" />
+        <ArmDeployment source="arm/deployMLWebService.json" title="Deploying Machine Learning Web service image to Azure Container Instances (ACI)" />
         <ArmDeployment source="arm/demoDashboard.json" title="Deploying and setting up Demo Dashboard" autoResolveParameters="true">
             <Parameters>
                 <Parameter name="webAppUrl" defaultValue="{PatternAssetBaseUrl}/WebApp.zip" hidden="true" />
@@ -53,8 +53,8 @@
                 <Parameter name="featurizerJarUrl" defaultValue="{PatternAssetBaseUrl}/featurizer_2.11-1.0.jar" hidden="true" />
                 <Parameter name="notebooksUrl" defaultValue="{PatternAssetBaseUrl}/Notebooks.zip" hidden="true" />
                 <Parameter name="databricksToken" defaultValue="{Inputs.DatabricksToken}" hidden="true" />
-                <Parameter name="scoreUrl" defaultValue="http://40.114.125.83:5001/score" hidden="true" />
-                <Parameter name="databricksWorkspaceLoginUrl" defaultValue="{Outputs.databricksworkspaceLoginUrl}" hidden="true" /> 
+                <Parameter name="scoreUrl" defaultValue="http://{Outputs.azureContainerName}.azurecontainer.io:5001/score" hidden="true" />
+                <Parameter name="databricksWorkspaceLoginUrl" defaultValue="{Outputs.databricksworkspaceLoginUrl}" hidden="true" />
             </Parameters>
         </ArmDeployment>
         <WebJob title="Configuring Python 3.6" retriable="true" autoRetryCount = "2">
