@@ -83,7 +83,9 @@ The Notebooks can run on various compute targets; the ones currently supported o
 
 # Productionalization
 
-Designing and building a production data pipeline for a Predictive Maintenance solution can be a relatively non-trivial task. One of the main reasons being that feature engineering (featurization) requires not only new, but also historic data. For reasons outlined below, this solution was built to support real-time featurization and scoring.
+Designing and building a production data pipeline for a Predictive Maintenance solution can be a relatively non-trivial task. One of the main reasons being that feature engineering (featurization) requires not only new, but also historic data.
+
+For reasons outlined below, this solution was built to support real-time featurization and scoring.
 
 ## Model operationalization
 
