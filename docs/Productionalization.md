@@ -16,7 +16,7 @@ Replacing manual gates between environments with automation accelerates delivery
 ## Machine manufacturer telemetry collection guidance
 For each unique machine type that you will be operating and monitoring, you need to ensure that you have adequate data collection components in place to inform your prediction system.  This starts first by following the manufacturer guidance to instrument your machine with the appropriate sensors, then collecting and storing that data during operation.
 ## Real time data ingress: IoT hub, scale, security
-The implementation details of real-time ingress are documented in the [data collection section of the solution design document](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Solution-Design.md#i-data-collection).  Azure IoT Hub is designed to handle scalablility and security out of the box.  If you are collecting your real-time telemetry with another service, you will need to include your own answers to scalability and security.
+The implementation details of real-time ingress are documented in the [data collection section of the solution design document](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Solution-Design.md#i-data-collection).  Azure IoT Hub is designed to handle scalablility and security out of the box.  Refer to the [IoT Solutions Remote Monitoring documentation](https://docs.microsoft.com/en-us/azure/iot-accelerators/iot-accelerators-remote-monitoring-explore) for details.  If you are collecting your real-time telemetry with another service, you will need to include your own answers to scalability and security.
 ## Long term storage of live data - blob storage (archive), table storage, security
 Training and retraining requires a long time period of historical data.  IoT Hub natively supports routing messages to Azure storage as BLOBs.  If you are collecting your real-time telemetry with another service, you will need to include a long term persistance story.
 ## Maintenance records
@@ -26,7 +26,7 @@ In order to produce useful predictions from your model you will need to have a s
 
 # Modeling
 ## Small scale modeling on the DSVM
-The DSVM is not considered to be part of the production predictive maintenance solution.  That said, it is still important to handle your data securely on the DSVM.  First, you need to be familiar with the [security best practices for IaaS](https://docs.microsoft.com/en-us/azure/security/azure-security-iaas) and apply the recommendations as appropriate.  You can monitor your VM security state by installing the [VM Agent](https://docs.microsoft.com/en-us/azure/security-center/security-center-enable-vm-agent) on your DSVM via [Azure Security Center](https://docs.microsoft.com/en-us/azure/security-center/).
+It is important to handle your data securely on the DSVM.  You should first familiarize yourself with the [security best practices for IaaS](https://docs.microsoft.com/en-us/azure/security/azure-security-iaas) and apply the recommendations to your VM as appropriate.  You can monitor your VM security state by installing the [VM Agent](https://docs.microsoft.com/en-us/azure/security-center/security-center-enable-vm-agent) on your DSVM via [Azure Security Center](https://docs.microsoft.com/en-us/azure/security-center/).
 ## Large scale modeling featurization
 The recommended large scale featurization platform is [Databricks](https://docs.microsoft.com/en-us/azure/azure-databricks/).  Familiarize yourself with the [Databricks getting started guide](https://databricks.com/product/getting-started-guide) and the [gentle introduction to Apache Spark on Databricks](https://docs.databricks.com/spark/latest/gentle-introduction/gentle-intro.html).
 ### Infrastructure guidance
@@ -45,8 +45,11 @@ You can [monitor your Spark cluster](https://spark.apache.org/docs/latest/monito
 ### Security
 Databricks ships with [enterprise grade security](https://databricks.com/databricks-enterprise-security) built in.
 ## Large scale model training - Infrastructure guidance, on-demand cluster provisioning, data pump, velocity monitoring
+TODO
 ## Model accuracy
+TODO
 ## Model management
+Refer to [the authoritative model management documentation](https://docs.microsoft.com/en-us/azure/machine-learning/desktop-workbench/model-management-overview) produced by the Azure Machine Learning Model Management team.
 
 # Scoring pipeline
 ## Real time featurization - Infrastructure guidance, scale, security, CICD, monitoring, logging, alerting, defect root cause
