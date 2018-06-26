@@ -86,6 +86,7 @@ class CycleAggregator(spark: SparkSession,
     import spark.implicits._
 
     val ehConf = EventHubsConf(eventHubConnectionString)
+      .setConsumerGroup("sparkconsumergroup")
       .setStartingPosition(EventPosition.fromStartOfStream)
 
     val schemaTyped = new StructType()

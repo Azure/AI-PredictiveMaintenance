@@ -29,7 +29,7 @@ class Engine(SimulatedDevice):
         if 'h1' in properties_reported and 'h2' in properties_reported:
             h1_initial = float(properties_reported['h1'])
             h2_initial = float(properties_reported['h2'])
-        
+
         ttf1 = ttf(h1_initial)
         ttf2 = ttf(h2_initial)
 
@@ -48,19 +48,16 @@ class Engine(SimulatedDevice):
 
     def on_update(self, update_state, properties_json):
         if update_state == 'COMPLETE':
-            properties_json = properties_json['desired']
-        if 'speed' in properties_json:
-            self.target_speed = properties_json['speed']
-        if 'mode' in properties_json:
-            mode = properties_json['mode']
-            self.log(mode, 'MODE_CHANGE')
-            self.auto_pilot = mode == 'auto'
+            properties_json = properties_json['desired'] if 'desired' in properties_json else {}
+        # update internal state based on the desired properties here
 
     def report_health(self):
-        self.report_state({
+        health = {
             'h1': self.digital_twin.h1,
             'h2': self.digital_twin.h2
-        })
+        }
+        self.report_state(health)
+        self.log(json.dumps(health), 'SIM_HEALTH', logging.DEBUG)
 
     def run(self):
         self.log('Simulation started.')
@@ -99,6 +96,6 @@ class Engine(SimulatedDevice):
                     self.report_health()
                     self.log('failure', str(e), logging.CRITICAL)
                     return
-            
+
             self.report_health()
             time.sleep(60)

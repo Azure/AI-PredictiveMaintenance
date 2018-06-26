@@ -74,7 +74,7 @@ body.fixed-nav {
 #mainNav .navbar-collapse .navbar-nav .nav-item .nav-link {
   cursor: pointer;
 }
-  
+
 #mainNav .navbar-collapse .navbar-sidenav .sidenav-second-level,
 #mainNav .navbar-collapse .navbar-sidenav .sidenav-third-level {
   padding-left: 0;
@@ -108,14 +108,14 @@ body.fixed-nav {
   position: relative;
   min-width: 45px;
 }
-  
+
 #mainNav .navbar-collapse .navbar-nav > .nav-item.dropdown > .nav-link .indicator {
   position: absolute;
   top: 5px;
   left: 21px;
   font-size: 10px;
 }
-  
+
 #mainNav .navbar-collapse .navbar-nav > .nav-item.dropdown .dropdown-menu > .dropdown-item > .dropdown-message {
   overflow: hidden;
   max-width: none;
@@ -493,3 +493,74 @@ div.modeling .tab-content p {
   width: 100%;
   text-align: center;
 }
+
+/*
+div.markdown img {
+  width: 50%;
+  min-width: 100px;
+  display: block;
+  margin: 10px auto;
+}
+*/
+
+div.markdown img {
+  width:auto;
+  height:auto;
+  max-width:100%;
+  max-height:60vh;
+}
+
+.delete-device-button:hover {
+  color: red;
+}
+
+#devices-table {
+  display: none;
+}
+
+#devices-table span.last-updated {
+  display: block;
+  font-size: 0.7rem;
+}
+
+div.markdown .github-only {
+  display: none;
+}
+
+div.markdown {
+  margin-top: -70px;
+}
+
+div.markdown h1, div.markdown h2, div.markdown h3, div.markdown h4, div.markdown h5, div.markdown  h6 {
+  padding-top: 70px;
+}
+
+div.toc {
+  position: fixed;
+  padding-left: 90px;
+  padding-top: 20px;
+}
+
+div.toc ul {
+  padding-left: 0;
+  list-style: none;
+}
+
+div.toc ul li {
+  padding: 10px 5px;
+  border-left: 3px solid transparent;
+}
+
+div.toc ul li.active {
+  border-left: 3px solid steelblue;
+}
+
+div.toc ul li.active {
+  font-weight: bold;
+}
+
+div.toc ul li.h2_level {
+  font-size: 0.7rem;
+  padding-left: 30px;
+}
+

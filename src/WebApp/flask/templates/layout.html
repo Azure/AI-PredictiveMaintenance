@@ -27,7 +27,7 @@
         <li class="nav-item" data-toggle="tooltip" data-placement="right">
           <a class="nav-link" href="/devices">
             <i class="fa fa-fw fa-bolt"></i>
-            <span class="nav-link-text">IoT device simulation</span>
+            <span class="nav-link-text">Device simulation</span>
           </a>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right">
@@ -44,7 +44,7 @@
         </li>
         <li id="version-info">
             <b>Version</b>: <span>{{ version_info }}</span>
-        </li>    
+        </li>
       </ul>
     </div>
     <div class="collapse navbar-collapse justify-content-end" id="nav-content">
@@ -78,18 +78,10 @@
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js"></script>
     <script type="text/javascript" src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/bootstrap-slider.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+    <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script> -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script type= "text/javascript" src="{{ url_for('static',filename='styles/main.js') }}"></script>
   </div>
-  <script>
-    function displayAlert(message, alertClass) {
-      var alertNode = $($('#alert-template').html());
-      alertNode.addClass(alertClass);
-      alertNode.children().first().html(message);
-      alertNode.appendTo($('#alert-container'));
-    }
-  </script>
   {% block script %}{% endblock %}
   <div id="alert-template">
     <div class="alert alert-dismissible fade show" role="alert">

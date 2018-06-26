@@ -40,20 +40,23 @@ def set_last_run_id(run_id):
     databricks_details = {'PartitionKey': 'pdm', 'RowKey': 'pdm', 'run_id' : str(run_id)}
     table_service.insert_or_replace_entity('databricks', databricks_details)
 
-def is_job_active(run_id):
+def get_run(run_id):
     run_state = 'PENDING'
     while run_state in ['PENDING', 'RESIZING']:
         run_details = call_api('2.0/jobs/runs/get?run_id=' + str(run_id)).json()
         run_state = run_details['state']['life_cycle_state']
         time.sleep(10)
+    return run_details
 
+def is_job_active(run_details):
+    run_state = run_details['state']['life_cycle_state']
     return run_state == 'RUNNING'
 
 def upload_notebooks_databricks():
     #upload notebook to app service
-    notebooks_zip_local_path = os.path.join(TMP, 'Notebooks.zip') 
+    notebooks_zip_local_path = os.path.join(TMP, 'Notebooks.zip')
     urllib.request.urlretrieve(NOTEBOOKS_URL, notebooks_zip_local_path)
-    
+
     zip_ref = zipfile.ZipFile(notebooks_zip_local_path, 'r')
     notebooks_local_path = os.path.join(TMP, 'Notebooks')
     zip_ref.extractall(notebooks_local_path)
@@ -66,11 +69,11 @@ def upload_notebooks_databricks():
     put_payload = { 'path' : bdfs, 'overwrite' : 'true', 'language':'PYTHON', 'format':'JUPYTER' }
     resp = call_api('2.0/workspace/import', method=requests.post, data=put_payload, files = files).json()
 
-last_run_id = get_last_run_id()
-
 upload_notebooks_databricks()
 
-if last_run_id and is_job_active(last_run_id):
+last_run_id = get_last_run_id()
+
+if last_run_id is not None and is_job_active(get_run(last_run_id)):
     exit(0)
 
 jar_local_path = os.path.join(TMP, 'featurizer_2.11-1.0.jar')
@@ -92,10 +95,10 @@ sparkSpec= {
     'spark.speculation' : 'true'
 }
 payload = {
-    'spark_version' : '4.1.x-scala2.11',
+    'spark_version' : '4.2.x-scala2.11',
     'node_type_id' : 'Standard_D3_v2',
     'spark_conf' : sparkSpec,
-    'num_workers' : 2
+    'num_workers' : 1
 }
 
 #run job
@@ -131,7 +134,8 @@ payload = {
 run_details = call_api('2.0/jobs/runs/submit', method=requests.post, json=payload).json()
 run_id = run_details['run_id']
 set_last_run_id(run_id)
+run_details = get_run(run_id)
 
-if not is_job_active(run_id):
-    errorMessage = 'Unable to create Spark job. Run ID: {0}'.format(run_id)
+if not is_job_active(run_details):
+    errorMessage = 'Unable to create Spark job. Run ID: {0}. Failure Details: {1}'.format(run_id, run_details['state']['state_message'])
     raise Exception(errorMessage)

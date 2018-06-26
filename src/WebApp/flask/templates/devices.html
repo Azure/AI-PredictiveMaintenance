@@ -4,7 +4,7 @@
   <div class="col-lg-12">
     <form>
       <button type="button" class="btn btn-default" data-toggle="modal" data-target="#new-device-modal" >Add device</button>
-      <button type="button" class="btn btn-default pull-right" id="refresh-button"><i class="fa fa-refresh"></i></button>
+      <button type="button" class="btn btn-default" id="refresh-button"><i class="fa fa-refresh"></i> Refresh</button>
     </form>
     <div class="table-responsive">
       <table id="devices-table" class="table table-hover">
@@ -54,16 +54,17 @@
 {% block script %}
 <script>
 $(document).ready(function() {
-  function reloadDevices() {
+  function reload() {
+    var devicesTable = $('#devices-table');
+    devicesTable.hide();
     $('#refresh-button>i').addClass('fa-spin');
     return $.get('/api/devices').done(function(response) {
-      var devicesTable = $('#devices-table');
       var devicesTbody = devicesTable.find('tbody');
       devicesTbody.empty();
       $.each(response, function(i, device) {
         child = $('<tr>')
           .append($('<td><a href="/devices/' + device.deviceId + '">' + device.deviceId + '</a></td>'))
-          .append($('<td>' + device.lastActivityTime + '</td>'))
+          .append($('<td>' + renderDate(device.lastActivityTime) + '</td>'))
           .append($('<td>' + device.connectionState + '</td>'))
           .append($('<td><button class="btn btn-light delete-device-button" data-device="' + device.deviceId + '"><i class="fa fa-times" aria-hidden="true"></i></button></td>'))
         devicesTbody.append(child);
@@ -71,22 +72,25 @@ $(document).ready(function() {
 
       $('.delete-device-button').click(function() {
         var deviceId = $(this).attr('data-device');
+        $(this).find('i').addClass('fa-pulse');
         $.ajax({
           url: '/api/devices/' + deviceId,
           method: 'DELETE'
         }).done(function(response) {
-          reloadDevices().done(function(){
+          reload().done(function() {
             displayAlert('Device <strong>' + deviceId + '</strong> was successfully deleted.', 'alert-success');
           });
         }).fail(function(response) {
+          //TODO: handle deletion failure
         })
       });
     }).always(function() {
+      devicesTable.show();
       $('#refresh-button>i').removeClass('fa-spin');
     });
   }
 
-  reloadDevices();
+  reload();
 
   function clearValidationErrors(modal) {
     var modal = $('#new-device-modal');
@@ -120,7 +124,7 @@ $(document).ready(function() {
           simulationProperties: $('#simulation-properties').val()
       }
     }).done(function(response){
-      reloadDevices().done(function() {
+      reload().done(function() {
         displayAlert('Device <strong>' + deviceId + '</strong> was successfully created.', 'alert-success');
         $('#new-device-modal .close').click();
       });
@@ -142,7 +146,7 @@ $(document).ready(function() {
     });
   });
   $('#refresh-button').click(function() {
-    reloadDevices();
+    reload();
   });
 });
 </script>

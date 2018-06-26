@@ -1,0 +1,58 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+    },
+    "variables": {        
+        "namePrefix": "[resourceGroup().name]",
+        "unique": "[uniqueString(resourceGroup().id)]",
+        "containerName": "[concat('pdm', variables('unique'))]",
+        "location": "[resourceGroup().location]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.ContainerInstance/containerGroups",
+            "name": "[variables('containerName')]",
+            "apiVersion": "2018-04-01",
+            "location": "[variables('location')]",
+            "scale": null,
+            "properties": {
+                "containers": [
+                    {
+                        "name": "[variables('containerName')]",
+                        "properties": {
+                            "image": "predictivemaintenance/pdm-scoring-image:latest",
+                            "command": [],
+                            "ports": [
+                                {
+                                    "port": 5001
+                                }
+                            ],
+                            "environmentVariables": [],
+                            "resources": {
+                                "requests": {
+                                    "memoryInGB": 1,
+                                    "cpu": 1
+                                }
+                            }
+                        }
+                    }
+                ],
+                "ipAddress": {
+                    "ports": [
+                        {
+                            "port": 5001
+                        }
+                    ],
+                    "type": "Public",
+                    "dnsNameLabel": "[variables('containerName')]"
+                },
+                "osType": "Linux"
+            },
+            "dependsOn": []
+        }
+    ],
+    "outputs": {
+        "azureContainerName": { "type": "string", "value": "[concat(variables('containerName'),'.', resourceGroup().location)]" }
+    }
+}
