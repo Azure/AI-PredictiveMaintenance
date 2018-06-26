@@ -2,9 +2,16 @@
 {% block body %}
 <base href="{{ url_for('static', filename='docs/') }}">
 <div class="row">
-    <div class="col-lg-10 col-md-12 col-sm-12">
+    <div class="col-lg-8 col-md-12 col-sm-12">
         <div class="markdown">
             {{ content|safe }}
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-12 col-sm-12">
+        <div class="toc">
+            <h4>Contents</h4>
+            <ul>
+            </ul>
         </div>
     </div>
 </div>
@@ -12,6 +19,72 @@
 {% block script %}
 <script>
 $(document).ready(function() {
+    var allHeaders = $('div.markdown :header');
+    var toc = [];
+    $.each(allHeaders, function(i, h) {
+        var el = $(h);
+        el.attr('id', 'id_' + i);
+        toc.push(el);
+    });
+
+    var tocList = $('div.toc>ul');
+    var pageUrl = window.location.href.split("#")[0];
+    $.each(toc, function(i, el) {
+        var link = $('<a>').text(el.text()).attr('href', pageUrl + '#' + el.attr('id'));
+        var li = $('<li>').append(link).attr('id', el.attr('id') + '_toc').addClass(el.prop("tagName").toLowerCase() + '_level');
+        tocList.append(li);
+        el.data('tocitem', li.attr('id'));
+    });
+
+    function elementPosition(element) {
+        var pageTop = $(window).scrollTop();
+        var pageBottom = pageTop + $(window).height();
+        var elementTop = $(element).offset().top + parseInt($(element).css('padding-top'));
+        var elementBottom = elementTop + $(element).height();
+        if (elementBottom <= pageTop) {
+            return -1;
+        }
+        if (elementTop >= pageBottom) {
+            return 1
+        }
+        return 0;
+    }
+
+    var update = function(){
+        var positions = $.map(toc, function(el, i) {
+            return elementPosition(el[0]);
+        });
+
+        tocList.find('li').removeClass('active');
+
+        var previousPosition = -1;
+
+        var activate = function(el) {
+            var itemId = el.data('tocitem');
+            $('#' + itemId).addClass('active');
+        }
+
+        for (var i = 0; i < positions.length; i++) {
+            var currentPosition = positions[i];
+
+            if (currentPosition === 0) {
+                activate(toc[i]);
+                return;
+            }
+
+            if (previousPosition === -1 && currentPosition === 1) {
+                activate(toc[i - 1]);
+                return;
+            }
+
+            previousPosition = currentPosition;
+        }
+
+    };
+
+    $(window).on('scroll', update);
+    $(window).on('resize', update);
+    update();
 });
 </script>
 {% endblock %}
