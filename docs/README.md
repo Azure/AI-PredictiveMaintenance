@@ -101,7 +101,7 @@ The solution includes a pre-trained model, which is deployed to Azure Container 
 
 ## Telemetry ingestion and featurization
 
-The solution employs [Spark Structured Streaming](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html) (running as a job on Azure Databricks) to perform the featurization of IoT telemetry.
+The solution employs [Spark Structured Streaming](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html) to perform the featurization of IoT telemetry. The streaming job runs on Azure Databricks.
 
 Briefly, [Azure Event Hubs Connector for Apache Spark](https://github.com/Azure/azure-event-hubs-spark) allows making the *Event Hub-compatible endpoint* of the *IoT Hub* a streaming input source. The streaming job (written in Scala) extracts features from the incoming telemetry augmented with historical and static data persisted in a data store (e.g., Azure Table Storage). This exactly mimics the feature engineering process performed during modeling. The main difference is that here it happens in near real time. Notice the feedback loop in the diagram below: its purpose is the augmentation of new data with the results of previous aggregations, in other words, the historical data.
 
