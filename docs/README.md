@@ -1,6 +1,6 @@
 # Introduction
 
-For a long time, applying Artificial Intelligence to business problems had been possible, but not practical for mainstream organizations. Over the last few years, access to cheap storage at massive scale, combined with nearly limitless on-demand compute, has changed that. The cloud has enabled an environment where Artificial Intelligence is accessible to nearly all organizations. It has made returns and the cost model compelling not only for high-value endeavors, but also for more common scenarios.
+Applying Artificial Intelligence to business problems has not been practical for most mainstream organizations. Recent developments in cloud computing such as inexpensive storage and scalable on-demand compute have changed that. The cloud has enabled an environment where Artificial Intelligence is accessible to nearly all organizations. It has made returns and the cost model compelling not only for high-value endeavors, but also for more common scenarios.
 
 Still, many organizations struggle with where to start in AI. What scenarios are most accessible, appealing and, at the same time, impactful initial project candidates?
 
@@ -38,11 +38,11 @@ An important design goal is modularity: the components provide utility on their 
 
 # Scenario
 
-The solution deals with an imaginary IoT-enabled manufacturing environment comprised of generalized rotational equipment, which may include pumps, turbines, gearboxes, compressors, and engines. 
+The solution deals with a hypothetical IoT-enabled manufacturing environment comprised of generalized rotational equipment, which may include pumps, turbines, gearboxes, compressors, and engines. 
 
-The machines are equipped with sensors from which telemetry is regularly transmitted to the cloud in near real time. Maintenance logs are also available and, among other things, contain records of failure events indicating exact points in time when a machine had a critical failure of a particular type.
+The machines are equipped with sensors that transmit telemetry to the cloud in near real time. Maintenance logs are also available and, among other things, contain records of failure events indicating exact points in time when a machine had a critical failure of a particular type.
 
-The main business objective of Predictive Maintenance is preempting these events in the future by raising alarms in advance, so that appropriate preventive activities can be carried out.
+The objective of Predictive Maintenance is predicting failures far enough ahead of time to allow less costly mitigation, while also avoiding replacing healthy components (preventive maintenance).
 
 # Data acquisition
 
@@ -65,17 +65,17 @@ Having acquired an input data set, one can proceed to the [modeling stage of TDS
 
 ![](img/modeling.png)
 
-Modeling is an iterative process consisting of the following procedures:
+Modeling is an iterative process consisting of:
 
 * Feature engineering
 * Training
 * Model evaluation
 
-Once it is confirmed (through evaluation) that the model is suitable for production, a data pipeline with scoring can be deployed to a production or production-like environment for final customer acceptance.
+After selecting the best model according to the evaluation criteria, a data pipeline with scoring can be deployed to a production or production-like environment for final customer acceptance.
 
 In this solution, modeling procedures are implemented as annotated Python 3 Jupyter Notebooks. To enable scenarios with arbitrarily large input data sets (and also facilitate code/infrastructure reuse when implementing featurization in production), feature engineering is performed using Spark.
 
-The Notebooks can run on various compute targets; the ones supported out-of-the-box are:
+The Notebooks can run on various compute targets; the ones currently supported out-of-the-box are:
 
 * Linux Data Science Virtual Machine (DSVM)
 * Azure Databricks (feature engineering only)
@@ -83,11 +83,20 @@ The Notebooks can run on various compute targets; the ones supported out-of-the-
 
 # Productionalization
 
+Designing and building a production data pipeline for a Predictive Maintenance solution can be a relatively non-trivial task. One of the main reasons being that feature engineering (featurization) requires not only new, but also historic data. For reasons outlined below, this solution was built to support real-time featurization and scoring.
+
 ## Model operationalization
+
+
+
 ## Featurization
 ![](img/productionalization_feature_engineering.png)
 ## Scoring, visualization and actions
 ![](img/productionalization_scoring.png)
+
+# Using the Dashboard
+
+# Further reading
 
 <div class="github-only">
 ## Data Ingress and Storage
