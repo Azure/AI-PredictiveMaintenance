@@ -30,9 +30,6 @@ app.debug = True
 # Initialize Flask-Breadcrumbs
 Breadcrumbs(app=app)
 
-STORAGE_ACCOUNT_SUFFIX = 'core.windows.net'
-TELEMETRY_CONTAINER_NAME = 'telemetry'
-
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
@@ -296,7 +293,15 @@ def get_intelligence():
     unknown_predictions = dict([(device_id, ('Unknown', None)) for device_id in device_ids if device_id not in predictions_by_device])
     combined = {**predictions_by_device, **unknown_predictions}
 
-    summary = collections.Counter(['Need maintenance' if v[0].startswith('F') else v[0] for v in combined.values()])
+    summary = {
+        'Failure predicted': 0,
+        'Healthy': 0,
+        'Need maintenance': 0,
+        'Unknown': 0
+    }
+
+    summary_computed = collections.Counter(['Failure predicted' if v[0].startswith('F') else v[0] for v in combined.values()])
+    summary.update(summary_computed)
 
     payload = {
         'predictions': [{

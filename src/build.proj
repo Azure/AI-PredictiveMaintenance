@@ -2,6 +2,7 @@
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Target Name="CopyAssets">
     <Exec Command="git log --format=&quot;commit %%h&quot; -n 1 > WebApp\flask\version.info" IgnoreExitCode="false" />
+    <Exec Command="copy /Y ..\docs\README.md WebApp\flask\ &amp; mkdir WebApp\flask\static\docs\img &amp; copy ..\docs\img\* WebApp\flask\static\docs\img\" IgnoreExitCode="false" />
     <Delete Files="..\assets\WebApp.zip" />
     <ZipDir ZipFileName="..\assets\WebApp.zip" DirectoryName="WebApp" />
     <Delete Files="..\assets\Notebooks.zip" />
