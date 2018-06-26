@@ -38,7 +38,11 @@ An important design goal is modularity: the components provide utility on their 
 
 # Scenario
 
+<<<<<<< HEAD
 The solution deals with a hypothetical IoT-enabled manufacturing environment comprised of generalized rotational equipment, which may include pumps, turbines, gearboxes, compressors, and engines.
+=======
+The solution deals with a hypothetical IoT-enabled manufacturing environment comprised of generalized rotational equipment, which may include pumps, turbines, gearboxes, compressors, and engines. 
+>>>>>>> upstream/master
 
 The machines are equipped with sensors that transmit telemetry to the cloud in near real time. Maintenance logs are also available and, among other things, contain records of failure events indicating exact points in time when a machine had a critical failure of a particular type.
 
@@ -83,6 +87,7 @@ The Notebooks can run on various compute targets; the ones currently supported o
 
 # Productionalization
 
+<<<<<<< HEAD
 Designing and building a production data pipeline for a Predictive Maintenance solution can be a relatively non-trivial task. As it is often the case when dealing with time series, feature engineering (featurization) requires access to historical data in addition to the new data.
 
 Generally, predictions can be made either in real time or on a batch basis. This solution was built to support near real-time featurization and scoring, which means up-to-date predictions are generated almost as soon as new data is available.
@@ -94,6 +99,25 @@ When using Azure Machine Learning (currenty *Internal Preview)*, it takes the fo
 * Registration
 * Docker image creation
 * Deployment of the image to a compute target
+=======
+Designing and building a production data pipeline for a Predictive Maintenance solution can be a relatively non-trivial task. One of the main reasons being that feature engineering (featurization) requires not only new, but also historic data. For reasons outlined below, this solution was built to support real-time featurization and scoring.
+
+## Model operationalization
+
+
+
+## Featurization
+![](img/productionalization_feature_engineering.png)
+## Scoring, visualization and actions
+![](img/productionalization_scoring.png)
+
+# Using the Dashboard
+
+# Further reading
+
+<div class="github-only">
+## Data Ingress and Storage
+>>>>>>> upstream/master
 
 The end result is a real-time scoring Web service with a REST API interface.
 
