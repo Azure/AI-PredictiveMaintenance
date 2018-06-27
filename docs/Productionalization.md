@@ -1,7 +1,5 @@
 # Objectives
-The purpose of this document is to define the basics of operating a production solution in Azure, provide references to the best practices documents for each of those concepts, then describe how those concepts should be applied to each component of a Predictive Maintenance solution.
-
-
+The purpose of this document is to provide guidance for you to configure each component of your Predictive Maintenance solution for handling production workloads.
 
 # Data collection
 ## Real time data ingress: IoT hub, scale, security
@@ -22,15 +20,14 @@ The documentation for [pricing details of Databricks node types](https://azure.m
 By default, your databricks cluser is provisioned as transient.  If your cluster is idle for 120 minutes then the cluster will be released.  There is no need to retain an idle cluster because you can create a new one in seconds.
 ## Model training
 TODO
-## Model management
+## Model management and operationalization
 Refer to [the authoritative model management documentation](https://docs.microsoft.com/en-us/azure/machine-learning/desktop-workbench/model-management-overview) produced by the Azure Machine Learning Model Management team.
-## Model operationalization
-TODO
+
 
 # Scoring
 ## Real-time featurization
 ### Scalability points (with respect to telemetry frequency and the number of machines, and – perhaps – the type of telemetry)
-IoT Hub
+Azure IoT Hub offers several options based on [pricing](https://azure.microsoft.com/en-us/pricing/details/iot-hub/) and [scale](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-scaling).  IoT Hub provides [basic and standard tiers](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-scaling#basic-and-standard-tiers) which will impact the features available.  Both tiers provide the same [3 options for throughput scale](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-scaling#message-throughput).
 Spark cluster
 Running featurization in Streaming mode vs semi-batch mode (this needs to cover EventHub’s data retention policy)
 ### Recovery from failures (what to do if the featurizer crashes?)
