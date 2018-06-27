@@ -121,7 +121,12 @@ Solution's default telemetry ingestion components and output sinks can be relati
  * the necessity to implement feature engineering (previously done on Spark) from scratch
 
 ## Scoring, visualization and actions
+
+New feature data, stored in an Azure Storage table by the featurization job, is passed to the operationalized model to generate predictions. This process is orchestrated by a Web Job, which runs independently from the featurizer (this was done to promote better modularity and separation of concerns). Predictions are written to another Azure Storage table. The Dashboard, or a different visualization and reporting tool (e.g., Power BI), can access and render both the predictions and real-time aggregates which are computed by the featurizer.
+
 ![](img/productionalization_scoring.png)
+
+Note: the diagram shows that the real-time machine learning Web service runs on Azure Kubernetes Service (AKS); in the default configuration, however, it is deployed to Azure Container Instances (ACI). While both options are acceptable, AKS is usually preferred in production, whereas ACI typically serves as a light-weight dev/test option.
 
 # Using the Dashboard
 
