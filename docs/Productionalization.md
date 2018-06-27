@@ -2,8 +2,10 @@
 The purpose of this document is to provide guidance for you to configure each component of your Predictive Maintenance solution for handling production workloads.
 
 # Data collection
-## Real time data ingress: IoT hub, scale, security
-The implementation details of real-time ingress are documented in the [data collection section of the solution design document](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Solution-Design.md#i-data-collection).  Azure IoT Hub is designed to handle scalablility and security out of the box.  Refer to the [IoT Solutions Remote Monitoring documentation](https://docs.microsoft.com/en-us/azure/iot-accelerators/iot-accelerators-remote-monitoring-explore) for details.  If you are collecting your real-time telemetry with another service, you will need to include your own answers to scalability and security.  Attempting to solve a predictive maintenance problem is predicated on already having a comprehensive remote monitoring solution operationalized.
+## Real time data ingress with IoT Hub
+The implementation details of real-time ingress are documented in the [data collection section of the solution design document](https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/Solution-Design.md#i-data-collection).
+Azure IoT Hub offers several options based on [pricing](https://azure.microsoft.com/en-us/pricing/details/iot-hub/) and [scale](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-scaling).  IoT Hub provides [basic and standard tiers](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-scaling#basic-and-standard-tiers) which will impact the features available.  Both tiers provide the same [3 options for throughput scale](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-scaling#message-throughput).
+Refer to the [IoT Solutions Remote Monitoring documentation](https://docs.microsoft.com/en-us/azure/iot-accelerators/iot-accelerators-remote-monitoring-explore) for details.  Attempting to solve a predictive maintenance problem is predicated on already having a comprehensive remote monitoring solution operationalized.
 
 # Modeling
 ## Featurization
@@ -27,7 +29,6 @@ Refer to [the authoritative model management documentation](https://docs.microso
 # Scoring
 ## Real-time featurization
 ### Scalability points (with respect to telemetry frequency and the number of machines, and – perhaps – the type of telemetry)
-Azure IoT Hub offers several options based on [pricing](https://azure.microsoft.com/en-us/pricing/details/iot-hub/) and [scale](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-scaling).  IoT Hub provides [basic and standard tiers](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-scaling#basic-and-standard-tiers) which will impact the features available.  Both tiers provide the same [3 options for throughput scale](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-scaling#message-throughput).
 Spark cluster
 Running featurization in Streaming mode vs semi-batch mode (this needs to cover EventHub’s data retention policy)
 ### Recovery from failures (what to do if the featurizer crashes?)
