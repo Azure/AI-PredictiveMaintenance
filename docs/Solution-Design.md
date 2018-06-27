@@ -1,7 +1,6 @@
-# Solution Design
+# Applicability and re-use of the architecture and components in different scenarios
 
 ## I. Data collection
-![](img/data_collection.png)
 
 The Message Ingestion and Storage service addresses the need to ingest (often extremely large volumes of) data being created by distributed devices and store it centrally for visibility and reporting. The devices can range from extremely small (low-power microcontrollers that collect data from sensors embedded in larger equipment) to large (PCs or servers, or personal devices such as phones). Microsoft offers services like IoT Hub and Event Hub to ingest data, but in some narrow circumstances, customers can use existing technology such as Apache Kafka for message ingestion, if a robust enterprise service already exists.
 
@@ -58,7 +57,6 @@ Possible Outcomes
 * Storage service established
 
 ## II. Modeling
-![](img/modeling.png)
 
 After all of the relevant data has been ingested, accumulated, combined, the process of creating an AI model can start. The AI training system is what is used to create and iteratively improve that model until it is ready for use.
 
@@ -98,8 +96,6 @@ Work in progress. Refer to [AI Development Using Data Science VMs](https://blogs
 ## IV. Productionalization
 ### Ingress and feature engineering
 
-![](img/productionalization_feature_engineering.png)
-
 The online scoring system represents the production side of the AI system, and is the subset of the architecture that processes incoming data – by applying the deployed model – to generate a value that will potentially result in a desired business event. For example, in the simplest of terms, a trained model may be deployed into production that evaluates several variables and computes a value with a logical ‘range’ that indicates normal or safe behavior. If the computed value falls outside of that range, then an event may be generated that results in the appropriate business action, which could be performed by a machine or human being. As stated on the previous slide, this distinct environment for scoring is only required if the operational cadence for evaluation is indeed far more real-time than the (normally batch) training cadence.
 
 Like the training system, the size and form of this production environment is highly dependent upon the business problem being solved, as well as the number and geographic distribution of the devices that are being monitored. However, potentially different from the training system, there isn’t a consistent correlation between the size and scope of the training challenge and the size and scope of the production challenge. More specifically, while it may be possible to train the model in a single, scaled DSVM, if the device telemetry volume and velocity are high, the production AI system may need to be scaled out across various machines, and potentially multiple geographies. Conversely, it is possible – though less common – to have an extremely complex training model that requires a demanding (scaled) system to process (on Spark for example), that can be deployed into production on a small system that evaluates the results in near-real-time with very little resources required.
@@ -123,7 +119,6 @@ It deserves mention that in production this architecture (rather simplistically)
 A great summary of how different ASA windowing strategies would support business scenarios is here: https://msdn.microsoft.com/en-us/azure/stream-analytics/reference/windowing-azure-stream-analytics
 
 ### Scoring and visualization
-![](img/productionalization_scoring.png)
 
 Data visualization enables both reactive and proactive activities. Great visualizations allow decision makers to see data presented graphically, so they can grasp difficult concepts or identify new patterns. Visualizing data in a consistent, well understood way can increase company-wide understanding of business issues, and create agreed action plans in dealing with common situations.
 

@@ -89,7 +89,7 @@ Generally, predictions can be made either in real time or on a batch basis. This
 
 ## Model operationalization
 
-When using Azure Machine Learning (currenty *Internal Preview*), it takes the following steps to operationalize a model:
+When using Azure Machine Learning (currenty, *Internal Preview*), it takes the following steps to operationalize a model:
 
 * Registration
 * Docker image creation
@@ -126,3 +126,9 @@ Solution's default telemetry ingestion components and output sinks can be relati
 # Using the Dashboard
 
 # Further reading
+
+* [Data Science Overview](Data-Science-Overview.md)
+* [Developer's Manual](Developer-Manual.md)
+* [Productionalization guide](Productionalization.md)
+* [Troubleshooting](Troubleshooting.md)
+* [Applicability and re-use of the architecture and components in different scenarios](Other-Scenarios.md)
