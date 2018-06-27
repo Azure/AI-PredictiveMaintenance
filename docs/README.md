@@ -109,7 +109,7 @@ Briefly, [Azure Event Hubs Connector for Apache Spark](https://github.com/Azure/
 
 For scenarios where batch processing would be more appropriate due to infrastructure or cost restrictions, the suggested real-time data pipeline can be [switched to batch mode](https://databricks.com/blog/2017/05/22/running-streaming-jobs-day-10x-cost-savings.html).
 
-Solution's default telemetry ingestion components and output sinks can be relatively easily swapped for the alternatives. IoT Hub's Event Hub-compatible endpoint and a real Event Hub would act exactly the same in this scenario, so integrating with an Event Hub would not require any additional work. Introducing other alternatives will require code changes, but shouldn't pose a serious challenge.
+Solution's default telemetry ingestion components and output sinks can be replaced with the alternatives. IoT Hub's Event Hub-compatible endpoint and a real Event Hub would act exactly the same in this scenario, so integrating with an Event Hub would not require any additional work. Introducing other alternatives will require code changes, but shouldn't pose a serious challenge.
 
 ### Can feature engineering be done using Azure Stream Analytics (ASA)?
 
