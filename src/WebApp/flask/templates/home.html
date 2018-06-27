@@ -19,6 +19,16 @@
 {% block script %}
 <script>
 $(document).ready(function() {
+    var allLinks = $('div.markdown a');
+    $.each(allLinks, function(i, l) {
+        var el = $(l);
+        el.attr('target', '_blank');
+        var href = el.attr('href');
+        if (/^[^\/]*\.md$/.test(href)) {
+            el.attr('href', 'https://github.com/Azure/AI-PredictiveMaintenance/blob/master/docs/' + href);
+        }
+    });
+
     var allHeaders = $('div.markdown :header');
     var toc = [];
     $.each(allHeaders, function(i, h) {
@@ -82,7 +92,6 @@ $(document).ready(function() {
 
             previousPosition = currentPosition;
         }
-
     };
 
     $(window).on('scroll', update);
