@@ -130,7 +130,7 @@ Note: the diagram shows that the real-time machine learning Web service runs on 
 
 # Using the Dashboard
 
-<div class="github-only">
+
 # Further reading
 
 * [Data Science Overview](Data-Science-Overview.md)
@@ -138,4 +138,4 @@ Note: the diagram shows that the real-time machine learning Web service runs on 
 * [Productionalization guide](Productionalization.md)
 * [Troubleshooting](Troubleshooting.md)
 * [Applicability and re-use of the architecture and components in different scenarios](Other-Scenarios.md)
-</div>
+
