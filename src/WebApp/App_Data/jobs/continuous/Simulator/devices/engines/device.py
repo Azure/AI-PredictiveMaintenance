@@ -106,8 +106,6 @@ class RotationalMachine:
             self.W, self.A, v_from, v_to, t = self.t)
 
         state = {
-            'machineID': self.name,
-            'timestamp': datetime.now().isoformat(),
             'speed_desired': self.speed_desired,
             'ambient_temperature': self.ambient_temperature + self.noise(0.1),
             'ambient_pressure': self.ambient_pressure + self.noise(0.1),

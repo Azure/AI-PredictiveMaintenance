@@ -38,9 +38,9 @@ An important design goal is modularity: the components provide utility on their 
 
 # Scenario
 
-The solution deals with a hypothetical IoT-enabled manufacturing environment comprised of generalized rotational equipment, which may include pumps, turbines, gearboxes, compressors, and engines. 
+The solution deals with a hypothetical IoT-enabled manufacturing environment comprised of generalized rotational equipment, which may include pumps, turbines, gearboxes, compressors, and engines.
 
-The machines are equipped with sensors that transmit telemetry to the cloud in near real time. Maintenance logs are also available and, among other things, contain records of failure events indicating exact points in time when a machine had a critical failure of a particular type.
+The machines are equipped with sensors that transmit telemetry to the cloud in real time. Maintenance logs are also available and, among other things, contain records of failure events indicating exact points in time when a machine had a critical failure of a particular type.
 
 The objective of Predictive Maintenance is predicting failures far enough ahead of time to allow less costly mitigation, while also avoiding replacing healthy components (preventive maintenance).
 
@@ -83,41 +83,57 @@ The Notebooks can run on various compute targets; the ones currently supported o
 
 # Productionalization
 
-Designing and building a production data pipeline for a Predictive Maintenance solution can be a relatively non-trivial task. One of the main reasons being that feature engineering (featurization) requires not only new, but also historic data. For reasons outlined below, this solution was built to support real-time featurization and scoring.
+As it is often the case when dealing with time series, feature engineering (featurization) requires access to historical data in addition to the new data. For that reason, designing and building a production data pipeline for a Predictive Maintenance solution can be a relatively non-trivial task.
+
+Generally, predictions can be made either in real time or on a batch basis. This solution was built to support real-time featurization and scoring, which means up-to-date predictions are generated as soon as new data is available.
 
 ## Model operationalization
 
+When using Azure Machine Learning (*Internal Preview* as of June 2018), it takes the following steps to operationalize a model:
 
+* Registration
+* Docker image creation
+* Deployment of the image to a compute target
 
-## Featurization
+The end result is a real-time scoring Web service with a REST API interface.
+
+The solution includes a pre-trained model, which is deployed to Azure Container Instances (ACI) and used as part of the pre-configured data pipeline to score all new feature data. It is possible (and, in fact, recommended) to replace this default model with a custom one by following the modeling steps.
+
+## Telemetry ingestion and featurization
+
+The solution employs [Spark Structured Streaming](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html) to perform the featurization of IoT telemetry. The streaming job runs on Azure Databricks.
+
+Briefly, [Azure Event Hubs Connector for Apache Spark](https://github.com/Azure/azure-event-hubs-spark) allows making the *Event Hub-compatible endpoint* of the *IoT Hub* a streaming input source. The streaming job extracts features from the incoming telemetry augmented with historical and static data persisted in a data store (e.g., Azure Table Storage). This exactly mimics the feature engineering process performed during modeling. The main difference is that here it happens in real time. Notice the feedback loop in the diagram below: its purpose is the augmentation of new data with the results of previous aggregations, in other words, the historical data.
+
 ![](img/productionalization_feature_engineering.png)
+
+For scenarios where batch processing would be more appropriate due to infrastructure or cost restrictions, the suggested real-time data pipeline can be [switched to batch mode](https://databricks.com/blog/2017/05/22/running-streaming-jobs-day-10x-cost-savings.html).
+
+Solution's default telemetry ingestion components and output sinks can be replaced with the alternatives. IoT Hub's Event Hub-compatible endpoint and a real Event Hub would act exactly the same in this scenario, so integrating with an Event Hub would not require any additional work. Introducing other alternatives will require code changes, but shouldn't pose a serious challenge.
+
+### Can feature engineering be done using Azure Stream Analytics (ASA)?
+
+ ASA may be a viable option in some relatively simple scenarios. It wasn't used in this soloution for several reasons:
+
+ * difficulties processing irregular streams of data
+ * inability to write unit tests for ASA queries
+ * difficulties accessing the historical data
+ * the necessity to implement feature engineering (previously done on Spark) from scratch
+
 ## Scoring, visualization and actions
+
+New feature data, stored in an Azure Storage table by the featurization job, is passed to the operationalized model to generate predictions. This process is orchestrated by a Web Job, which runs independently from the featurizer (this was done to promote better modularity and separation of concerns). Predictions are written to another Azure Storage table. The Dashboard, or a different visualization and reporting tool (e.g., Power BI), can access and render both the predictions and real-time aggregates which are computed by the featurizer.
+
 ![](img/productionalization_scoring.png)
+
+Note: the diagram shows that the real-time machine learning Web service runs on Azure Kubernetes Service (AKS); in the default configuration, however, it is deployed to Azure Container Instances (ACI). While both options are acceptable, AKS is usually preferred in production, whereas ACI typically serves as a light-weight dev/test option.
 
 # Using the Dashboard
 
 # Further reading
 
-<div class="github-only">
-## Data Ingress and Storage
-
-Solving any business problem with AI starts with data. The question you are trying to answer will affect what data you need, and in what format, quantities, and time horizons.  Most predictive maintenance problems are based on the desire to understand the behavior and operational health of distributed devices with embedded sensors. A message ingestion service supports ingesting real-time operational data from those sensors and saving it to long term (cold) cloud storage.  For most predictive maintenance scenarios, this message ingestion substrate also provides two-way communication back to remote devices to configure and manage those devices over time.
-
-## AI Modeling Engine
-The core AI engine supports the iterative training of a machine learning model on the data that has been ingested into cloud storage and prepared for processing. After that model – or models, if there are multiple unique business problems that the organization is trying to solve – has been created with sufficient quality to meet the business objective, the model(s) will be used in production to evaluate (or ‘score’) incoming operational data from the devices you wish to manage.  This AI training environment must reflect the size and complexity of the data it is based on, as well as the processing requirements of the algorithm being used.
-
-## Online Featurization Engine
-
-## Scoring Engine
-The runtime AI system supports evaluating incoming real-time (more accurately, near-real-time) data, and calculating a relevant prediction based on the developed model. The result of this scoring needs to be persisted somewhere – like Azure Tables or CosmosDB – so that the prediction can be consumed by the appropriate business process that can act on the insight delivered by that prediction.
-
-## Visualization and Action Components
-The dashboard is used to present the near-real-time status of the business data (such as from distributed devices, in a remote monitoring scenario), as well as the predictions based on the incoming telemetry data, so that the appropriate personnel can act on that information based on a well-defined business process.  The visualization format, as well as tooling, will be affected by how the predictions will impact business processes, such as whether the event warrants a response in seconds, hours or days.
-
-Ultimately, all the logical services listed above cumulatively represent a cloud AI platform that can support solving not just predictive maintenance business challenges, but other industry-specific or general business challenges.
-Predictive maintenance has wide applicability in many industries, as most companies utilize long-term assets that are core to delivering on their business model. There are also many industry-specific ISV solutions that more narrowly target these challenges by industry.
-
----
-
-Please refer to the [Solution Design](Solution-Design.md) document for an in-depth overview of the solution's architecture and technical trade-offs.
-</div>
+* [Data Science Overview](Data-Science-Overview.md)
+* [Developer's Manual](Developer-Manual.md)
+* [Productionalization guide](Productionalization.md)
+* [Troubleshooting](Troubleshooting.md)
+* [Applicability and re-use of the architecture and components in different scenarios](Other-Scenarios.md)
