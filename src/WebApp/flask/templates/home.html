@@ -23,8 +23,11 @@ $(document).ready(function() {
     var toc = [];
     $.each(allHeaders, function(i, h) {
         var el = $(h);
-        el.attr('id', 'id_' + i);
-        toc.push(el);
+        var tagName = el.prop('tagName');
+        if (tagName === 'H1' || tagName === 'H2') {
+            el.attr('id', 'id_' + i);
+            toc.push(el);
+        }
     });
 
     var tocList = $('div.toc>ul');
