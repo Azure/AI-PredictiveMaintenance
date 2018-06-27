@@ -12,7 +12,7 @@ class Engine(SimulatedDevice):
     def initialize(self, device_info):
         device_id = device_info['deviceId']
         tags = device_info['tags']
-        properties_desired = device_info['properties']['desired']
+        # properties_desired = device_info['properties']['desired']
         properties_reported = device_info['properties']['reported']
 
         d = 0.05
@@ -81,7 +81,7 @@ class Engine(SimulatedDevice):
                     state = self.digital_twin.next_state()
 
                     state['vibration'] = None
-                    state['timestamp'] = datetime.now().isoformat()
+                    state['timestamp'] = datetime.utcnow().isoformat()
                     state['machineID'] = self.digital_twin.name
 
                     telemetry_json = json.dumps(state)
