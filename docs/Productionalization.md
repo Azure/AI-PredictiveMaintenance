@@ -18,8 +18,6 @@ The parameters to consider while provisioning your feature engineering cluster a
 *  CPU requirements
 *  Disk requirements
 *  GPU
-
-The documentation for [pricing details of Databricks node types](https://azure.microsoft.com/en-us/pricing/details/databricks/) and [Azure VM series](https://azure.microsoft.com/en-us/pricing/details/virtual-machines/series/) explains the options available.
 ## Model management and operationalization
 Refer to [the authoritative model management documentation](https://docs.microsoft.com/en-us/azure/machine-learning/desktop-workbench/model-management-overview) produced by the Azure Machine Learning Model Management team.
 
@@ -28,16 +26,18 @@ Refer to [the authoritative model management documentation](https://docs.microso
 ### Scalability points (with respect to telemetry frequency and the number of machines, and – perhaps – the type of telemetry)
 * Spark cluster
 * Running featurization in Streaming mode vs semi-batch mode (this needs to cover EventHub’s data retention policy)
-### Recovery from failures (what to do if the featurizer crashes?)
-[Azure Application Insights](https://docs.microsoft.com/en-us/azure/application-insights/) is the Microsoft Azure best practice for monitoring your application performance.  [Azure Monitor](https://docs.microsoft.com/en-us/azure/monitoring/) is the Microsoft Azure best practice for monitoring your application infrastructure.
+### Monitoring the featurizer
+You will need to configure monitoring to detect infrastructure health and application health issues in your featurizer.  [Azure Application Insights](https://docs.microsoft.com/en-us/azure/application-insights/) is the Microsoft Azure best practice for monitoring your application performance.  [Azure Monitor](https://docs.microsoft.com/en-us/azure/monitoring/) is the Microsoft Azure best practice for monitoring your application infrastructure.
+
+If the featurizer crashes you will need to TODO.
 
 ### Cost
-TODO
+Using Databricks as your featurizer will cost $0.20 per hour per DBU plus the cost of the VM(s) in the Spark cluster.  The documentation for [pricing details of Databricks node types](https://azure.microsoft.com/en-us/pricing/details/databricks/) and [Azure VM series](https://azure.microsoft.com/en-us/pricing/details/virtual-machines/series/) explain the options available.
 ## Real-time scoring
-### Application containers - ACI vs AKS (vs other)
-TODO
+### Application containers
+The PdM solution is configured to use [Azure Container Instances](https://docs.microsoft.com/en-us/azure/container-instances/).  ACI is an effective solution for any scenario that can operate in isolated containers, including simple applications, task automation, and build jobs. For scenarios where you need full container orchestration, including service discovery across multiple containers, automatic scaling, and coordinated application upgrades, we recommend [Azure Kubernetes Service (AKS)](https://docs.microsoft.com/en-us/azure/aks/).
 ### Cost
-TODO
+The [pricing for ACI](https://azure.microsoft.com/en-us/pricing/details/container-instances/) and the [pricing for AKS](https://azure.microsoft.com/en-us/pricing/details/kubernetes-service/) is identical for configurations with comparable CPU, memory, and storage.  There is no fee for the service itself, only for the duration of CPU and memory use in the ACI scenario, and the cost of the VM in the AKS scenario.  However, ACI is recommended for short-lived and/or light-weight scenarios while AKS is recommended for long-lived and heavy-weight scenarios.
 ## Visualization and actions
 * Power BI
 * Custom dashboards
