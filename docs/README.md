@@ -83,13 +83,13 @@ The Notebooks can run on various compute targets; the ones currently supported o
 
 # Productionalization
 
-Designing and building a production data pipeline for a Predictive Maintenance solution can be a relatively non-trivial task. As it is often the case when dealing with time series, feature engineering (featurization) requires access to historical data in addition to the new data.
+As it is often the case when dealing with time series, feature engineering (featurization) requires access to historical data in addition to the new data. For that reason, designing and building a production data pipeline for a Predictive Maintenance solution can be a relatively non-trivial task.
 
 Generally, predictions can be made either in real time or on a batch basis. This solution was built to support near real-time featurization and scoring, which means up-to-date predictions are generated almost as soon as new data is available.
 
 ## Model operationalization
 
-When using Azure Machine Learning (currenty *Internal Preview)*, it takes the following steps to operationalize a model:
+When using Azure Machine Learning (currenty *Internal Preview*), it takes the following steps to operationalize a model:
 
 * Registration
 * Docker image creation
@@ -103,7 +103,7 @@ The solution includes a pre-trained model, which is deployed to Azure Container 
 
 The solution employs [Spark Structured Streaming](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html) to perform the featurization of IoT telemetry. The streaming job runs on Azure Databricks.
 
-Briefly, [Azure Event Hubs Connector for Apache Spark](https://github.com/Azure/azure-event-hubs-spark) allows making the *Event Hub-compatible endpoint* of the *IoT Hub* a streaming input source. The streaming job (written in Scala) extracts features from the incoming telemetry augmented with historical and static data persisted in a data store (e.g., Azure Table Storage). This exactly mimics the feature engineering process performed during modeling. The main difference is that here it happens in near real time. Notice the feedback loop in the diagram below: its purpose is the augmentation of new data with the results of previous aggregations, in other words, the historical data.
+Briefly, [Azure Event Hubs Connector for Apache Spark](https://github.com/Azure/azure-event-hubs-spark) allows making the *Event Hub-compatible endpoint* of the *IoT Hub* a streaming input source. The streaming job extracts features from the incoming telemetry augmented with historical and static data persisted in a data store (e.g., Azure Table Storage). This exactly mimics the feature engineering process performed during modeling. The main difference is that here it happens in near real time. Notice the feedback loop in the diagram below: its purpose is the augmentation of new data with the results of previous aggregations, in other words, the historical data.
 
 ![](img/productionalization_feature_engineering.png)
 
@@ -115,10 +115,10 @@ Solution's default telemetry ingestion components and output sinks can be relati
 
  ASA may be a viable option in some relatively simple scenarios. It wasn't used in this soloution for several reasons:
 
- * limited analytical capabilities
  * difficulties processing irregular streams of data
  * inability to write unit tests for ASA queries
  * difficulties accessing the historical data
+ * the necessity to implement feature engineering (previously done on Spark) from scratch
 
 ## Scoring, visualization and actions
 ![](img/productionalization_scoring.png)
