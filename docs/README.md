@@ -40,7 +40,7 @@ An important design goal is modularity: the components provide utility on their 
 
 The solution deals with a hypothetical IoT-enabled manufacturing environment comprised of generalized rotational equipment, which may include pumps, turbines, gearboxes, compressors, and engines.
 
-The machines are equipped with sensors that transmit telemetry to the cloud in near real time. Maintenance logs are also available and, among other things, contain records of failure events indicating exact points in time when a machine had a critical failure of a particular type.
+The machines are equipped with sensors that transmit telemetry to the cloud in real time. Maintenance logs are also available and, among other things, contain records of failure events indicating exact points in time when a machine had a critical failure of a particular type.
 
 The objective of Predictive Maintenance is predicting failures far enough ahead of time to allow less costly mitigation, while also avoiding replacing healthy components (preventive maintenance).
 
@@ -85,11 +85,11 @@ The Notebooks can run on various compute targets; the ones currently supported o
 
 As it is often the case when dealing with time series, feature engineering (featurization) requires access to historical data in addition to the new data. For that reason, designing and building a production data pipeline for a Predictive Maintenance solution can be a relatively non-trivial task.
 
-Generally, predictions can be made either in real time or on a batch basis. This solution was built to support near real-time featurization and scoring, which means up-to-date predictions are generated almost as soon as new data is available.
+Generally, predictions can be made either in real time or on a batch basis. This solution was built to support real-time featurization and scoring, which means up-to-date predictions are generated as soon as new data is available.
 
 ## Model operationalization
 
-When using Azure Machine Learning (currenty, *Internal Preview*), it takes the following steps to operationalize a model:
+When using Azure Machine Learning (*Internal Preview* as of June 2018), it takes the following steps to operationalize a model:
 
 * Registration
 * Docker image creation
@@ -103,11 +103,11 @@ The solution includes a pre-trained model, which is deployed to Azure Container 
 
 The solution employs [Spark Structured Streaming](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html) to perform the featurization of IoT telemetry. The streaming job runs on Azure Databricks.
 
-Briefly, [Azure Event Hubs Connector for Apache Spark](https://github.com/Azure/azure-event-hubs-spark) allows making the *Event Hub-compatible endpoint* of the *IoT Hub* a streaming input source. The streaming job extracts features from the incoming telemetry augmented with historical and static data persisted in a data store (e.g., Azure Table Storage). This exactly mimics the feature engineering process performed during modeling. The main difference is that here it happens in near real time. Notice the feedback loop in the diagram below: its purpose is the augmentation of new data with the results of previous aggregations, in other words, the historical data.
+Briefly, [Azure Event Hubs Connector for Apache Spark](https://github.com/Azure/azure-event-hubs-spark) allows making the *Event Hub-compatible endpoint* of the *IoT Hub* a streaming input source. The streaming job extracts features from the incoming telemetry augmented with historical and static data persisted in a data store (e.g., Azure Table Storage). This exactly mimics the feature engineering process performed during modeling. The main difference is that here it happens in real time. Notice the feedback loop in the diagram below: its purpose is the augmentation of new data with the results of previous aggregations, in other words, the historical data.
 
 ![](img/productionalization_feature_engineering.png)
 
-For scenarios where batch processing would be more appropriate due to infrastructure or cost restrictions, the suggested real-time data pipeline can be seamlessly [switched to batch mode](https://databricks.com/blog/2017/05/22/running-streaming-jobs-day-10x-cost-savings.html).
+For scenarios where batch processing would be more appropriate due to infrastructure or cost restrictions, the suggested real-time data pipeline can be [switched to batch mode](https://databricks.com/blog/2017/05/22/running-streaming-jobs-day-10x-cost-savings.html).
 
 Solution's default telemetry ingestion components and output sinks can be relatively easily swapped for the alternatives. IoT Hub's Event Hub-compatible endpoint and a real Event Hub would act exactly the same in this scenario, so integrating with an Event Hub would not require any additional work. Introducing other alternatives will require code changes, but shouldn't pose a serious challenge.
 
