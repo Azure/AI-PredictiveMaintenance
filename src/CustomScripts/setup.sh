@@ -17,6 +17,21 @@ unzip $basedir/Notebooks.zip
 chown $username:$username *
 popd
 
+touch $homedir/NotebookEnvironmentVariablesConfig.json
+cat << EOF > $homedir/NotebookEnvironmentVariablesConfig.json
+{
+	"DataIngestion" : {
+		"STORAGE_ACCOUNT_NAME" : "$3",
+		"STORAGE_ACCOUNT_KEY" : "$4",
+		"TELEMETRY_CONTAINER_NAME" : "telemetry",
+		"LOG_TABLE_NAME" : "Logs",
+		"DATA_ROOT_FOLDER" : "$homedir"
+	}
+}
+EOF
+
+mv $basedir/spark-avro_2.11-4.0.0.jar /dsvm/tools/spark/current/jars/
+
 source /anaconda/bin/activate py35
 
 pip install --upgrade pip
