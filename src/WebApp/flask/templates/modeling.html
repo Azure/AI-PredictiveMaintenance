@@ -80,7 +80,8 @@
                 </li>
                 <li>
                     Copy the feature data set produced by the Feature Engineering notebook back to DSVM:<br />
-                    <code>dbfs cp -r dbfs:/root/data/features ~/data/features --overwrite</code><br/>
+                    <code>rm -r ~/data/features</code><br/>
+                    <code>dbfs cp -r dbfs:/root/data/features ~/data/features</code><br/>
                 </li>
                 <li>
                     Continue with model training and operationalization on DSVM
