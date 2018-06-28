@@ -5,6 +5,7 @@ import requests
 import uuid
 import json
 import zipfile
+import base64
 from azure.storage.table import TableService, Entity, TablePermissions
 
 STORAGE_ACCOUNT_NAME = os.environ['STORAGE_ACCOUNT_NAME']
@@ -63,13 +64,30 @@ def upload_notebooks_databricks():
 
     #upload feature engineering notebook to databricks workspace
     featureEngineering_local_path = os.path.join(notebooks_local_path, 'FeatureEngineering.ipynb')
-    print(featureEngineering_local_path)
     files = {'file': open(featureEngineering_local_path, 'rb')}
     bdfs = "/FeatureEngineering"
     put_payload = { 'path' : bdfs, 'overwrite' : 'true', 'language':'PYTHON', 'format':'JUPYTER' }
     resp = call_api('2.0/workspace/import', method=requests.post, data=put_payload, files = files).json()
 
+    #upload data ingestion notebook to databricks workspace
+    dataIngestion_local_path = os.path.join(notebooks_local_path, 'DataIngestion.ipynb')
+    files = {'file': open(dataIngestion_local_path, 'rb')}
+    bdfs = "/DataIngestion"
+    put_payload = { 'path' : bdfs, 'overwrite' : 'true', 'language':'PYTHON', 'format':'JUPYTER' }
+    resp = call_api('2.0/workspace/import', method=requests.post, data=put_payload, files = files).json()
+
 upload_notebooks_databricks()
+data = '{"DataIngestion" : { "STORAGE_ACCOUNT_NAME" :"' + STORAGE_ACCOUNT_NAME + '", "STORAGE_ACCOUNT_KEY" :"' + STORAGE_ACCOUNT_KEY +'", "TELEMETRY_CONTAINER_NAME" : "telemetry", "LOG_TABLE_NAME" : "Logs", "DATA_ROOT_FOLDER" : "/root"}}'
+
+file = open('D:/home/site/NotebookEnvironmentVariablesConfig.json','w')
+file.write(data)
+file.close()
+    
+config_path = '/root/NotebookEnvironmentVariablesConfig.json'
+files = {'file': open('D:/home/site/NotebookEnvironmentVariablesConfig.json', 'rb')}
+put_payload = { 'path' : config_path, 'overwrite' : 'true' }
+
+call_api('2.0/dbfs/put', method=requests.post, data=put_payload, files=files)
 
 last_run_id = get_last_run_id()
 
