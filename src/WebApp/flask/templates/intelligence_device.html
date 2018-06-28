@@ -1,21 +1,95 @@
 {% extends "layout.html" %}
 {% block body %}
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <form>
+            <button type="button" class="btn btn-default" id="refresh-button"><i class="fa fa-refresh"></i> Refresh</button>
+        </form>
+    </div>
+    </div>
+    <div class="row">
+    <div class="col-lg-8 col-md-12 col-sm-12">
+        <div id="cycle-level-metric"></div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-4">
+        <h4>Prediction history</h4>
+        <div class="table-responsive">
+            <table id="predictions-table" class="table table-hover">
+            <thead>
+                <tr>
+                <th>Date/Time</th>
+                <th>Prediction</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 {% endblock %}
-
 {% block script %}
 <script>
 $(document).ready(function() {
     function reload() {
+        var predictionsTable = $('#predictions-table');
+        var predictionsTbody = predictionsTable.find('tbody');
+
         $('#refresh-button>i').addClass('fa-spin');
-        $.get('/api/intelligence/{{ device_id }}/cycles').done(function(cycles) {
-            console.log(cycles);       
+
+        var cyclesPromise = $.get('/api/intelligence/{{ device_id }}/cycles').done(function(cycles) {
+            var keys = Object.keys(cycles.y);
+            cycles.x = $.map(cycles.x, function(d) {
+                return renderDate(d, true);
+            });
+
+            var data = $.map(cycles.y, function(v, k) {
+                return {
+                    type: "scatter",
+                    name: k,
+                    x: cycles.x,
+                    y: v
+                }
+            });
+
+            var layout = {
+                title: 'Cycle-level aggregates',
+                xaxis: {
+                    zeroline: false
+                },
+                yaxis: {
+                    type: 'linear',
+                    zeroline: false
+                }
+            };
+
+            Plotly.newPlot('cycle-level-metric', data, layout, {displayModeBar: false});
         });
-        $.get('/api/intelligence/{{ device_id }}/predictions').done(function(predictions) {
-            console.log(predictions);
+
+        var predictionsPromise = $.get('/api/intelligence/{{ device_id }}/predictions').done(function(predictions) {
+            predictionsTbody.empty();
+            for (var i = 0; i < predictions.x.length; i++) {
+                child = $('<tr>')
+                    .append($('<td>' + renderDate(predictions.x[i]) + '</td>'))
+                    .append($('<td>' + predictions.y[i] + '</td>'));
+
+                predictionsTbody.append(child);
+            }
+        });
+
+        $.when(cyclesPromise, predictionsPromise).always(function() {
+            $('#refresh-button>i').removeClass('fa-spin');
         });
     }
 
     reload();
+
+    $('#refresh-button').click(function() {
+        reload();
+    });
+
 });
-</script>   
+</script>
 {% endblock %}

@@ -50,13 +50,42 @@
         <div class="tab-pane fade" id="pills-databricks" role="tabpanel" aria-labelledby="pills-profile-tab">
             <img class="target-logo" src="https://azure.microsoft.com/svghandler/databricks/?width=130&height=130" />
             <p>
-                You can access your Databricks Workspace <a href="{{databricks_workspace}}" target="_blank">here</a>
+                <strong>Note</strong>: Only data acquisition (ingestion) and feature engineering are supported on Databricks.
             </p>
             <p>
-                Featurization Notebooks are available in the Workspace tab <a href="{{databricks_workspace}}" target="_blank">here</a>. In order to run these notebooks you need to spinup a cluster which can be done by following these <a href="https://docs.databricks.com/user-guide/clusters/create.html" target="_blank">instructions</a>.
-                The configuration of the cluster should be as below
+                To continue, please navigate to <a href="{{databricks_workspace}}" target="_blank">your Databricks Workspace</a>
+                and create a cluster following <a href="https://docs.databricks.com/user-guide/clusters/create.html" target="_blank">these instructions</a>.
+                Make sure to provide configuration parameters as shown below.
             </p>
             <img src ="{{ url_for('static', filename='databricks_cluster_creation.jpg') }}" class="thumbnail" />
+            <ol>
+                <li>
+                    Create <code>azure-storage</code> (Upload Python Egg or PyPI) and <code>com.databricks:spark-avro_2.11:4.0.0</code> (Maven Coordinate) libraries (<a target="_blank" href="https://docs.databricks.com/user-guide/libraries.html#create-a-library">instructions</a>).
+                </li>
+                <li>
+                    Attach both libraries to the cluster (<a target="_blank" href="https://docs.databricks.com/user-guide/libraries.html#attach-a-library-to-a-cluster">instructions</a>).
+                </li>
+                <li>
+                    Ingest input data by following one of the steps below.
+                    <ol>
+                        <li>Generate seed data on DSVM (by running DataGeneration.ipynb notebook) and copy it to Databricks as follows:<br>
+                        <code>dbfs cp -r ~/data/telemetry dbfs:/root/data/telemetry</code><br/>
+                        <code>dbfs cp -r ~/data/logs dbfs:/root/data/logs</code>
+                    </li>
+                    <li>Run the DataIngestion notebook on Databricks to ingest IoT telemetry and device logs</li>
+                    </ol>
+                </li>
+                <li>
+                    Run the Feature Engineering notebook
+                </li>
+                <li>
+                    Copy the feature data set produced by the Feature Engineering notebook back to DSVM:<br />
+                    <code>dbfs cp -r dbfs:/root/data/features ~/data/features --overwrite</code><br/>
+                </li>
+                <li>
+                    Continue with model training and operationalization on DSVM
+                </li>
+            </ol>
         </div>
         <div class="tab-pane fade" id="pills-aztk" role="tabpanel" aria-labelledby="pills-contact-tab">
             <p>

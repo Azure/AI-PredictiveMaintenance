@@ -193,7 +193,7 @@ def get_device(device_id):
         #indices = [x[1] for x in sorted(message_json.items())]
         health_history.append((timestamp, message_json))
 
-    health_history.sort()
+    health_history.sort(key = lambda x: x[0])
 
     health_history_by_index = {}
     for entry in health_history:
@@ -335,7 +335,7 @@ def get_intelligence_device_cycles(device_id):
     for cycle in all_cycles:
         x.append(cycle.RowKey)
         for key in cycle.keys():
-            if key in ['PartitionKey', 'Timestamp', 'etag']:
+            if key in ['PartitionKey', 'RowKey', 'CycleEnd', 'Timestamp', 'etag']:
                 continue
             if key not in y:
                 y[key] = []
@@ -358,6 +358,10 @@ def get_intelligence_device_predictions(device_id):
     all_predictions = list(all_predictions)
     all_predictions.sort(key = lambda x: x.RowKey)
 
+    count = len(all_predictions)
+    if count > 50:
+        all_predictions = all_predictions[-50:-1]
+
     x = []
     y = []
     for prediction in all_predictions:
@@ -368,6 +372,7 @@ def get_intelligence_device_predictions(device_id):
         'x': x,
         'y': y
     }
+
     payload_json = json.dumps(payload)
     resp = Response(payload_json)
     resp.headers['Content-type'] = 'application/json'
