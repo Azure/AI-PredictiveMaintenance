@@ -1,9 +1,0 @@
-{
-	"DataIngestion" : {
-		"STORAGE_ACCOUNT_NAME" : "",
-		"STORAGE_ACCOUNT_KEY" : "",
-		"TELEMETRY_CONTAINER_NAME" : "",
-		"LOG_TABLE_NAME" : "",
-		"DATA_ROOT_FOLDER" : ""
-	}
-}
