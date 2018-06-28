@@ -73,7 +73,7 @@ $(document).ready(function() {
                 $.each(intelligence.predictions, function(i, device) {
                     child = $('<tr>')
                     .append($('<td><a href="/intelligence/' + device.deviceId + '">' + device.deviceId + '</a></td>'))
-                    .append($('<td><span>' + device.prediction + '</span><span class="last-updated">' + (device.lastUpdated || '') + '</span></td>'))
+                    .append($('<td><span>' + device.prediction + '</span><span class="last-updated">' + (renderDate(device.lastUpdated) || '') + '</span></td>'))
                     devicesTbody.append(child);
                 });
                 devicesTable.show();

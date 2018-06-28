@@ -3,5 +3,19 @@
 {% endblock %}
 
 {% block script %}
+<script>
+$(document).ready(function() {
+    function reload() {
+        $('#refresh-button>i').addClass('fa-spin');
+        $.get('/api/intelligence/{{ device_id }}/cycles').done(function(cycles) {
+            console.log(cycles);       
+        });
+        $.get('/api/intelligence/{{ device_id }}/predictions').done(function(predictions) {
+            console.log(predictions);
+        });
+    }
 
+    reload();
+});
+</script>   
 {% endblock %}

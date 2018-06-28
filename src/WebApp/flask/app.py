@@ -181,8 +181,8 @@ def get_device_logs(device_id):
 @app.route('/api/devices/<device_id>', methods=['GET'])
 @login_required
 def get_device(device_id):
-    iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
-    twin_data = iot_hub.get_device_twin(device_id)
+    #iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
+    #twin_data = iot_hub.get_device_twin(device_id)
     query_filter = "PartitionKey eq '{0}' and Code eq '{1}'".format(device_id, 'SIM_HEALTH')
     health_history_entities = table_service.query_entities('logs', filter=query_filter)
 
@@ -207,7 +207,7 @@ def get_device(device_id):
 
 
     response_json = {
-        'twin': json.loads(twin_data),
+        #'twin': json.loads(twin_data),
         'health_history': health_history_by_index
     }
 
@@ -316,6 +316,63 @@ def get_intelligence():
     resp = Response(payload_json)
     resp.headers['Content-type'] = 'application/json'
     return resp
+
+@app.route('/api/intelligence/<device_id>/cycles')
+@login_required
+def get_intelligence_device_cycles(device_id):
+    # cycles_index = table_service.get_entity('cycles', '_INDEX_', device_id)
+    # latest_cycles = json.loads(cycles_index['RollingWindow'])
+
+    # max_cycle = latest_cycles[0]
+    # min_cycle = latest_cycles[-1]
+
+    all_cycles = table_service.query_entities('cycles', filter="PartitionKey eq '{0}'".format(device_id))
+    all_cycles = list(all_cycles)
+    all_cycles.sort(key = lambda x: x.RowKey)
+    x = []
+    y = {}
+
+    for cycle in all_cycles:
+        x.append(cycle.RowKey)
+        for key in cycle.keys():
+            if key in ['PartitionKey', 'Timestamp', 'etag']:
+                continue
+            if key not in y:
+                y[key] = []
+            y[key].append(cycle[key])
+
+    payload = {
+        'x': x,
+        'y': y
+    }
+
+    payload_json = json.dumps(payload)
+    resp = Response(payload_json)
+    resp.headers['Content-type'] = 'application/json'
+    return resp
+
+@app.route('/api/intelligence/<device_id>/predictions')
+@login_required
+def get_intelligence_device_predictions(device_id):
+    all_predictions = table_service.query_entities('predictions', filter="PartitionKey eq '{0}'".format(device_id))
+    all_predictions = list(all_predictions)
+    all_predictions.sort(key = lambda x: x.RowKey)
+
+    x = []
+    y = []
+    for prediction in all_predictions:
+        x.append(prediction.RowKey)
+        y.append(prediction.Prediction)
+
+    payload = {
+        'x': x,
+        'y': y
+    }
+    payload_json = json.dumps(payload)
+    resp = Response(payload_json)
+    resp.headers['Content-type'] = 'application/json'
+    return resp
+
 
 if __name__ == "__main__":
     app.run('0.0.0.0', 8000, debug=True)
