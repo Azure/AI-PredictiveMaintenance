@@ -524,14 +524,25 @@ div.markdown {
   margin-top: -70px;
 }
 
+div.markdown p, div.markdown li {
+  text-align: justify;
+}
+
+h1, h2, h3, h4 {
+  color: #495057;
+}
+
 div.markdown h1, div.markdown h2 {
   padding-top: 70px;
 }
 
-div.toc {
-  position: fixed;
-  padding-left: 90px;
-  padding-top: 20px;
+@media (min-width: 992px) {
+  div.toc {
+    position: fixed;
+    padding-left: 90px;
+    padding-top: 20px;
+    font-size: 0.8rem;
+  }
 }
 
 div.toc ul {
@@ -540,7 +551,7 @@ div.toc ul {
 }
 
 div.toc ul li {
-  padding: 10px 5px;
+  padding: 7px 5px;
   border-left: 3px solid transparent;
 }
 
