@@ -140,15 +140,15 @@ The dashboard itself contains links to 4 tabs:
 
 ## Device simulation
 
-This tab provides a summary view and control of the input devices.  There are control mechanisms to add and delete devices, and a view into the devices themselves.  If the connection state of your devices is "disconnected" then check the configuration of your IoT Hub instance via the Azure Portal.  You may need to increase your number of IoT Hub units via the "Pricing and scale" blade.  If you click into a device, you can review a chart tracking the device health and you can view the device logs.
+This tab provides a summary view and detail view of the input devices, and control mechanisms to add and delete devices.  If the connection state of your devices is "disconnected" then check the configuration of your IoT Hub instance via the Azure Portal.  You may need to increase your number of IoT Hub units via the "Pricing and scale" blade.  If you click into a device, you can review a chart tracking the device health and view the device logs.
 
 ## Intelligence
 
-This tab provides a summary view of the health predictions of the devices.  The table provides links for you to more deeply inspect the prediction data.
+This tab provides a summary view and detail view of the device health predictions.  The table provides links for you to more deeply inspect the prediction data, including the featurized (aggregated) raw input data.
 
 ## Modeling
 
-This tab explains how to train and operationalize a model.  Two options are provided: the Data Science Virtual Machine (DSVM), and Azure Databricks.  The DSVM is optimized for data exploration, small scale feature engineering, and training.  Databricks is optimized for large scale feature engineering.  If you use Databricks for feature engineering you will still need to use the DSVM for training.
+This tab provides the guidance to train and operationalize a model.  Two options are provided: the Data Science Virtual Machine (DSVM), and Azure Databricks.  The DSVM is optimized for data exploration, small scale feature engineering, and training.  Databricks is optimized for large scale feature engineering.  If you use Databricks for feature engineering you will still need to use the DSVM for training.
 
 # Further reading
 
