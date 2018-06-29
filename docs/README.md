@@ -130,6 +130,25 @@ Note: the diagram shows that the real-time machine learning Web service runs on 
 
 # Using the Dashboard
 
+After completing the solution deployment the quickstart summary present a link to the Solution Dashboard.  To find your deployment, [browse all deployments associated with your subscription](https://quickstart.azure.ai/en-US/Deployments) and click the deployment name of your Predictive Maintenance solution.
+
+The dashboard itself contains links to 4 tabs:
+* Home - Summary documentation of the solution
+* Device simulation - A control dashboard for your data generators
+* Intelligence - Presentation of your device health
+* Modeling - The starting point to create your own custom model
+
+## Device simulation
+
+This tab provides a summary view and control of the input devices.  There are control mechanisms to add and delete devices, and a view into the devices themselves.  If the connection state of your devices is "disconnected" then check the configuration of your IoT Hub instance via the Azure Portal.  You may need to increase your number of IoT Hub units via the "Pricing and scale" blade.  If you click into a device, you can review a chart tracking the device health and you can view the device logs.
+
+## Intelligence
+
+This tab provides a summary view of the health predictions of the devices.  The table provides links for you to more deeply inspect the prediction data.
+
+## Modeling
+
+This tab explains how to train and operationalize a model.  Two options are provided: the Data Science Virtual Machine (DSVM), and Azure Databricks.  The DSVM is optimized for data exploration, small scale feature engineering, and training.  Databricks is optimized for large scale feature engineering.  If you use Databricks for feature engineering you will still need to use the DSVM for training.
 
 # Further reading
 
