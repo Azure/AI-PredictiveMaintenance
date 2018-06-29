@@ -113,7 +113,7 @@ class IoTHub:
         random.shuffle(devices)
         for device in devices:
             current_time = datetime.datetime.utcnow().replace(tzinfo=None)
-            last_activity_time = dateutil.parser.parse(device.lastActivityTime).replace(tzinfo=None)
+            last_activity_time = dateutil.parser.parse(device.lastActivityTime).replace(tzinfo=None)            
 
             # it seems that sometimes devices remain in a CONNECTED state long after the connection is lost,
             # so claiming CONNECTED devices that have been inactive for at least 10 minutes
@@ -126,7 +126,7 @@ class IoTHub:
             # attempt to acquire lock using device twin's optimistic concurrency
             twin_data = self.get_device_twin(device.deviceId)
             twin_data_json = json.loads(twin_data)
-            random.randint(5, 10)
+            sleep(random.randint(5, 10))
             etag = twin_data_json['etag']
 
             twin_tags = None

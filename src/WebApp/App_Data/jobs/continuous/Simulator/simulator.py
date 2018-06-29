@@ -11,7 +11,7 @@ import logging
 import csv
 from multiprocessing import Pool, TimeoutError, cpu_count
 from multiprocessing.dummy import Pool as DummyPool
-from multiprocessing import Process
+from multiprocessing import Process, Queue
 from iot_hub_helpers import IoTHub, IoTHubDevice
 from devices import SimulatorFactory
 from azure.storage.table import TableService, Entity, TablePermissions
@@ -23,13 +23,12 @@ IOT_HUB_NAME = os.environ['IOT_HUB_NAME']
 IOT_HUB_OWNER_KEY = os.environ['IOT_HUB_OWNER_KEY']
 IOT_HUB_DEVICE_KEY = os.environ['IOT_HUB_DEVICE_KEY']
 
-def claim_and_run_device(driver_id):
-    iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
-    device, device_twin = iot_hub.claim_device(driver_id)
+def claim_and_run_device(driver_id, q):
+    device_twin, device_primary_key = q.get()
     device_twin_json = json.loads(device_twin)
     device_id = device_twin_json['deviceId']
 
-    iothub_device = IoTHubDevice(IOT_HUB_NAME, device_id, device.primaryKey)
+    iothub_device = IoTHubDevice(IOT_HUB_NAME, device_id, device_primary_key)
 
     table_service = TableService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
     table_service.create_table('logs', fail_on_exist=False)
@@ -67,11 +66,11 @@ def claim_and_run_device(driver_id):
 
     device_simulator.run()
 
-def device_driver():
+def device_driver(q):
     driver_unique_id = str(uuid.uuid4())
     while True:
         try:
-            claim_and_run_device(driver_unique_id)
+            claim_and_run_device(driver_unique_id, q)
             logging.log(logging.WARNING, 'Driver {0} finished execution.'.format(driver_unique_id))
         except Exception as e:
             logging.log(logging.ERROR, 'Driver {0} threw an exception: {1}.'.format(driver_unique_id, str(e)))
@@ -79,15 +78,22 @@ def device_driver():
             logging.log(logging.ERROR, 'Driver {0} threw an exception.')
 
 if __name__ == '__main__':
+    q = Queue()
+    iot_hub = IoTHub(IOT_HUB_NAME, IOT_HUB_OWNER_KEY)
+
     device_driver_count = 20
 
     processes = []
     for _ in range(device_driver_count):
-        processes.append(Process(target=device_driver))
+        processes.append(Process(target=device_driver, args=(q,)))
 
     for process in processes:
         process.daemon = True
         process.start()
 
     while all(map(lambda c: c.is_alive(), processes)):
-        time.sleep(3)
+        client_id = str(uuid.uuid4())
+        device, device_twin = iot_hub.claim_device(client_id)
+        print(device.deviceId)
+        q.put((device_twin, device.primaryKey))
+        time.sleep(10)
