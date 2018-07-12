@@ -148,7 +148,7 @@ A summary view and detail view of the device health predictions.  The table prov
 
 The guidance to train and operationalize a model.  Two options are provided: the Data Science Virtual Machine (DSVM), and Azure Databricks.  The DSVM is optimized for data exploration, small scale feature engineering, and training.  Databricks is optimized for large scale feature engineering.  If you use Databricks for feature engineering you will still need to use the DSVM for training.
 
-When modeling on the DSVM, the notebook sequence is (1) DataGeneration or DataIngestion, (2) FeatureEngineering, (3) Training, (4) Operationalization.  DataGeneration uses the static seed data, DataIngestion uses the data collected so far while running the solution.  DataGeneration is the fastest and easiest way to produce a trained model.
+When modeling on the DSVM, the notebook sequence is (1) DataGeneration or DataIngestion, (2) FeatureEngineering, (3) Training, (4) Operationalization. DataGeneration produces an arbitrarily large amount of synthetic seed data, whereas DataIngestion allows consuming the data collected from simulated IoT devices. While DataIngestion notebook demonstrates data ingress in a production-like scenario, it is generally not suitable for producing a sufficiently large training data set within a reasonable period of time. For that reason, most users would prefer the DataGeneration path.
 
 # Further reading
 
