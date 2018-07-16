@@ -34,13 +34,6 @@ mv $basedir/spark-avro_2.11-4.0.0.jar /dsvm/tools/spark/current/jars/
 
 source /anaconda/bin/activate py35
 
-pip install --upgrade pip
-
-#to install ggplot in DSVM uncomment the following
-#conda remove -n py35 -y pandas
-#conda install -n py35 -y pandas==0.20.3
-#conda install -n py35 -y -c conda-forge ggplot
-
 conda install -n py35 -y python-snappy
 pip install imblearn
 pip install --upgrade --extra-index-url https://azuremlsdktestpypi.azureedge.net/sdk-release/Preview/E7501C02541B433786111FE8E140CAA1 azureml-sdk
