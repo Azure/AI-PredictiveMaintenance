@@ -1,14 +1,15 @@
-**Provisioning Linux DSVM Failure**
+# Troubleshooting
 
-  If the solution fails in the last step with the below message. Please follow the instructions provided to resolve it.
+## Failure when provisioning Linux DSVM
 
-  ![](img/LinuxVMFailure.JPG)
-  
-   *Instructions*
+![](img/LinuxVMFailure.JPG)
 
-   1. Please navigate to the DSVM resource in the Azure portal and uninstall the extension.
+### Resolution
 
-        ![](img/LinuxVMDeleteExtension.JPG)
-        
+1. Please navigate to the DSVM resource in the Azure Portal and uninstall the extension.
 
-   2. Go back to the deployment and click on retry and it should go through. If not please report the issue.
+    ![](img/LinuxVMDeleteExtension.JPG)
+
+
+2. Go back to the deployment and click on retry.
+
