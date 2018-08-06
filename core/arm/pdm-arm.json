@@ -109,7 +109,8 @@
         "name": "iotHubStorageRouteTemplate",
         "type": "Microsoft.Resources/deployments",
         "dependsOn": [
-            "storageAccountTemplate"
+            "storageAccountTemplate",
+            "iotHubTemplate"
           ],        
         "properties": {
         "mode": "incremental",
@@ -119,7 +120,7 @@
                 },
         "parameters": {
             "storageContainerName": { "value": "telemetry" },
-            "storageAccountConnectionString": { "value": "[concat('DefaultEndpointsProtocol=https;AccountName={Outputs.storageAccountKey}', reference('storageAccountTemplate').outputs.storageAccountName.value, ';AccountKey=', reference('storageAccountTemplate').outputs.storageAccountKey.value)]" }
+            "storageAccountConnectionString": { "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', reference('storageAccountTemplate').outputs.storageAccountName.value, ';AccountKey=', reference('storageAccountTemplate').outputs.storageAccountKey.value)]" }
                 }
             }
         },
