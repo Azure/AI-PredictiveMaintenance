@@ -85,7 +85,7 @@
             "contentVersion":"1.0.0.0"
                 },
         "parameters": {
-            "webSiteName": {"value": "[reference('generateResourceNamesTemplate').outputs.storageAccountName.value]"},
+            "webSiteName": {"value": "[reference('generateResourceNamesTemplate').outputs.webSiteName.value]"},
             "webAppUrl": {"value": "https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/assets//WebApp.zip"},
             "amlAssetsUrl": {"value": "https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/assets//AML.zip"},
             "iotHubName": {"value": "[reference('iotHubTemplate').outputs.iotHubName.value]"},
