@@ -1,5 +1,6 @@
 set READY_FILE=D:\home\site\READY
-
+set PYTHON_DIR=D:\home\python364x64\python.exe
+IF NOT EXIST %PYTHON_DIR% EXIT
 IF EXIST %READY_FILE% EXIT
 
 mkdir D:\home\site\jars
