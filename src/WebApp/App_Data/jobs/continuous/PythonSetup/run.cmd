@@ -1,4 +1,4 @@
-set READY_FILE=D:\home\site\wwwroot\READY
+set READY_FILE=D:\home\site\READY
 
 IF EXIST %READY_FILE% EXIT
 

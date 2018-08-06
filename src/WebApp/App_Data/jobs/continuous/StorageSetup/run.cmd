@@ -1,5 +1,5 @@
-set READY_FILE=D:\home\site\wwwroot\READY
-set READY_FILE_2=D:\home\site\wwwroot\READY2
+set READY_FILE=D:\home\site\READY
+set READY_FILE_2=D:\home\site\READY2
 
 IF NOT EXIST %READY_FILE% EXIT
 

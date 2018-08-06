@@ -143,7 +143,7 @@
             "storageAccountName": { "value": "[reference('storageAccountTemplate').outputs.storageAccountName.value]" },
             "vmSize": { "value": "[parameters('dsvmSize')]" },
             "fileUris": { "value": "https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/assets/setup.sh https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/assets/Notebooks.zip https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/assets/spark-avro_2.11-4.0.0.jar" },
-            "commandToExecute": { "value": "[concat('bash setup.sh ',parameters('databricksWorkspaceUrl'),' ',parameters('databricksToken'),' ', reference('storageAccountTemplate').outputs.storageAccountName.value,' ', reference('storageAccountTemplate').outputs.storageAccountKey.value,' ')]" }
+            "commandToExecute": { "value": "[concat('bash setup.sh ',parameters('databricksWorkspaceUrl'),' ',parameters('databricksToken'),' ', reference('storageAccountTemplate').outputs.storageAccountName.value,' ', reference('storageAccountTemplate').outputs.storageAccountKey.value)]" }
                 }
             }
         }
