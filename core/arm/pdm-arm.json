@@ -1,0 +1,150 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "databricksWorkspaceUrl": {
+            "type": "string"
+          },
+        "databricksToken": {
+            "type": "string"
+          },
+        "dsvmUsername": {
+            "type": "string"
+          },
+        "dsvmPassword": {
+            "type": "string"
+          },
+        "dsvmSize": {
+            "type": "string",
+            "defaultValue": "Standard_DS3_v2"
+          }
+    },
+    "resources": [
+        {
+        "apiVersion": "2017-05-10",
+        "name": "generateResourceNamesTemplate",
+        "type": "Microsoft.Resources/deployments",
+        "properties": {
+        "mode": "incremental",
+        "templateLink": {
+            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/core/arm/resourceNames.json",
+            "contentVersion":"1.0.0.0"
+                }
+            }
+        },
+        {
+        "apiVersion": "2017-05-10",
+        "name": "iotHubTemplate",
+        "type": "Microsoft.Resources/deployments",
+        "properties": {
+        "mode": "incremental",
+        "templateLink": {
+            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/core/arm/iotHub.json",
+            "contentVersion":"1.0.0.0"
+                }
+            }
+        },
+        {
+        "apiVersion": "2017-05-10",
+        "name": "storageAccountTemplate",
+        "type": "Microsoft.Resources/deployments",       
+        "properties": {
+        "mode": "incremental",
+        "templateLink": {
+            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/core/arm/storageAccount.json",
+            "contentVersion":"1.0.0.0"
+                }
+            }
+        },
+        {
+        "apiVersion": "2017-05-10",
+        "name": "deployMLWebServiceTemplate",
+        "type": "Microsoft.Resources/deployments",      
+        "properties": {
+        "mode": "incremental",
+        "templateLink": {
+            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/blob/master/core/arm/deployMLWebService.json",
+            "contentVersion":"1.0.0.0"
+                }
+            }
+        },
+        {
+        "apiVersion": "2017-05-10",
+        "name": "demoDashboardTemplate",
+        "type": "Microsoft.Resources/deployments",
+        "dependsOn": [
+            "deployMLWebServiceTemplate",
+            "storageAccountTemplate",
+            "iotHubTemplate",
+            "generateResourceNamesTemplate"
+          ],        
+        "properties": {
+        "mode": "incremental",
+        "templateLink": {
+            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/core/arm/demoDashboard.json",
+            "contentVersion":"1.0.0.0"
+                },
+        "parameters": {
+            "webSiteName": {"value": "[reference('generateResourceNamesTemplate').outputs.storageAccountName.value]"},
+            "webAppUrl": {"value": "https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/assets//WebApp.zip"},
+            "amlAssetsUrl": {"value": "https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/assets//AML.zip"},
+            "iotHubName": {"value": "[reference('iotHubTemplate').outputs.iotHubName.value]"},
+            "iotHubOwnerKey": {"value": "[reference('iotHubTemplate').outputs.iotHubOwnerKey.value]"},
+            "iotHubDeviceKey": {"value": "[reference('iotHubTemplate').outputs.iotHubDeviceKey.value]"},
+            "storageAccountName": {"value": "[reference('storageAccountTemplate').outputs.storageAccountName.value]"},
+            "storageAccountKey": {"value": "[reference('storageAccountTemplate').outputs.storageAccountKey.value]"},
+            "dsvmName": {"value": "[reference('generateResourceNamesTemplate').outputs.vmName.value]"},
+            "databricksWorkspaceUrl": {"value": "[parameters('databricksWorkspaceUrl')]"},
+            "eventHubConnectionString": {"value": "[reference('iotHubTemplate').outputs.eventHubConnectionString.value]"},
+            "featurizerJarUrl": {"value": "https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/assets/featurizer_2.11-1.0.jar"},
+            "databricksToken": {"value": "[parameters('databricksToken')]"},
+            "scoreUrl": {"value": "[concat('http://', reference('deployMLWebServiceTemplate').outputs.azureContainerName.value, '.azurecontainer.io:5001/score')]"},
+            "databricksworkspaceLoginUrl": {"value": ""},
+            "notebooksUrl": {"value": "https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/assets/Notebooks.zip"}
+                }
+            }
+        },
+        {
+        "apiVersion": "2017-05-10",
+        "name": "iotHubStorageRouteTemplate",
+        "type": "Microsoft.Resources/deployments",
+        "dependsOn": [
+            "storageAccountTemplate"
+          ],        
+        "properties": {
+        "mode": "incremental",
+        "templateLink": {
+            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/core/arm/iotHubStorageRoute.json",
+            "contentVersion":"1.0.0.0"
+                },
+        "parameters": {
+            "storageContainerName": { "value": "telemetry" },
+            "storageAccountConnectionString": { "value": "[concat('DefaultEndpointsProtocol=https;AccountName={Outputs.storageAccountKey}', reference('storageAccountTemplate').outputs.storageAccountName.value, ';AccountKey=', reference('storageAccountTemplate').outputs.storageAccountKey.value)]" }
+                }
+            }
+        },
+        {
+        "apiVersion": "2017-05-10",
+        "name": "linuxDsvmTemplate",
+        "type": "Microsoft.Resources/deployments",
+        "dependsOn": [
+            "storageAccountTemplate"
+          ],        
+        "properties": {
+        "mode": "incremental",
+        "templateLink": {
+            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/core/arm/linuxDsvm.json",
+            "contentVersion":"1.0.0.0"
+                },
+        "parameters": {
+            "adminUsername": { "value": "[parameters('dsvmUsername')]" },
+            "adminPassword": { "value": "[parameters('dsvmPassword')]" },
+            "storageAccountName": { "value": "[reference('storageAccountTemplate').outputs.storageAccountName.value]" },
+            "vmSize": { "value": "[parameters('dsvmSize')]" },
+            "fileUris": { "value": "https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/assets/setup.sh https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/assets/Notebooks.zip https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/assets/spark-avro_2.11-4.0.0.jar" },
+            "commandToExecute": { "value": "[concat('bash setup.sh ',parameters('databricksWorkspaceUrl'),' ',parameters('databricksToken'),' ', reference('storageAccountTemplate').outputs.storageAccountName.value,' ', reference('storageAccountTemplate').outputs.storageAccountKey.value),' ']" }
+                }
+            }
+        }
+    ]
+}

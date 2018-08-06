@@ -1,4 +1,6 @@
-set READY_FILE=D:\home\site\READY
+set READY_FILE=D:\home\site\wwwroot\READY
+
+IF EXIST %READY_FILE% EXIT
 
 mkdir D:\home\site\jars
 D:\home\python364x64\python.exe -m pip install --upgrade pip
