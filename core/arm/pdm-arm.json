@@ -63,7 +63,7 @@
         "properties": {
         "mode": "incremental",
         "templateLink": {
-            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/blob/master/core/arm/deployMLWebService.json",
+            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/core/arm/deployMLWebService.json",
             "contentVersion":"1.0.0.0"
                 }
             }
