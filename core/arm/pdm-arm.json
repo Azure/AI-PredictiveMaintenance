@@ -3,10 +3,16 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "databricksWorkspaceUrl": {
-            "type": "string"
+            "type": "string",
+            "metadata": {
+                "description": "Please create a new Databricks workspace if you don't have one and the workspcae url should be of the format https://{DatabricksLocation}.azuredatabricks.net"
+            }
           },
         "databricksToken": {
-            "type": "string"
+            "type": "string",
+            "metadata": {
+                "description": "To generate the personal access token requested below, please follow the instructions at https://docs.databricks.com/api/latest/authentication.html#id3."
+            }
           },
         "dsvmUsername": {
             "type": "string"
