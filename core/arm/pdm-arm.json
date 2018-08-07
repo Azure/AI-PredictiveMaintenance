@@ -11,7 +11,7 @@
         "databricksToken": {
             "type": "string",
             "metadata": {
-                "description": "To generate the personal access token requested below, please follow the instructions at https://docs.databricks.com/api/latest/authentication.html#id3."
+                "description": "To generate the Databricks access token requested , please follow the instructions at https://docs.databricks.com/api/latest/authentication.html#id3."
             }
           },
         "dsvmUsername": {
