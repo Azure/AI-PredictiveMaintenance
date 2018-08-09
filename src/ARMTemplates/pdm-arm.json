@@ -64,7 +64,7 @@
         "properties": {
         "mode": "incremental",
         "templateLink": {
-            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/src/ArmTemplates/resourceNames.json",
+            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/src/ARMTemplates/resourceNames.json",
             "contentVersion":"1.0.0.0"
                 }
             }
@@ -76,7 +76,7 @@
         "properties": {
         "mode": "incremental",
         "templateLink": {
-            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/src/ArmTemplates/iotHub.json",
+            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/src/ARMTemplates/iotHub.json",
             "contentVersion":"1.0.0.0"
                 }
             }
@@ -88,7 +88,7 @@
         "properties": {
         "mode": "incremental",
         "templateLink": {
-            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/src/ArmTemplates/storageAccount.json",
+            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/src/ARMTemplates/storageAccount.json",
             "contentVersion":"1.0.0.0"
                 }
             }
@@ -100,7 +100,7 @@
         "properties": {
         "mode": "incremental",
         "templateLink": {
-            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/src/ArmTemplates/deployMLWebService.json",
+            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/src/ARMTemplates/deployMLWebService.json",
             "contentVersion":"1.0.0.0"
                 }
             }
@@ -118,7 +118,7 @@
         "properties": {
         "mode": "incremental",
         "templateLink": {
-            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/src/ArmTemplates/demoDashboard.json",
+            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/src/ARMTemplates/demoDashboard.json",
             "contentVersion":"1.0.0.0"
                 },
         "parameters": {
@@ -152,7 +152,7 @@
         "properties": {
         "mode": "incremental",
         "templateLink": {
-            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/src/ArmTemplates/iotHubStorageRoute.json",
+            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/src/ARMTemplates/iotHubStorageRoute.json",
             "contentVersion":"1.0.0.0"
                 },
         "parameters": {
@@ -171,7 +171,7 @@
         "properties": {
         "mode": "incremental",
         "templateLink": {
-            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/src/ArmTemplates/linuxDsvm.json",
+            "uri":"https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/src/ARMTemplates/linuxDsvm.json",
             "contentVersion":"1.0.0.0"
                 },
         "parameters": {
