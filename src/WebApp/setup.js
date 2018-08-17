@@ -2,7 +2,7 @@ var http = require('http')
     fs = require('fs'),
     path = require('path');
 
-var fullSetupMarkerFilePath = 'D:\\home\\site\\READY';
+var fullSetupMarkerFilePath = 'D:\\home\\site\\FINISH';
 var templateProvisioningInProgress = 'D:\\home\\site\\wwwroot\\setup.html';
 
 http.createServer(function (req, res) {
