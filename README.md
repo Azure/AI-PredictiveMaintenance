@@ -6,8 +6,7 @@ This open-source solution template showcases a complete Azure infrastructure cap
 
 ## Main features
 
-* Automated deployment to Azure (via [CIQS](https://quickstart.azure.ai/)
-)
+* Automated deployment to Azure
 * Sample [Jupyter notebooks](src/Notebooks) covering feature engineering, model training, evaluation and operationalization
 * Configurable and extensible [data generator](src/Notebooks/DataGeneration.ipynb) (supports static and streaming modes)
 * Technical documentation
