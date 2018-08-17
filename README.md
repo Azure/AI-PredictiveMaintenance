@@ -1,13 +1,12 @@
 # Predictive Maintenance with AI
 
-[![Deploy to Azure](https://raw.githubusercontent.com/Azure/Azure-CortanaIntelligence-SolutionAuthoringWorkspace/master/docs/images/DeployToAzure.PNG)](https://quickstart.azure.ai/Deployments/new/ai-predictivemaintenance)
+[![Deploy to Azure](https://raw.githubusercontent.com/Azure/Azure-CortanaIntelligence-SolutionAuthoringWorkspace/master/docs/images/DeployToAzure.PNG)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAI-PredictiveMaintenance%2Fusers%2Flaramume%2FDeployFromGitHub%2Fsrc%2FARMTemplates%2Fpdm-arm.json)
 
 This open-source solution template showcases a complete Azure infrastructure capable of supporting Predictive Maintenance scenarios in the context of IoT remote monitoring. This repo provides reusable and customizable building blocks to enable Azure customers to solve Predictive Maintenance problems using Azure's cloud AI services.
 
 ## Main features
 
-* Automated deployment to Azure (via [CIQS](https://quickstart.azure.ai/)
-)
+* Automated deployment to Azure
 * Sample [Jupyter notebooks](src/Notebooks) covering feature engineering, model training, evaluation and operationalization
 * Configurable and extensible [data generator](src/Notebooks/DataGeneration.ipynb) (supports static and streaming modes)
 * Technical documentation

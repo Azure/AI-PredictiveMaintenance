@@ -1,6 +1,4 @@
-*.zip
 *.pyc
-assets/*.sh
 version.info
 src/Notebooks/.ipynb_checkpoints/*
 src/Notebooks/*.pkl

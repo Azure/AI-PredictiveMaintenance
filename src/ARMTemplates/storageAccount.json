@@ -34,6 +34,19 @@
                     "keySource": "Microsoft.Storage"
                 }
             },
+            "resources": [
+                {
+                    "type": "blobServices/containers",
+                    "apiVersion": "2018-03-01-preview",
+                    "name": "[concat('default/telemetry')]",
+                    "dependsOn": [
+                    "[variables('storageAccountName')]"
+                        ],
+                    "properties": {
+                    "publicAccess": "None"
+                        }
+                }
+            ],
             "dependsOn": []
         }
     ],

@@ -59,7 +59,7 @@ def context_processor():
         #user_name=get_identity()['name']
         version_info = VERSION_INFO)
 
-@app.route('/')
+@app.route('/home')
 @register_breadcrumb(app, '.', 'Home')
 @login_required
 def home():

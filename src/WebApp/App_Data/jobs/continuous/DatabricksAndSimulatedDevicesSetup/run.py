@@ -149,11 +149,17 @@ payload = {
     'spark_jar_task' : spark_jar_task
 }
 
-run_details = call_api('2.0/jobs/runs/submit', method=requests.post, json=payload).json()
-run_id = run_details['run_id']
-set_last_run_id(run_id)
-run_details = get_run(run_id)
-
-if not is_job_active(run_details):
-    errorMessage = 'Unable to create Spark job. Run ID: {0}. Failure Details: {1}'.format(run_id, run_details['state']['state_message'])
-    raise Exception(errorMessage)
+run_job = True
+i = 0
+while run_job and i < 5:
+    run_details = call_api('2.0/jobs/runs/submit', method=requests.post, json=payload).json()
+    run_id = run_details['run_id']
+    set_last_run_id(run_id)
+    run_details = get_run(run_id)
+    i= i + 1
+    if not is_job_active(run_details):
+        run_job = True
+        errorMessage = 'Unable to create Spark job. Run ID: {0}. Failure Details: {1}'.format(run_id, run_details['state']['state_message'])
+        print(errorMessage)
+    else:
+        run_job = False
