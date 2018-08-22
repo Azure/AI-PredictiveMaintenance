@@ -123,8 +123,8 @@
                 },
         "parameters": {
             "webSiteName": {"value": "[reference('generateResourceNamesTemplate').outputs.webSiteName.value]"},
-            "webAppUrl": {"value": "https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/binaries//WebApp.zip"},
-            "amlAssetsUrl": {"value": "https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/binaries//AML.zip"},
+            "webAppUrl": {"value": "https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/binaries//WebApp.zip"},
+            "amlAssetsUrl": {"value": "https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/binaries//AML.zip"},
             "iotHubName": {"value": "[reference('iotHubTemplate').outputs.iotHubName.value]"},
             "iotHubOwnerKey": {"value": "[reference('iotHubTemplate').outputs.iotHubOwnerKey.value]"},
             "iotHubDeviceKey": {"value": "[reference('iotHubTemplate').outputs.iotHubDeviceKey.value]"},
@@ -133,11 +133,11 @@
             "dsvmName": {"value": "[reference('generateResourceNamesTemplate').outputs.vmName.value]"},
             "databricksWorkspaceUrl": {"value": "[parameters('databricksWorkspaceUrl')]"},
             "eventHubConnectionString": {"value": "[reference('iotHubTemplate').outputs.eventHubConnectionString.value]"},
-            "featurizerJarUrl": {"value": "https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/binaries/featurizer_2.11-1.0.jar"},
+            "featurizerJarUrl": {"value": "https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/binaries/featurizer_2.11-1.0.jar"},
             "databricksToken": {"value": "[parameters('databricksToken')]"},
             "scoreUrl": {"value": "[concat('http://', reference('deployMLWebServiceTemplate').outputs.azureContainerName.value, '.azurecontainer.io:5001/score')]"},
             "databricksworkspaceLoginUrl": {"value": ""},
-            "notebooksUrl": {"value": "https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/binaries/Notebooks.zip"}
+            "notebooksUrl": {"value": "https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/binaries/Notebooks.zip"}
                 }
             }
         },
@@ -179,7 +179,7 @@
             "adminPassword": { "value": "[parameters('dsvmPassword')]" },
             "storageAccountName": { "value": "[reference('storageAccountTemplate').outputs.storageAccountName.value]" },
             "vmSize": { "value": "[parameters('dsvmSize')]" },
-            "fileUris": { "value": "https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/src/CustomScripts/setup.sh https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/binaries/Notebooks.zip https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/users/laramume/DeployFromGitHub/binaries/spark-avro_2.11-4.0.0.jar" },
+            "fileUris": { "value": "https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/src/CustomScripts/setup.sh https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/binaries/Notebooks.zip https://raw.githubusercontent.com/Azure/AI-PredictiveMaintenance/master/binaries/spark-avro_2.11-4.0.0.jar" },
             "commandToExecute": { "value": "[concat('bash setup.sh ',parameters('databricksWorkspaceUrl'),' ',parameters('databricksToken'),' ', reference('storageAccountTemplate').outputs.storageAccountName.value,' ', reference('storageAccountTemplate').outputs.storageAccountKey.value)]" }
                 }
             }
