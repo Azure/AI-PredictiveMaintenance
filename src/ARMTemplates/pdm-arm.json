@@ -126,8 +126,8 @@
                 },
         "parameters": {
             "webSiteName": {"value": "[reference('generateResourceNamesTemplate').outputs.webSiteName.value]"},
-            "webAppUrl": {"value": "[concat(variables('gitHubBaseUrl'),'binaries//WebApp.zip']"},
-            "amlAssetsUrl": {"value": "[concat(variables('gitHubBaseUrl'),'binaries//AML.zip']"},
+            "webAppUrl": {"value": "[concat(variables('gitHubBaseUrl'),'binaries//WebApp.zip')]"},
+            "amlAssetsUrl": {"value": "[concat(variables('gitHubBaseUrl'),'binaries//AML.zip')]"},
             "iotHubName": {"value": "[reference('iotHubTemplate').outputs.iotHubName.value]"},
             "iotHubOwnerKey": {"value": "[reference('iotHubTemplate').outputs.iotHubOwnerKey.value]"},
             "iotHubDeviceKey": {"value": "[reference('iotHubTemplate').outputs.iotHubDeviceKey.value]"},
@@ -136,11 +136,11 @@
             "dsvmName": {"value": "[reference('generateResourceNamesTemplate').outputs.vmName.value]"},
             "databricksWorkspaceUrl": {"value": "[parameters('databricksWorkspaceUrl')]"},
             "eventHubConnectionString": {"value": "[reference('iotHubTemplate').outputs.eventHubConnectionString.value]"},
-            "featurizerJarUrl": {"value": "[concat(variables('gitHubBaseUrl'),'binaries/featurizer_2.11-1.0.jar']"},
+            "featurizerJarUrl": {"value": "[concat(variables('gitHubBaseUrl'),'binaries/featurizer_2.11-1.0.jar')]"},
             "databricksToken": {"value": "[parameters('databricksToken')]"},
             "scoreUrl": {"value": "[concat('http://', reference('deployMLWebServiceTemplate').outputs.azureContainerName.value, '.azurecontainer.io:5001/score')]"},
             "databricksworkspaceLoginUrl": {"value": ""},
-            "notebooksUrl": {"value": "[concat(variables('gitHubBaseUrl'),'binaries/Notebooks.zip']"}
+            "notebooksUrl": {"value": "[concat(variables('gitHubBaseUrl'),'binaries/Notebooks.zip')]"}
                 }
             }
         },
