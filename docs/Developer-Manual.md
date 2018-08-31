@@ -15,7 +15,7 @@ The ARM templates can also be reused outside of GitHub, which would require depl
 In addition to the ARM deployments, the solution depends on the following custom configuration activities implemented as WebJobs:
 
 1. [Python and storage setup](../src/WebApp/App_Data/jobs/continuous/PythonAndStorageSetup), which configures Python 3.6 runtime on the Azure App Service and creates several storage tables used by the solution
-2. [Databricks and simulated devices setup](../src/WebApp/App_Data/jobs/continuous/DatabricksAndSimulatedDevicesSetup), which creates a databricks cluster used for real-time feature engineering as well as several "test" IoT devices used by the data generator.
+2. [Databricks and simulated devices setup](../src/WebApp/App_Data/jobs/continuous/DatabricksAndSimulatedDevicesSetup), which creates a Databricks cluster used for real-time feature engineering as well as several "test" IoT devices used by the data generator.
 
 These Web Jobs are implemented as "continuous," although, technically, they only run once. Please refer to the source code for more details.
 
