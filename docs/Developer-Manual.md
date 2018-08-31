@@ -25,7 +25,9 @@ The Web Jobs mentioned above, the Dashboard (Flask application) and several addi
 
 ## Data generator
 
+The data generator is implemented as yet another "continuous" Web Job with the name [Simulator](../src/WebApp/App_Data/jobs/continuous/Simulator). When this Web Job runs, it automatically discovers IoT devices (created during provisioning) and starts sending messages to IoT Hub. Additional simulated devices can be created manually through the solution's Dashboard.
 
+More information on device simulation is available in the [DataGeneration.ipynb](../src/Notebooks/DataGeneration.ipynb) Jupyter notebook.
 
 ## Feature engineering and scoring pipeline
 
