@@ -21,7 +21,7 @@ These Web Jobs are implemented as "continuous," although, technically, they only
 
 ### Web Application
 
-The Web Jobs mentioned above, the Dashboard (Flask application) and several additional Web Job are all part of the same [Web Application](../src/WebApp), which is deployed to Azure App Service via [this ARM template](../src/ARMTemplates/demoDashboard.json). Notice that the template expects the Web Application to be packaged into a ZIP file (which can be found in the [assets](../assets) directry).
+The Web Jobs mentioned above, the Dashboard (Flask application) and several additional Web Job are all part of the same [Web Application](../src/WebApp), which is deployed to Azure App Service via [this ARM template](../src/ARMTemplates/demoDashboard.json). Notice that the template expects the Web Application to be packaged into a ZIP file (which can be found in the [binaries](../binaries) directry).
 
 ## Data generator
 
