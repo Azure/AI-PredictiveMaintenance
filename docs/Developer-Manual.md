@@ -10,7 +10,7 @@ If you wish to customize this solution by cloning this GitHub repository, be sur
 
 The ARM templates can also be reused outside of GitHub, which would require deploying them in a certain order such that resource and input/output parameter dependencies are maintained.
 
-### Additional deployment components
+### Additional provisioning activities
 
 In addition to the ARM deployments, the solution depends on the following custom configuration activities implemented as WebJobs:
 
@@ -18,6 +18,10 @@ In addition to the ARM deployments, the solution depends on the following custom
 2. [Databricks and simulated devices setup](../src/WebApp/App_Data/jobs/continuous/DatabricksAndSimulatedDevicesSetup), which creates a Databricks cluster used for real-time feature engineering as well as several "test" IoT devices used by the data generator.
 
 These Web Jobs are implemented as "continuous," although, technically, they only run once. Please refer to the source code for more details.
+
+### Web Application
+
+The Web Jobs mentioned above, the Dashboard (Flask application) and several additional Web Job are all part of the same [Web Application](../src/WebApp), which is deployed to Azure App Service via [this ARM template](../src/ARMTemplates/demoDashboard.json). Notice that the template expects the Web Application to be packaged into a ZIP file (which can be found in the [assets](../assets) directry).
 
 ## Data generator
 
