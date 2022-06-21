@@ -1,7 +1,7 @@
 Flask==0.12.1
 # Flask-Sockets==0.2.1
 Flask-Breadcrumbs==0.4.0
-numpy==1.14.0
+numpy==1.22.0
 scipy==1.0.0
 azure-storage==0.36.0
 azure-iothub-device-client==1.3.5
